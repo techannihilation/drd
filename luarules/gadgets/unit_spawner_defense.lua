@@ -286,7 +286,7 @@ end
 -- Game Rules
 --
 
-local UPDATE = 16
+local UPDATE = 15
 
 local unitCounts = {}
 
