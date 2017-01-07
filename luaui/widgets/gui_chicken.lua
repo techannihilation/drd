@@ -497,7 +497,7 @@ local function MakeCountString(type, showbreakdown)
 
 
     -- skip empty squaddefs, burrows and vultures
-    if subTotal > 0 and squadDef.name ~= "rroost" and squadDef.name ~= "corawac" then
+    if subTotal > 0 and squadDef.name ~= "rroost" then
       local squadPower = squadDef.power*subTotal
       local squadName = squadDef.humanName
       table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
