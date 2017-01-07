@@ -12,14 +12,14 @@ spawnSquare          = 90       -- size of the chicken spawn square centered on 
 spawnSquareIncrement = 2         -- square size increase for each unit spawned
 burrowName           = "rroost"   -- burrow unit name
 maxAge               = 300      -- chicken die at this age, seconds
-queenName            = Spring.GetModOptions().mo_queendifficulty.."r"  or "n_chickenqr" 
+queenName            = Spring.GetModOptions().mo_queendifficulty.."r"  or "n_chickenqr"
 burrowDef            = UnitDefNames[burrowName].id
 defenderChance       = 0.5       -- probability of spawning a single turret
 maxTurrets           = 3   		 -- Max Turrets per burrow
 queenSpawnMult       = 1         -- how many times bigger is a queen hatch than a normal burrow hatch
 burrowSpawnRate      = 60
 chickenSpawnRate     = 59
-minBaseDistance      = 600      
+minBaseDistance      = 600
 maxBaseDistance      = 7200
 chickensPerPlayer    = 8
 spawnChance          = 0.5
@@ -43,7 +43,7 @@ bonusTurret7c = "cordoom"
 --------------------------------------------------------------------------------
 
 local function Copy(original)
-  local copy = {} 
+  local copy = {}
   for k, v in pairs(original) do
     if (type(v) == "table") then
       copy[k] = Copy(v)
@@ -63,7 +63,7 @@ end
 
 
 
-   
+
 local chickenTypes = {
   ve_chickenqr  =  true,
   e_chickenqr   =  true,
@@ -149,7 +149,7 @@ local chickenTypes = {
   tlllongshot   =  true, --piece count 5
   tllcrawlb     =  true,
   airwolf3g     =  true,
-  
+
   --new by skymyj
   tllamphibot   = true, -- piece count 5
   coramph       = true, -- piece count 5
@@ -163,15 +163,15 @@ local chickenTypes = {
   cortotal      = true, -- piece count 10
   krogtaar      = true, -- piece count 15
   akmech        = true, -- piece count 15
-  
+
   --added only for insane king spawn
-  abroadside    =  true, 
-  cdevastator   =  true, 
+  abroadside    =  true,
+  cdevastator   =  true,
   monkeylord    =  true,
   irritator     =  true,
 }
 
-local defenders = { 
+local defenders = {
   armrl = true,
   armflak = true,
   arm_big_bertha = true,
@@ -201,7 +201,7 @@ if (mRandom(0,1) == 1) then addWave(2,{"2 corcrash", "1 aexxec", "1 cormist1"}) 
 if (mRandom(0,1) == 1) then addWave(2,{"2 aexxec", "1 cormist1"}) else addWave(2,{"2 armjanus1", "2 armjanus1"}) end
 if (mRandom(0,1) == 1) then addWave(2,{"2 armflash"}) else addWave(2,{"2 armflash", "2 armsam"}) end
 
---t1.5 
+--t1.5
 newWaveSquad[3] = {"2 armjanus1", "2 aexxec", "6 armflash1"}
 if (mRandom(0,1) == 1) then addWave(3,{"3 armflash1"}) else addWave(3,{"2 armflash1", "2 armjanus1"}) end
 if (mRandom(0,1) == 1) then addWave(3,{"1 aexxec"}) else addWave(3,{"2 armjanus1", "2 corcrash"}) end
@@ -347,7 +347,7 @@ SURVIVAL = "Chicken: Survival"
 
 difficulties = {
   [VERYEASY] = {
-    chickenSpawnRate  = 100, 
+    chickenSpawnRate  = 100,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.05,
@@ -360,7 +360,7 @@ difficulties = {
     damageMod         = 0.6,
   },
   [EASY] = {
-    chickenSpawnRate  = 100, 
+    chickenSpawnRate  = 100,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.075,
@@ -415,7 +415,7 @@ difficulties = {
     spawnChance       = 0.6,
     damageMod         = 1.25,
   },
-  
+
   [INSANE] = {
     chickenSpawnRate  = 30,
     burrowSpawnRate   = 28,
@@ -429,8 +429,8 @@ difficulties = {
     spawnChance       = 0.8,
     damageMod         = 1.5,
   },
-  
-  
+
+
   [CUSTOM] = {
     chickenSpawnRate  = tonumber(Spring.GetModOptions().mo_custom_chickenspawn),
     burrowSpawnRate   = tonumber(Spring.GetModOptions().mo_custom_burrowspawn),
