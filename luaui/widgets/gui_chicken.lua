@@ -495,19 +495,36 @@ end
 local function MakeCountString(type, showbreakdown)
   local t = {}
   local total = 0
-  if (cenabled == 1) then total = 0 else total = -999 end --ugly fix me (chickenend)
+  --if (cenabled == 1) then total = 0 else total = -999 end --ugly fix me (chickenend)
   local showbrackets = false
   for i, colorInfo in ipairs(chickenColors) do
     if gameInfo[colorInfo[1]..type] == nil then
       Spring.Echo("Check def for unit: ",colorInfo[1])
     end
     local subTotal = gameInfo[colorInfo[1]..type]
-    if subTotal > 0 then
-      table.insert(t, colorInfo[2]..subTotal)
+    local squadDef = UnitDefNames[colorInfo[1]]
+
+    -- skip burrows (robot teleport station) and empty squaddefs
+    if subTotal > 0 and squadDef.id ~= 734 then
+      local squadPower = squadDef.power*subTotal
+      local squadName = squadDef.humanName
+      table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
       total = total + subTotal
       showbrackets = true
     end
   end
+
+  -- sort squads by cumulative power
+  table.sort(t, function( a,b )
+    if (a[2] < b[2]) then
+      return false
+    elseif (a[2] > b[2]) then
+      return true
+    else
+      return false
+    end
+  end)
+
 
   if (cenabled == 1) then
     total = total + gameInfo["chickend"..type]
@@ -523,7 +540,15 @@ local function MakeCountString(type, showbreakdown)
 
 
   if showbreakdown then
-    local breakDown =  table.concat(t, white..",")..white
+    -- extract strings from strings,power-table
+    local tempTable = {}
+    for k, v in pairs(t) do
+      tempTable[k] = v[1]
+    end
+    t = tempTable
+
+    -- join squad strings
+    local breakDown =  table.concat(t, ",")
     if showbrackets then
       return string.format(aifaction..": %d (%s)", total, breakDown)
     else
