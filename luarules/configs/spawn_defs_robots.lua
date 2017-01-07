@@ -179,7 +179,7 @@ local defenders = {
   armamd1 = true,
   cordoom = true,
 }
---[[
+
 --t1 only
 if (mRandom(0,1) == 1) then addWave(1,{"1 armflea", "1 armflea"}) else addWave(1,{"2 armflash", "2 corthud"}) end
 if (mRandom(0,1) == 1) then addWave(1,{"2 armflea", "2 armflash", "2 corthud"}) else addWave(1,{"2 armflash", "2 corthud"}) end
@@ -335,7 +335,6 @@ addWave(11,{"5 corrag", "5 corrag", "5 corrag", "3 tlldemon"})
 addWave(11,{"3 armcybr", "3 armcybr", "3 armcybr", "3 armcybr", "2 tllhailstorm"})
 addWave(11,{"3 corcrw", "3 corcrw", "3 corcrw", "3 corcrw"})
 
---]]
 
 VERYEASY = "Chicken: Very Easy"
 EASY = "Chicken: Easy"
