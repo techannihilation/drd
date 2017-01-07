@@ -180,12 +180,6 @@ else
   "arm_big_berthaCount",
   "arm_big_berthaKills",
 
-  "armbrtha1lCount",
-  "armbrtha1Kills",
-
-  "tlldbCount",
-  "tlldbKills",
-
   "armshock1Count",
   "cormist1Count",
   "cormortCount",
@@ -261,7 +255,6 @@ else
   "armhdpwCount",
   "armmartCount",
   "armstumpCount",
-  "corawacCount",
   "tllblindCount",
   "rroostCount",
   "armshock1Kills",
@@ -334,7 +327,6 @@ else
   "armhdpwKills",
   "armmartKills",
   "armstumpKills",
-  "corawacKills",
   "tllblindKills",
   "rroostKills",
   "armtarantulaKills",
@@ -444,7 +436,6 @@ chickenColors = {
   {"armhdpw",     "\255\255\150\150"},
   {"armmart",     "\255\255\150\150"},
   {"armstump",      "\255\184\100\255"},
-  {"corawac",     "\255\255\100\100"},
   {"tllblind",     "\255\184\075\200"},
   {"tllloggerhead",     "\255\184\075\200"},
   {"rroost",     "\255\100\100\255"},
@@ -495,7 +486,7 @@ end
 local function MakeCountString(type, showbreakdown)
   local t = {}
   local total = 0
-  if (cenabled == 1) then total = 0 else total = -999 end --ugly fix me (chickenend)
+  --if (cenabled == 1) then total = 0 else total = -999 end --ugly fix me (chickenend)
   local showbrackets = false
   for i, colorInfo in ipairs(chickenColors) do
     if gameInfo[colorInfo[1]..type] == nil then
