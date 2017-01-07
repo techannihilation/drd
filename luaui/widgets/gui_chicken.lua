@@ -504,8 +504,9 @@ local function MakeCountString(type, showbreakdown)
     local subTotal = gameInfo[colorInfo[1]..type]
     local squadDef = UnitDefNames[colorInfo[1]]
 
-    -- skip burrows (robot teleport station) and empty squaddefs
-    if subTotal > 0 and squadDef.id ~= 734 then
+
+    -- skip empty squaddefs, burrows and vultures
+    if subTotal > 0 and squadDef.name ~= "rroost" and squadDef.name ~= "corawac" then
       local squadPower = squadDef.power*subTotal
       local squadName = squadDef.humanName
       table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
