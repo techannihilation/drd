@@ -349,15 +349,15 @@ else
   "tllhailstormKills",
   "tllcopterKills",
   "tllaetherKills",
-  "armtemKills", 
+  "armtemKills",
   "coradonKills",
   "cormddmCount",
   "tlldemonCount",
   "tllhailstormCount",
   "tllcopterCount",
   "tllaetherCount",
-  "armtemCount", 
-  "coradonCount",   
+  "armtemCount",
+  "coradonCount",
   "tllamphibotKills",
   "coramphKills",
   "tllamphibotCount",
@@ -368,7 +368,7 @@ else
   "akmechKills",
   "krogtaarKills",
   "cortotalKills",
-    
+
   }
 
 chickenColors = {
@@ -463,7 +463,7 @@ chickenColors = {
   {"akmech",     "\255\184\075\200"},
   {"krogtaar",     "\255\184\075\200"},
   {"cortotal",     "\255\184\075\200"},
-      
+
 }
 end
 
@@ -508,17 +508,18 @@ local function MakeCountString(type, showbreakdown)
       showbrackets = true
     end
   end
-    if (cenabled == 1) then
-      total = total + gameInfo["chickend"..type]
-    else
-      total = total + gameInfo["armrl"..type]
-      total = total + gameInfo["armflak"..type]
-      total = total + gameInfo["arm_big_bertha"..type]
-      total = total + gameInfo["corpre"..type]
-      total = total + gameInfo["armamd1"..type]
-      total = total + gameInfo["cordoom"..type]
 
-    end
+  if (cenabled == 1) then
+    total = total + gameInfo["chickend"..type]
+  else
+    total = total + gameInfo["armrl"..type]
+    total = total + gameInfo["armflak"..type]
+    total = total + gameInfo["arm_big_bertha"..type]
+    total = total + gameInfo["corpre"..type]
+    total = total + gameInfo["armamd1"..type]
+    total = total + gameInfo["cordoom"..type]
+
+  end
 
 
   if showbreakdown then
@@ -643,15 +644,6 @@ local function UpdateRules()
   updatePanel = true
 end
 
-
-local function MakeLine(chicken, n)
-  if (n <= 0) then
-    return
-  end
-  local humanName = UnitDefNames[chicken].humanName
-  local color = chickenColorSet[chicken]
-  return color..n.." "..humanName.."s"
-end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
