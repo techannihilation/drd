@@ -58,7 +58,7 @@ local waveY           = 800
 local waveSpeed       = 0.2
 local waveCount       = 0
 local waveTime
-local waveTimer
+local SecondsAtWave
 local enabled
 local gotScore
 local scoreCount	  = 0
@@ -551,7 +551,7 @@ local function CreatePanelDisplayList()
   local currentTime = GetGameSeconds()
   local techLevel = ""
   if (currentTime > gameInfo.gracePeriod) then
-    local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (waveTimer and DiffTimers(GetTimer(), waveTimer) or 0)))
+    local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (SecondsAtWave and GetGameSeconds() - SecondsAtWave or 0)))
 
     if gameInfo.queenAnger < 100 then
       techLevel = side.." Anger: " .. gameInfo.queenAnger .. "% (next wave: "..secondsLeftWave..")"
@@ -646,7 +646,7 @@ end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
-    waveTimer = GetTimer()
+    SecondsAtWave = GetGameSeconds()
     if (cenabled == 1) then
       if (gameInfo.roostCount < 1) then
         return
