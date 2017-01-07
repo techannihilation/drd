@@ -9,7 +9,7 @@ function widget:GetInfo()
     author    = "quantum",
     date      = "May 04, 2008",
     license   = "GNU GPL, v2 or later",
-    layer     = -9, 
+    layer     = -9,
     enabled   = true  --  loaded by default?
   }
 end
@@ -58,6 +58,7 @@ local waveY           = 800
 local waveSpeed       = 0.2
 local waveCount       = 0
 local waveTime
+local waveTimer
 local enabled
 local gotScore
 local scoreCount	  = 0
@@ -65,7 +66,7 @@ local queenAnger     = 0
 
 local guiPanel --// a displayList
 local updatePanel
-local hasChickenEvent = false 
+local hasChickenEvent = false
 
 
 local side
@@ -75,7 +76,7 @@ local cenabled = tonumber(Spring.GetModOptions().mo_norobot) or 0
       side = "Queen"
       aifaction = "Chicken's"
       panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga"
-    else 
+    else
       side = "King"
       aifaction = "Robot's"
       panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga" -- todo make panel for robot mode
@@ -113,7 +114,7 @@ waveColors[9] = "\255\100\100\255"
 waveColors[10] = "\255\200\050\050"
 waveColors[11] = "\255\255\255\255"
 
-local chickenColors 
+local chickenColors
 if (cenabled == 1) then
 rules = {
   "queenTime",
@@ -121,7 +122,7 @@ rules = {
   "gracePeriod",
   "queenLife",
   "lagging",
-  "difficulty",  
+  "difficulty",
   "chickenCount",
   "chickenaCount",
   "chickensCount",
@@ -169,22 +170,22 @@ else
   "queenLife",
   --"lagging",
   "difficulty",
-  
+
   "armrlCount",
   "armrlKills",
-  
+
   "armflakCount",
   "armflakKills",
-  
+
   "arm_big_berthaCount",
   "arm_big_berthaKills",
-  
+
   "armbrtha1lCount",
   "armbrtha1Kills",
-  
+
   "tlldbCount",
   "tlldbKills",
-  
+
   "armshock1Count",
   "cormist1Count",
   "cormortCount",
@@ -340,7 +341,7 @@ else
   "corpreCount",
   "corpreKills",
   "armamd1Count",
-  "armamd1Kills", 
+  "armamd1Kills",
   "cordoomCount",
   "cordoomKills",
   "cormddmKills",
@@ -482,7 +483,7 @@ local waveFontSize   = fontHandler.GetFontSize()
 
 function comma_value(amount)
   local formatted = amount
-  while true do  
+  while true do
     formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
     if (k==0) then
       break
@@ -501,7 +502,7 @@ local function MakeCountString(type, showbreakdown)
       Spring.Echo("Check def for unit: ",colorInfo[1])
     end
     local subTotal = gameInfo[colorInfo[1]..type]
-    if subTotal > 0 then 
+    if subTotal > 0 then
       table.insert(t, colorInfo[2]..subTotal)
       total = total + subTotal
       showbrackets = true
@@ -519,7 +520,7 @@ local function MakeCountString(type, showbreakdown)
 
     end
 
-  
+
   if showbreakdown then
     local breakDown =  table.concat(t, white..",")..white
     if showbrackets then
@@ -559,16 +560,17 @@ local function CreatePanelDisplayList()
   local currentTime = GetGameSeconds()
   local techLevel = ""
   if (currentTime > gameInfo.gracePeriod) then
-    
+    local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (waveTimer and DiffTimers(GetTimer(), waveTimer) or 0)))
+
     if gameInfo.queenAnger < 100 then
-      techLevel = side.." Anger: " .. gameInfo.queenAnger .. "%"
+      techLevel = side.." Anger: " .. gameInfo.queenAnger .. "% (next wave: "..secondsLeftWave..")"
     else
       techLevel = side.." Health: " .. gameInfo.queenLife .. "%"
     end
   else
     techLevel = "Grace Period: " .. math.ceil(((currentTime - gameInfo.gracePeriod) * -1) -0.5)
   end
-    
+
   fontHandler.DrawStatic(white..techLevel, PanelRow(1))
   fontHandler.DrawStatic(white..gameInfo.unitCounts, PanelRow(2))
   fontHandler.DrawStatic(white..gameInfo.unitKills, PanelRow(3))
@@ -634,7 +636,7 @@ local function UpdateRules()
     gameInfo[rule] = Spring.GetGameRulesParam(rule) or 999
     --Spring.Echo(rule .. "   "..gameInfo[rule])
   end
-  
+
   gameInfo.unitCounts = MakeCountString("Count", true)
   gameInfo.unitKills  = MakeCountString("Kills", false)
 
@@ -653,21 +655,21 @@ end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
-  
-  if (cenabled == 1) then
-    if (gameInfo.roostCount < 1) then
-      return
+    waveTimer = GetTimer()
+    if (cenabled == 1) then
+      if (gameInfo.roostCount < 1) then
+        return
+      end
+    else
+      if (gameInfo.rroostCount < 1) then
+        return
+      end
     end
-  else
-    if (gameInfo.rroostCount < 1) then
-      return
-    end
-  end
     waveMessage    = {}
     waveCount      = waveCount + 1
     waveMessage[1] = "Wave "..waveCount
     waveMessage[2] = waveColors[chickenEventArgs.tech]..chickenEventArgs.number.." "..aifaction
-    
+
     waveTime = Spring.GetTimer()
 
   elseif (chickenEventArgs.type == "burrowSpawn") then
@@ -676,8 +678,8 @@ function ChickenEvent(chickenEventArgs)
     waveMessage    = {}
     waveMessage[1] = "The "..side.." is angered!"
     waveTime = Spring.GetTimer()
-  elseif (chickenEventArgs.type == "score"..(Spring.GetMyTeamID())) then 
-    gotScore = chickenEventArgs.number 
+  elseif (chickenEventArgs.type == "score"..(Spring.GetMyTeamID())) then
+    gotScore = chickenEventArgs.number
   end
 end
 
@@ -727,16 +729,16 @@ function widget:GameFrame(n)
     if (not enabled and n > 0) then
       enabled = true
     end
---	
+--
 --    queenAnger = math.ceil((((GetGameSeconds()-gameInfo.gracePeriod+gameInfo.queenAnger)/(gameInfo.queenTime-gameInfo.gracePeriod))*100) -0.5)
- 
+
   end
   if gotScore then
     local sDif = gotScore - scoreCount
     if sDif > 0 then
       scoreCount = scoreCount + math.ceil(sDif / 7.654321)
-      if scoreCount > gotScore then 
-        scoreCount = gotScore 
+      if scoreCount > gotScore then
+        scoreCount = gotScore
       else
         updatePanel = true
       end
@@ -746,7 +748,7 @@ end
 
 
 function widget:DrawScreen()
-  
+
   Draw()
 end
 
@@ -759,7 +761,7 @@ end
 
 
 function widget:MousePress(x, y, button)
-  if (enabled and 
+  if (enabled and
        x > x1 and x < x1 + w and
        y > y1 and y < y1 + h) then
     capture = true
@@ -768,7 +770,7 @@ function widget:MousePress(x, y, button)
   return capture
 end
 
- 
+
 function widget:MouseRelease(x, y, button)
   if (not enabled) then
     return

@@ -315,6 +315,7 @@ SetGameRulesParam("queenTime",        queenTime)
 SetGameRulesParam("queenLife",        queenLifePercent)
 SetGameRulesParam("queenAnger",       queenAnger)
 SetGameRulesParam("gracePeriod",      gracePeriod)
+SetGameRulesParam("chickenSpawnRate", chickenSpawnRate)
 
 for unitName in pairs(chickenTypes) do
    if cenabled then
