@@ -487,13 +487,13 @@ local function GetSquadCountTable(type, sortByPower)
   local t = {}
   for _, colorInfo in ipairs(chickenColors) do
     if gameInfo[colorInfo[1]..type] == nil then
-      Spring.Echo("Check def for unit: ",colorInfo[1])
+      Spring.Echo("Check def and setup for unit: ",colorInfo[1])
     end
     local subTotal = gameInfo[colorInfo[1]..type]
     local squadDef = UnitDefNames[colorInfo[1]]
 
-    -- skip empty squaddefs and burrows
-    if subTotal > 0 and squadDef.name ~= "rroost" then
+    -- skip empty squaddefs and burrows, subtotal can be nil
+    if (subTotal and subTotal > 0) and (squadDef and squadDef.name ~= "rroost") then
       local squadPower = squadDef.power*subTotal
       local squadName = squadDef.humanName
       table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
