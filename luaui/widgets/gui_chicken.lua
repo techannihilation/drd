@@ -25,18 +25,16 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local GetTimer        = Spring.GetTimer
-local DiffTimers      = Spring.DiffTimers
-local lastRulesUpdate = Spring.GetTimer()
 local GetGameSeconds  = Spring.GetGameSeconds
 local GetGameRulesParam = Spring.GetGameRulesParam
 local Spring          = Spring
-local gl, GL          = gl, GL
+local gl              = gl
 local widgetHandler   = widgetHandler
 local math            = math
 local table           = table
 
 local displayList
+local spawnList
 local fontHandler     = loadstring(VFS.LoadFile(LUAUI_DIRNAME.."modfonts.lua", VFS.ZIP_FIRST))()
 local panelFont       = LUAUI_DIRNAME.."Fonts/FreeSansBold_14"
 local waveFont        = LUAUI_DIRNAME.."Fonts/Skrawl_40"
@@ -54,33 +52,34 @@ local waveSpacingY    = 7
 local moving
 local capture
 local gameInfo
-local waveY           = 800
 local waveSpeed       = 0.2
 local waveCount       = 0
 local waveTime
 local SecondsAtWave
 local enabled
 local gotScore
-local scoreCount	  = 0
-local queenAnger     = 0
+local scoreCount    = 0
 
 local guiPanel --// a displayList
+local spawnPanel --// a displayList
 local updatePanel
+local updateSpawnPanel
 local hasChickenEvent = false
 
 
 local side
 local aifaction
 local cenabled = tonumber(Spring.GetModOptions().mo_norobot) or 0
-    if (cenabled == 1) then
-      side = "Queen"
-      aifaction = "Chicken's"
-      panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga"
-    else
-      side = "King"
-      aifaction = "Robot's"
-      panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga" -- todo make panel for robot mode
-    end
+
+if (cenabled == 1) then
+  side = "Queen"
+  aifaction = "Chicken's"
+  panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga"
+else
+  side = "King"
+  aifaction = "Robot's"
+  panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga" -- todo make panel for robot mode
+end
 
 
 local red             = "\255\255\001\001"
@@ -116,346 +115,345 @@ waveColors[11] = "\255\255\255\255"
 
 local chickenColors
 if (cenabled == 1) then
-rules = {
-  "queenTime",
-  "queenAnger",
-  "gracePeriod",
-  "queenLife",
-  "lagging",
-  "difficulty",
-  "chickenCount",
-  "chickenaCount",
-  "chickensCount",
-  "chickenfCount",
-  "chickenrCount",
-  "chickenwCount",
-  "chickencCount",
-  "chickenpCount",
-  "chickenhCount",
-  "chickendCount",
-  "chicken_dodoCount",
-  "roostCount",
-  "chickenKills",
-  "chickenaKills",
-  "chickensKills",
-  "chickenfKills",
-  "chickenrKills",
-  "chickenwKills",
-  "chickencKills",
-  "chickenpKills",
-  "chickenhKills",
-  "chickendKills",
-  "chicken_dodoKills",
-  "roostKills",
-}
+  rules = {
+    "queenTime",
+    "queenAnger",
+    "gracePeriod",
+    "queenLife",
+    "lagging",
+    "difficulty",
+    "chickenCount",
+    "chickenaCount",
+    "chickensCount",
+    "chickenfCount",
+    "chickenrCount",
+    "chickenwCount",
+    "chickencCount",
+    "chickenpCount",
+    "chickenhCount",
+    "chickendCount",
+    "chicken_dodoCount",
+    "roostCount",
+    "chickenKills",
+    "chickenaKills",
+    "chickensKills",
+    "chickenfKills",
+    "chickenrKills",
+    "chickenwKills",
+    "chickencKills",
+    "chickenpKills",
+    "chickenhKills",
+    "chickendKills",
+    "chicken_dodoKills",
+    "roostKills",
+  }
 
-chickenColors = {
-  {"chicken",      "\255\184\100\255"},
-  {"chickena",     "\255\255\100\100"},
-  {"chickenh",     "\255\255\150\150"},
-  {"chickens",     "\255\100\255\100"},
-  {"chickenw",     "\255\184\075\200"},
-  {"chicken_dodo", "\255\150\001\001"},
-  {"chickenp",     "\255\250\090\090"},
-  {"chickenf",     "\255\255\255\100"},
-  {"chickenc",     "\255\100\255\255"},
-  {"chickenr",     "\255\100\100\255"},
-}
+  chickenColors = {
+    {"chicken",      "\255\184\100\255"},
+    {"chickena",     "\255\255\100\100"},
+    {"chickenh",     "\255\255\150\150"},
+    {"chickens",     "\255\100\255\100"},
+    {"chickenw",     "\255\184\075\200"},
+    {"chicken_dodo", "\255\150\001\001"},
+    {"chickenp",     "\255\250\090\090"},
+    {"chickenf",     "\255\255\255\100"},
+    {"chickenc",     "\255\100\255\255"},
+    {"chickenr",     "\255\100\100\255"},
+  }
 
 else
   rules = {
-  "queenTime",
-  "queenAnger",
-  "gracePeriod",
-  "queenLife",
-  --"lagging",
-  "difficulty",
+    "queenTime",
+    "queenAnger",
+    "gracePeriod",
+    "queenLife",
+    --"lagging",
+    "difficulty",
 
-  "armrlCount",
-  "armrlKills",
+    "armrlCount",
+    "armrlKills",
 
-  "armflakCount",
-  "armflakKills",
+    "armflakCount",
+    "armflakKills",
 
-  "arm_big_berthaCount",
-  "arm_big_berthaKills",
+    "arm_big_berthaCount",
+    "arm_big_berthaKills",
 
-  "armshock1Count",
-  "cormist1Count",
-  "cormortCount",
-  "armravenCount",
-  "armsam1Count",
-  "armthundCount",
-  "corcrwCount",
-  "armfleaCount",
-  "marauderCount",
-  "corkrogCount",
-  "corhurcCount",
-  "armflash1Count",
-  "armmerlCount",
-  "corgalaCount",
-  "hyperionCount",
-  "armtarantulaCount",
-  "armorionCount",
-  "armfastCount",
-  "tllmatamataCount",
-  "tllmatamataKills",
-  "armcybrCount",
-  "tllcrawlbCount",
-  "armzeusCount",
-  "abroadsideCount",
-  "corragCount",
-  "corprotCount",
-  "corgolCount",
-  "armraven1Count",
-  "anvilCount",
-  "tllvaliantCount",
-  "armflashCount",
-  "armblzCount",
-  "arm_furieCount",
-  "armjanus1Count",
-  "armpraetCount",
-  "corpyroCount",
-  "armsamCount",
-  "corsumoCount",
-  "krogtaarCount",
-  "armzeus1Count",
-  "heavyimpactCount",
-  "tlllongshotCount",
-  "corkargCount",
-  "clbCount",
-  "taipanCount",
-  "cormonstaCount",
-  "airwolf3gCount",
-  "armcycloneCount",
-  "tremCount",
-  "corsumo1Count",
-  "cordemCount",
-  "armbullCount",
-  "corthudCount",
-  "armcrabeCount",
-  "tllgrimCount",
-  "armtigre2Count",
-  "shivaCount",
-  "aexxecCount",
-  "armsnipeCount",
-  "corhrkCount",
-  "corkarg1Count",
-  "armfboyCount",
-  "corcrashCount",
-  "gorgCount",
-  "tllloggerheadCount",
-  "tllloggerheadKills",
-  "corthud1Count",
-  "cormistCount",
-  "cortotalCount",
-  "armsonicCount",
-  "tankanotorCount",
-  "corspecCount",
-  "armhdpwCount",
-  "armmartCount",
-  "armstumpCount",
-  "tllblindCount",
-  "rroostCount",
-  "armshock1Kills",
-  "cormist1Kills",
-  "cormortKills",
-  "armravenKills",
-  "armsam1Kills",
-  "armthundKills",
-  "corcrwKills",
-  "armfleaKills",
-  "marauderKills",
-  "corkrogKills",
-  "corhurcKills",
-  "armflash1Kills",
-  "armmerlKills",
-  "corgalaKills",
-  "hyperionKills",
-  "armorionKills",
-  "armfastKills",
-  "armcybrKills",
-  "tllcrawlbKills",
-  "armzeusKills",
-  "abroadsideKills",
-  "corragKills",
-  "corprotKills",
-  "corgolKills",
-  "armraven1Kills",
-  "anvilKills",
-  "tllvaliantKills",
-  "shivaKills",
-  "armflashKills",
-  "armblzKills",
-  "arm_furieKills",
-  "armjanus1Kills",
-  "armpraetKills",
-  "corpyroKills",
-  "armsamKills",
-  "corsumoKills",
-  "krogtaarKills",
-  "armzeus1Kills",
-  "heavyimpactKills",
-  "tlllongshotKills",
-  "corkargKills",
-  "clbKills",
-  "taipanKills",
-  "cormonstaKills",
-  "airwolf3gKills",
-  "armcycloneKills",
-  "tremKills",
-  "corsumo1Kills",
-  "cordemKills",
-  "armbullKills",
-  "corthudKills",
-  "armcrabeKills",
-  "tllgrimKills",
-  "armtigre2Kills",
-  "aexxecKills",
-  "armsnipeKills",
-  "corhrkKills",
-  "corkarg1Kills",
-  "armfboyKills",
-  "corcrashKills",
-  "gorgKills",
-  "corthud1Kills",
-  "cormistKills",
-  "cortotalKills",
-  "armsonicKills",
-  "tankanotorKills",
-  "corspecKills",
-  "armhdpwKills",
-  "armmartKills",
-  "armstumpKills",
-  "tllblindKills",
-  "rroostKills",
-  "armtarantulaKills",
-  "corpreCount",
-  "corpreKills",
-  "armamd1Count",
-  "armamd1Kills",
-  "cordoomCount",
-  "cordoomKills",
-  "cormddmKills",
-  "tlldemonKills",
-  "tllhailstormKills",
-  "tllcopterKills",
-  "tllaetherKills",
-  "armtemKills", 
-  "coradonKills",
-  "cormddmCount",
-  "tlldemonCount",
-  "tllhailstormCount",
-  "tllcopterCount",
-  "tllaetherCount",
-  "armtemCount", 
-  "coradonCount",   
-  "tllamphibotKills",
-  "coramphKills",
-  "tllamphibotCount",
-  "coramphCount",
-  "akmechCount",
-  "krogtaarCount",
-  "cortotalCount",
-  "akmechKills",
-  "krogtaarKills",
-  "cortotalKills",
-    
+    "armshock1Count",
+    "cormist1Count",
+    "cormortCount",
+    "armravenCount",
+    "armsam1Count",
+    "armthundCount",
+    "corcrwCount",
+    "armfleaCount",
+    "marauderCount",
+    "corkrogCount",
+    "corhurcCount",
+    "armflash1Count",
+    "armmerlCount",
+    "corgalaCount",
+    "hyperionCount",
+    "armtarantulaCount",
+    "armorionCount",
+    "armfastCount",
+    "tllmatamataCount",
+    "tllmatamataKills",
+    "armcybrCount",
+    "tllcrawlbCount",
+    "armzeusCount",
+    "abroadsideCount",
+    "corragCount",
+    "corprotCount",
+    "corgolCount",
+    "armraven1Count",
+    "anvilCount",
+    "tllvaliantCount",
+    "armflashCount",
+    "armblzCount",
+    "arm_furieCount",
+    "armjanus1Count",
+    "armpraetCount",
+    "corpyroCount",
+    "armsamCount",
+    "corsumoCount",
+    "krogtaarCount",
+    "armzeus1Count",
+    "heavyimpactCount",
+    "tlllongshotCount",
+    "corkargCount",
+    "clbCount",
+    "taipanCount",
+    "cormonstaCount",
+    "airwolf3gCount",
+    "armcycloneCount",
+    "tremCount",
+    "corsumo1Count",
+    "cordemCount",
+    "armbullCount",
+    "corthudCount",
+    "armcrabeCount",
+    "tllgrimCount",
+    "armtigre2Count",
+    "shivaCount",
+    "aexxecCount",
+    "armsnipeCount",
+    "corhrkCount",
+    "corkarg1Count",
+    "armfboyCount",
+    "corcrashCount",
+    "gorgCount",
+    "tllloggerheadCount",
+    "tllloggerheadKills",
+    "corthud1Count",
+    "cormistCount",
+    "cortotalCount",
+    "armsonicCount",
+    "tankanotorCount",
+    "corspecCount",
+    "armhdpwCount",
+    "armmartCount",
+    "armstumpCount",
+    "tllblindCount",
+    "rroostCount",
+    "armshock1Kills",
+    "cormist1Kills",
+    "cormortKills",
+    "armravenKills",
+    "armsam1Kills",
+    "armthundKills",
+    "corcrwKills",
+    "armfleaKills",
+    "marauderKills",
+    "corkrogKills",
+    "corhurcKills",
+    "armflash1Kills",
+    "armmerlKills",
+    "corgalaKills",
+    "hyperionKills",
+    "armorionKills",
+    "armfastKills",
+    "armcybrKills",
+    "tllcrawlbKills",
+    "armzeusKills",
+    "abroadsideKills",
+    "corragKills",
+    "corprotKills",
+    "corgolKills",
+    "armraven1Kills",
+    "anvilKills",
+    "tllvaliantKills",
+    "shivaKills",
+    "armflashKills",
+    "armblzKills",
+    "arm_furieKills",
+    "armjanus1Kills",
+    "armpraetKills",
+    "corpyroKills",
+    "armsamKills",
+    "corsumoKills",
+    "krogtaarKills",
+    "armzeus1Kills",
+    "heavyimpactKills",
+    "tlllongshotKills",
+    "corkargKills",
+    "clbKills",
+    "taipanKills",
+    "cormonstaKills",
+    "airwolf3gKills",
+    "armcycloneKills",
+    "tremKills",
+    "corsumo1Kills",
+    "cordemKills",
+    "armbullKills",
+    "corthudKills",
+    "armcrabeKills",
+    "tllgrimKills",
+    "armtigre2Kills",
+    "aexxecKills",
+    "armsnipeKills",
+    "corhrkKills",
+    "corkarg1Kills",
+    "armfboyKills",
+    "corcrashKills",
+    "gorgKills",
+    "corthud1Kills",
+    "cormistKills",
+    "cortotalKills",
+    "armsonicKills",
+    "tankanotorKills",
+    "corspecKills",
+    "armhdpwKills",
+    "armmartKills",
+    "armstumpKills",
+    "tllblindKills",
+    "rroostKills",
+    "armtarantulaKills",
+    "corpreCount",
+    "corpreKills",
+    "armamd1Count",
+    "armamd1Kills",
+    "cordoomCount",
+    "cordoomKills",
+    "cormddmKills",
+    "tlldemonKills",
+    "tllhailstormKills",
+    "tllcopterKills",
+    "tllaetherKills",
+    "armtemKills",
+    "coradonKills",
+    "cormddmCount",
+    "tlldemonCount",
+    "tllhailstormCount",
+    "tllcopterCount",
+    "tllaetherCount",
+    "armtemCount",
+    "coradonCount",
+    "tllamphibotKills",
+    "coramphKills",
+    "tllamphibotCount",
+    "coramphCount",
+    "akmechCount",
+    "krogtaarCount",
+    "cortotalCount",
+    "akmechKills",
+    "krogtaarKills",
+    "cortotalKills",
   }
 
-chickenColors = {
-  {"armshock1",    "\255\255\100\100"},
-  {"cormist1",     "\255\255\100\100"},
-  {"cormort",     "\255\255\150\150"},
-  {"armraven",     "\255\184\075\200"},
-  {"armsam1",     "\255\255\100\100"},
-  {"armthund",      "\255\184\100\255"},
-  {"corcrw",     "\255\184\075\200"},
-  {"armflea",      "\255\184\100\255"},
-  {"marauder",     "\255\184\075\200"},
-  {"corkrog",     "\255\184\075\200"},
-  {"corhurc",     "\255\255\150\150"},
-  {"armflash1",     "\255\255\100\100"},
-  {"armmerl",     "\255\255\150\150"},
-  {"corgala",     "\255\184\075\200"},
-  {"hyperion",     "\255\184\075\200"},
-  {"armtarantula",     "\255\255\150\150"},
-  {"armorion",     "\255\184\075\200"},
-  {"armfast",     "\255\255\150\150"},
-  {"armcybr",     "\255\184\075\200"},
-  {"tllcrawlb",     "\255\255\150\150"},
-  {"armzeus",     "\255\255\150\150"},
-  {"abroadside",     "\255\184\075\200"},
-  {"corrag",     "\255\255\150\150"},
-  {"corprot",     "\255\184\075\200"},
-  {"corgol",     "\255\255\150\150"},
-  {"armraven1",     "\255\255\100\100"},
-  {"anvil",     "\255\184\075\200"},
-  {"tllvaliant",     "\255\184\075\200"},
-  {"armflash",      "\255\184\100\255"},
-  {"armblz",     "\255\255\100\100"},
-  {"arm_furie",     "\255\184\075\200"},
-  {"armjanus1",     "\255\255\100\100"},
-  {"armpraet",     "\255\184\075\200"},
-  {"corpyro",     "\255\255\150\150"},
-  {"armsam",      "\255\184\100\255"},
-  {"corsumo",     "\255\255\150\150"},
-  {"krogtaar",     "\255\184\075\200"},
-  {"armzeus1",     "\255\255\150\150"},
-  {"heavyimpact",     "\255\184\075\200"},
-  {"tlllongshot",     "\255\184\075\200"},
-  {"corkarg",     "\255\184\075\200"},
-  {"clb",     "\255\255\150\150"},
-  {"taipan",     "\255\255\150\150"},
-  {"cormonsta",     "\255\255\150\150"},
-  {"airwolf3g",     "\255\184\075\200"},
-  {"armcyclone",     "\255\184\075\200"},
-  {"trem",     "\255\184\075\200"},
-  {"corsumo1",     "\255\255\150\150"},
-  {"cordem",     "\255\184\075\200"},
-  {"armbull",     "\255\255\150\150"},
-  {"corthud",      "\255\184\100\255"},
-  {"armcrabe",     "\255\184\075\200"},
-  {"tllgrim",     "\255\184\075\200"},
-  {"armtigre2",     "\255\184\075\200"},
-  {"aexxec",     "\255\255\100\100"},
-  {"armsnipe",     "\255\255\100\100"},
-  {"corhrk",     "\255\255\100\100"},
-  {"shiva",     "\255\255\100\100"},
-  {"corkarg1",     "\255\184\075\200"},
-  {"armfboy",     "\255\255\150\150"},
-  {"corcrash",     "\255\255\100\100"},
-  {"gorg",     "\255\184\075\200"},
-  {"tllmatamata",     "\255\255\100\100"},
-  {"corthud1",     "\255\255\100\100"},
-  {"cormist",     "\255\255\100\100"},
-  {"cortotal",     "\255\255\100\100"},
-  {"armsonic",     "\255\255\100\100"},
-  {"tankanotor",     "\255\255\100\100"},
-  {"corspec",     "\255\255\100\100"},
-  {"armhdpw",     "\255\255\150\150"},
-  {"armmart",     "\255\255\150\150"},
-  {"armstump",      "\255\184\100\255"},
-  {"tllblind",     "\255\184\075\200"},
-  {"tllloggerhead",     "\255\184\075\200"},
-  {"rroost",     "\255\100\100\255"},
-  {"corpre",     "\255\184\075\200"},
-  {"armamd1",     "\255\184\075\200"},
-  {"cordoom",     "\255\184\075\200"},
-  {"cormddm",     "\255\184\075\200"},
-  {"tlldemon",    "\255\184\075\200"},
-  {"tllhailstorm",    "\255\184\075\200"},
-  {"tllcopter",   "\255\184\075\200"},
-  {"tllaether",   "\255\184\075\200"},
-  {"armtem",      "\255\184\075\200"},
-  {"coradon",     "\255\184\075\200"},
-  {"tllamphibot", "\255\184\075\200"},
-  {"coramph",     "\255\184\075\200"},
-  {"akmech",     "\255\184\075\200"},
-  {"krogtaar",     "\255\184\075\200"},
-  {"cortotal",     "\255\184\075\200"},
-      
-}
+  chickenColors = {
+    {"armshock1",    "\255\255\100\100"},
+    {"cormist1",     "\255\255\100\100"},
+    {"cormort",     "\255\255\150\150"},
+    {"armraven",     "\255\184\075\200"},
+    {"armsam1",     "\255\255\100\100"},
+    {"armthund",      "\255\184\100\255"},
+    {"corcrw",     "\255\184\075\200"},
+    {"armflea",      "\255\184\100\255"},
+    {"marauder",     "\255\184\075\200"},
+    {"corkrog",     "\255\184\075\200"},
+    {"corhurc",     "\255\255\150\150"},
+    {"armflash1",     "\255\255\100\100"},
+    {"armmerl",     "\255\255\150\150"},
+    {"corgala",     "\255\184\075\200"},
+    {"hyperion",     "\255\184\075\200"},
+    {"armtarantula",     "\255\255\150\150"},
+    {"armorion",     "\255\184\075\200"},
+    {"armfast",     "\255\255\150\150"},
+    {"armcybr",     "\255\184\075\200"},
+    {"tllcrawlb",     "\255\255\150\150"},
+    {"armzeus",     "\255\255\150\150"},
+    {"abroadside",     "\255\184\075\200"},
+    {"corrag",     "\255\255\150\150"},
+    {"corprot",     "\255\184\075\200"},
+    {"corgol",     "\255\255\150\150"},
+    {"armraven1",     "\255\255\100\100"},
+    {"anvil",     "\255\184\075\200"},
+    {"tllvaliant",     "\255\184\075\200"},
+    {"armflash",      "\255\184\100\255"},
+    {"armblz",     "\255\255\100\100"},
+    {"arm_furie",     "\255\184\075\200"},
+    {"armjanus1",     "\255\255\100\100"},
+    {"armpraet",     "\255\184\075\200"},
+    {"corpyro",     "\255\255\150\150"},
+    {"armsam",      "\255\184\100\255"},
+    {"corsumo",     "\255\255\150\150"},
+    {"krogtaar",     "\255\184\075\200"},
+    {"armzeus1",     "\255\255\150\150"},
+    {"heavyimpact",     "\255\184\075\200"},
+    {"tlllongshot",     "\255\184\075\200"},
+    {"corkarg",     "\255\184\075\200"},
+    {"clb",     "\255\255\150\150"},
+    {"taipan",     "\255\255\150\150"},
+    {"cormonsta",     "\255\255\150\150"},
+    {"airwolf3g",     "\255\184\075\200"},
+    {"armcyclone",     "\255\184\075\200"},
+    {"trem",     "\255\184\075\200"},
+    {"corsumo1",     "\255\255\150\150"},
+    {"cordem",     "\255\184\075\200"},
+    {"armbull",     "\255\255\150\150"},
+    {"corthud",      "\255\184\100\255"},
+    {"armcrabe",     "\255\184\075\200"},
+    {"tllgrim",     "\255\184\075\200"},
+    {"armtigre2",     "\255\184\075\200"},
+    {"aexxec",     "\255\255\100\100"},
+    {"armsnipe",     "\255\255\100\100"},
+    {"corhrk",     "\255\255\100\100"},
+    {"shiva",     "\255\255\100\100"},
+    {"corkarg1",     "\255\184\075\200"},
+    {"armfboy",     "\255\255\150\150"},
+    {"corcrash",     "\255\255\100\100"},
+    {"gorg",     "\255\184\075\200"},
+    {"tllmatamata",     "\255\255\100\100"},
+    {"corthud1",     "\255\255\100\100"},
+    {"cormist",     "\255\255\100\100"},
+    {"cortotal",     "\255\255\100\100"},
+    {"armsonic",     "\255\255\100\100"},
+    {"tankanotor",     "\255\255\100\100"},
+    {"corspec",     "\255\255\100\100"},
+    {"armhdpw",     "\255\255\150\150"},
+    {"armmart",     "\255\255\150\150"},
+    {"armstump",      "\255\184\100\255"},
+    {"tllblind",     "\255\184\075\200"},
+    {"tllloggerhead",     "\255\184\075\200"},
+    {"rroost",     "\255\100\100\255"},
+    {"corpre",     "\255\184\075\200"},
+    {"armamd1",     "\255\184\075\200"},
+    {"cordoom",     "\255\184\075\200"},
+    {"cormddm",     "\255\184\075\200"},
+    {"tlldemon",    "\255\184\075\200"},
+    {"tllhailstorm",    "\255\184\075\200"},
+    {"tllcopter",   "\255\184\075\200"},
+    {"tllaether",   "\255\184\075\200"},
+    {"armtem",      "\255\184\075\200"},
+    {"coradon",     "\255\184\075\200"},
+    {"tllamphibot", "\255\184\075\200"},
+    {"coramph",     "\255\184\075\200"},
+    {"akmech",     "\255\184\075\200"},
+    {"krogtaar",     "\255\184\075\200"},
+    {"cortotal",     "\255\184\075\200"},
+
+  }
 end
 
 local chickenColorSet = {}
@@ -472,7 +470,7 @@ local panelFontSize  = fontHandler.GetFontSize()
 fontHandler.UseFont(waveFont)
 local waveFontSize   = fontHandler.GetFontSize()
 
-function comma_value(amount)
+function CommaValue(amount)
   local formatted = amount
   while true do
     formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
@@ -483,56 +481,84 @@ function comma_value(amount)
   return formatted
 end
 
-local function MakeCountString(type, showbreakdown)
-  local t = {}
+local function GetSquadCountTable(type, sortByPower)
   local total = 0
-  --if (cenabled == 1) then total = 0 else total = -999 end --ugly fix me (chickenend)
-  local showbrackets = false
-  for i, colorInfo in ipairs(chickenColors) do
+  local t = {}
+  for _, colorInfo in ipairs(chickenColors) do
     if gameInfo[colorInfo[1]..type] == nil then
       Spring.Echo("Check def for unit: ",colorInfo[1])
     end
     local subTotal = gameInfo[colorInfo[1]..type]
-    if subTotal > 0 then
-      table.insert(t, colorInfo[2]..subTotal)
+    local squadDef = UnitDefNames[colorInfo[1]]
+
+    -- skip empty squaddefs and burrows
+    if subTotal > 0 and squadDef.name ~= "rroost" then
+      local squadPower = squadDef.power*subTotal
+      local squadName = squadDef.humanName
+      table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
       total = total + subTotal
-      showbrackets = true
     end
   end
-    if (cenabled == 1) then
-      total = total + gameInfo["chickend"..type]
-    else
-      total = total + gameInfo["armrl"..type]
-      total = total + gameInfo["armflak"..type]
-      total = total + gameInfo["arm_big_bertha"..type]
-      total = total + gameInfo["corpre"..type]
-      total = total + gameInfo["armamd1"..type]
-      total = total + gameInfo["cordoom"..type]
 
-    end
+  -- sort squads by cumulative power
+  if sortByPower then
+    table.sort(t, function( a,b )
+      if (a[2] < b[2]) then
+        return false
+      elseif (a[2] > b[2]) then
+        return true
+      else
+        return false
+      end
+    end)
+  end
 
+  -- strip power sums strings,power-table
+  local tempTable = {}
+  for k, v in pairs(t) do
+    tempTable[k] = v[1]
+  end
+
+  return tempTable, total
+end
+
+local function MakeCountString(type, showbreakdown)
+
+  local t, total = GetSquadCountTable(type, true)
+
+  if (cenabled == 1) then
+    total = total + gameInfo["chickend"..type]
+  else
+    total = total + gameInfo["armrl"..type]
+    total = total + gameInfo["armflak"..type]
+    total = total + gameInfo["arm_big_bertha"..type]
+    total = total + gameInfo["corpre"..type]
+    total = total + gameInfo["armamd1"..type]
+    total = total + gameInfo["cordoom"..type]
+
+  end
 
   if showbreakdown then
-    local breakDown =  table.concat(t, white..",")..white
-    if showbrackets then
-      return string.format(aifaction..": %d (%s)", total, breakDown)
-    else
-      return string.format(aifaction..": %d", total)
-    end
+
+    -- join squad strings
+    local breakDown =  table.concat(t, ",")
+
+    local paranthesisSpawns = total > 0 and '('..string.sub(breakDown, 0, 28)..white.."...)" or ''
+    return aifaction..": "..total..' '..paranthesisSpawns
   else
     return (aifaction.." Kills: " .. white .. total)
   end
 end
 
-local function updatePos(x, y)
+local function UpdatePos(x, y)
   x1 = math.min(viewSizeX-w/2,x)
   y1 = math.min(viewSizeY-h/2,y)
   updatePanel = true
 end
 
 
-local function PanelRow(n)
-  return panelMarginX, h-panelMarginY-(n-1)*(panelFontSize+panelSpacingY)
+local function PanelRow(n, indent)
+  return panelMarginX + (indent and indent or 0), h-panelMarginY-(n-1)*(panelFontSize+panelSpacingY)
 end
 
 
@@ -549,35 +575,36 @@ local function CreatePanelDisplayList()
   fontHandler.UseFont(panelFont)
   fontHandler.BindTexture()
   local currentTime = GetGameSeconds()
-  local techLevel = ""
+  local stageProgress = ""
   if (currentTime > gameInfo.gracePeriod) then
-    local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (SecondsAtWave and GetGameSeconds() - SecondsAtWave or 0)))
-
     if gameInfo.queenAnger < 100 then
-      techLevel = side.." Anger: " .. gameInfo.queenAnger .. "% (next wave: "..secondsLeftWave..")"
+      local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (SecondsAtWave and currentTime - SecondsAtWave or 0)))
+      stageProgress = side.." Anger: " .. gameInfo.queenAnger .. "% (next wave: "..secondsLeftWave..")"
     else
-      techLevel = side.." Health: " .. gameInfo.queenLife .. "%"
+      stageProgress = side.." Health: " .. gameInfo.queenLife .. "%"
     end
   else
-    techLevel = "Grace Period: " .. math.ceil(((currentTime - gameInfo.gracePeriod) * -1) -0.5)
+    stageProgress = "Grace Period: " .. math.ceil(((currentTime - gameInfo.gracePeriod) * -1) -0.5)
   end
 
-  fontHandler.DrawStatic(white..techLevel, PanelRow(1))
+  fontHandler.DrawStatic(white.. stageProgress, PanelRow(1))
   fontHandler.DrawStatic(white..gameInfo.unitCounts, PanelRow(2))
   fontHandler.DrawStatic(white..gameInfo.unitKills, PanelRow(3))
-if (cenabled == 1) then
-  fontHandler.DrawStatic(white.."Burrows: "..gameInfo.roostCount, PanelRow(4))
-  fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.roostKills, PanelRow(5))
-else
-  fontHandler.DrawStatic(white.."Burrows: "..gameInfo.rroostCount, PanelRow(4))
-  fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.rroostKills, PanelRow(5))
-end
-  local s = white.."Mode: "..difficulties[gameInfo.difficulty]
+
+  if (cenabled == 1) then
+    fontHandler.DrawStatic(white.."Burrows: "..gameInfo.roostCount, PanelRow(4))
+    fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.roostKills, PanelRow(5))
+  else
+    fontHandler.DrawStatic(white.."Burrows: "..gameInfo.rroostCount, PanelRow(4))
+    fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.rroostKills, PanelRow(5))
+  end
+
   if gotScore then
-    fontHandler.DrawStatic(white.."Your Score: "..comma_value(scoreCount), 88, h-170)
+    fontHandler.DrawStatic(white.."Your Score: "..CommaValue(scoreCount), 88, h-170)
   else
     fontHandler.DrawStatic(white.."Mode: "..difficulties[gameInfo.difficulty], 120, h-170)
   end
+
   gl.Texture(false)
   gl.PopMatrix()
 end
@@ -596,6 +623,16 @@ local function Draw()
 
   if (guiPanel) then
     gl.CallList(guiPanel)
+  end
+
+  if (updateSpawnPanel) then
+    if (spawnPanel) then gl.DeleteList(spawnPanel); spawnPanel=nil end
+    spawnPanel = gl.CreateList(CreatePanelDisplayList)
+    updateSpawnPanel = false
+  end
+
+  if (spawnPanel) then
+    gl.CallList(spawnPanel)
   end
 
   if (waveMessage)  then
@@ -634,15 +671,6 @@ local function UpdateRules()
   updatePanel = true
 end
 
-
-local function MakeLine(chicken, n)
-  if (n <= 0) then
-    return
-  end
-  local humanName = UnitDefNames[chicken].humanName
-  local color = chickenColorSet[chicken]
-  return color..n.." "..humanName.."s"
-end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
@@ -685,13 +713,19 @@ function widget:Initialize()
     gl.TexRect(0, 0, w, h)
   end)
 
+  spawnList = gl.CreateList( function()
+    gl.Color(0.5, 1, 1, 0)
+    gl.Texture(panelTexture)
+    gl.TexRect(0, 0, 100, 100)
+  end)
+
   widgetHandler:RegisterGlobal("ChickenEvent", ChickenEvent)
 
   UpdateRules()
    viewSizeX, viewSizeY = gl.GetViewSizes()
   local x = math.abs(math.floor(viewSizeX - 320))
   local y = math.abs(math.floor(viewSizeY - 300))
-  updatePos(x, y)
+  UpdatePos(x, y)
 end
 
 
@@ -720,8 +754,8 @@ function widget:GameFrame(n)
     if (not enabled and n > 0) then
       enabled = true
     end
---
---    queenAnger = math.ceil((((GetGameSeconds()-gameInfo.gracePeriod+gameInfo.queenAnger)/(gameInfo.queenTime-gameInfo.gracePeriod))*100) -0.5)
+
+  --    queenAnger = math.ceil((((GetGameSeconds()-gameInfo.gracePeriod+gameInfo.queenAnger)/(gameInfo.queenTime-gameInfo.gracePeriod))*100) -0.5)
 
   end
   if gotScore then
@@ -746,10 +780,44 @@ end
 
 function widget:MouseMove(x, y, dx, dy, button)
   if (enabled and moving) then
-    updatePos(x1 + dx, y1 + dy)
+    UpdatePos(x1 + dx, y1 + dy)
   end
 end
 
+
+function widget:IsAbove(x, y)
+  -- within unitdefs text row in chicken box
+  if x1 + 110 < x and y1 + 145 < y and x < x1 + 240 and y < y1 + 160 then
+    DeleteSpawnPanel()
+    spawnPanel = gl.CreateList(function()
+      gl.PushMatrix()
+      gl.Translate(x1, y1, 0)
+--      gl.Color(0.5,0.5,0.5,1)
+
+      fontHandler.DisableCache()
+      fontHandler.UseFont(panelFont)
+      fontHandler.BindTexture()
+      for i, v in ipairs(GetSquadCountTable('Count', true)) do
+        -- max characters
+--        v = #v > 16 and string.sub(v, 0, 16).."..." or v
+        -- draw row with indentation
+        fontHandler.DrawStatic(v, PanelRow(1+i, 130))
+      end
+
+      gl.PopMatrix()
+    end)
+  else
+    DeleteSpawnPanel()
+  end
+
+end
+
+function DeleteSpawnPanel()
+  if spawnPanel then
+    gl.DeleteList(spawnPanel)
+    spawnPanel = nil
+  end
+end
 
 function widget:MousePress(x, y, button)
   if (enabled and
