@@ -7,7 +7,6 @@ local weaponName = "crblmssl1"
 
 local weaponDef = {
 	areaofeffect = 2120,
-	ballistic = 0,
 	craterboost = 6,
 	cratermult = 3,
 	edgeeffectiveness = 0.25,
@@ -18,9 +17,6 @@ local weaponDef = {
 	name = [[Matter/AntimatterExplosion]],
 	range = 72000,
 	reloadtime = 120,
-	rendertype = 1,
-	shakeduration = 3,
-	shakemagnitude = 50,
 	soundhit = [[xplomed4]],
 	soundstart = [[misicbm1]],
 	turret = 1,
