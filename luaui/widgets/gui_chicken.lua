@@ -493,7 +493,7 @@ local function GetSquadCountTable(type, sortByPower)
     local squadDef = UnitDefNames[colorInfo[1]]
 
     -- skip empty squaddefs and burrows
-    if subTotal > 0 and squadDef.name ~= "rroost" then
+    if subTotal > 0 and (squadDef and squadDef.name ~= "rroost") then
       local squadPower = squadDef.power*subTotal
       local squadName = squadDef.humanName
       table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
