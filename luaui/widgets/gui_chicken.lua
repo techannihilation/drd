@@ -54,6 +54,7 @@ local capture
 local gameInfo
 local waveSpeed       = 0.2
 local waveCount       = 0
+local currentTime = 0
 local waveTime
 local SecondsAtWave
 local enabled
@@ -522,6 +523,15 @@ local function GetSquadCountTable(type, sortByPower)
   return tempTable, total
 end
 
+local function ShortenColorString(str, length)
+  if #str+2 > length then
+    local substring = string.sub(str, 0, length)
+    -- strip color bytes in ending
+    str = string.match(substring, "(.*%w)")..white..'...'
+  end
+  return str
+end
+
 local function MakeCountString(type, showbreakdown)
 
   local t, total = GetSquadCountTable(type, true)
@@ -539,12 +549,12 @@ local function MakeCountString(type, showbreakdown)
   end
 
   if showbreakdown then
-
     -- join squad strings
-    local breakDown =  table.concat(t, ",")
+    local csvColorSquads =  table.concat(t, ",")
+    local squadsShort = ShortenColorString(csvColorSquads, 28)
 
-    local paranthesisSpawns = total > 0 and '('..string.sub(breakDown, 0, 28)..white.."...)" or ''
-    return aifaction..": "..total..' '..paranthesisSpawns
+    local squadsString = total > 0 and '('..squadsShort..')' or ''
+    return aifaction..': '..total..' '.. squadsString
   else
     return (aifaction.." Kills: " .. white .. total)
   end
@@ -574,12 +584,11 @@ local function CreatePanelDisplayList()
   fontHandler.DisableCache()
   fontHandler.UseFont(panelFont)
   fontHandler.BindTexture()
-  local currentTime = GetGameSeconds()
   local stageProgress = ""
   if (currentTime > gameInfo.gracePeriod) then
     if gameInfo.queenAnger < 100 then
       local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (SecondsAtWave and currentTime - SecondsAtWave or 0)))
-      stageProgress = side.." Anger: " .. gameInfo.queenAnger .. "% (next wave: "..secondsLeftWave..")"
+      stageProgress = side.." Anger: " .. gameInfo.queenAnger .. "% (wave "..(waveCount+1).." in "..secondsLeftWave.."s)"
     else
       stageProgress = side.." Health: " .. gameInfo.queenLife .. "%"
     end
@@ -609,8 +618,38 @@ local function CreatePanelDisplayList()
   gl.PopMatrix()
 end
 
+local function DrawBlackAlphaBox(minX, minY, minZ, maxX, maxY, maxZ)
+   gl.BeginEnd(GL.QUADS, function()
+      gl.Color(0,0,0,0.45)
+      --// top
+      gl.Vertex(minX, maxY, minZ);
+      gl.Vertex(maxX, maxY, minZ);
+      gl.Vertex(maxX, maxY, maxZ);
+      gl.Vertex(minX, maxY, maxZ);
+      --// bottom
+      gl.Vertex(minX, minY, minZ);
+      gl.Vertex(minX, minY, maxZ);
+      gl.Vertex(maxX, minY, maxZ);
+      gl.Vertex(maxX, minY, minZ);
+   end);
+   gl.BeginEnd(GL.QUAD_STRIP, function()
+      --// sides
+      gl.Vertex(minX, minY, minZ);
+      gl.Vertex(minX, maxY, minZ);
+      gl.Vertex(minX, minY, maxZ);
+      gl.Vertex(minX, maxY, maxZ);
+      gl.Vertex(maxX, minY, maxZ);
+      gl.Vertex(maxX, maxY, maxZ);
+      gl.Vertex(maxX, minY, minZ);
+      gl.Vertex(maxX, maxY, minZ);
+      gl.Vertex(minX, minY, minZ);
+      gl.Vertex(minX, maxY, minZ);
+   end);
+end
 
 local function Draw()
+  currentTime = GetGameSeconds()
+
   if (not enabled)or(not gameInfo) then
     return
   end
@@ -674,7 +713,7 @@ end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
-    SecondsAtWave = GetGameSeconds()
+    SecondsAtWave = currentTime
     if (cenabled == 1) then
       if (gameInfo.roostCount < 1) then
         return
@@ -773,7 +812,6 @@ end
 
 
 function widget:DrawScreen()
-
   Draw()
 end
 
@@ -786,22 +824,28 @@ end
 
 
 function widget:IsAbove(x, y)
-  -- within unitdefs text row in chicken box
-  if x1 + 110 < x and y1 + 145 < y and x < x1 + 240 and y < y1 + 160 then
+  local hoverXMin = x1 + 110
+  local hoverYMin = y1 + 160
+  local yMargin = 7
+  -- within unitdefs text row in chicken box and grace passed and more than 0 squads spawned
+  if hoverXMin < x and y1 + 145 < y and x < x1 + 240 and y < hoverYMin and currentTime > gameInfo.gracePeriod and #GetSquadCountTable('Count', true) > 0 then
+    local squadCountTable = GetSquadCountTable('Count', true)
     DeleteSpawnPanel()
     spawnPanel = gl.CreateList(function()
+      local dropdownIndent = 130
+      local squadDropdownHeight = (#squadCountTable)*(panelFontSize+panelSpacingY)+yMargin
+      DrawBlackAlphaBox(hoverXMin+35,hoverYMin,0,hoverXMin+160,hoverYMin-squadDropdownHeight,0)
       gl.PushMatrix()
       gl.Translate(x1, y1, 0)
---      gl.Color(0.5,0.5,0.5,1)
 
       fontHandler.DisableCache()
       fontHandler.UseFont(panelFont)
       fontHandler.BindTexture()
-      for i, v in ipairs(GetSquadCountTable('Count', true)) do
-        -- max characters
---        v = #v > 16 and string.sub(v, 0, 16).."..." or v
-        -- draw row with indentation
-        fontHandler.DrawStatic(v, PanelRow(1+i, 130))
+      for i, v in ipairs(squadCountTable) do
+        v = ShortenColorString(v, 19)
+        -- draw row with indentation and top margin
+        local displayListX, displayListY = PanelRow(1 + i, dropdownIndent)
+        fontHandler.DrawStatic(v, displayListX, displayListY-yMargin)
       end
 
       gl.PopMatrix()
