@@ -262,7 +262,6 @@ flamethrowers = {
            "corpyro",
 	   "corpyrox",
 	   "corpyrox1",
-	   "cordem",
            "tllburner",
            "tlllft",
            "cormaw",
