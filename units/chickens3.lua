@@ -51,7 +51,6 @@ local unitDef = {
   sightDistance      = 550,
   smoothAnim         = false,
   steeringmode       = 1,
-  TEDClass           = [[VTOL]],
   turninplaceanglelimit = 140,
   turninplacespeedlimit = 4.6200003623962,
   turnRate           = 900,

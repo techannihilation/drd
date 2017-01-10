@@ -54,7 +54,6 @@ local unitDef = {
 	sightDistance = 1400,
 	smoothAnim = true,
 	steeringmode = [[2]],
-	TEDClass = [[VTOL]],
 	turninplace = 0,
 	turnRate = 900,
 	unitname = [[chickenf2]],

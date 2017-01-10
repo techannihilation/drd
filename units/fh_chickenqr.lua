@@ -65,7 +65,6 @@ local unitDef = {
 	standingfireorder = 2,
 	standingmoveorder = 1,
 	steeringmode = 2,
-	TEDClass = [[KBOT]],
 	turninplace = 0,
 	turnRate = 800,
 	unitname = [[fh_chickenqr]],

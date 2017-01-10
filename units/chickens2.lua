@@ -56,7 +56,6 @@ local unitDef = {
 	smoothAnim = true,
 	sonardistance = 720,
 	steeringmode = [[2]],
-	TEDClass = [[AKBOT2]],
 	trackOffset = 6,
 	trackStrength = 8,
 	trackStretch = 1,

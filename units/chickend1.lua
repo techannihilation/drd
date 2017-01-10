@@ -49,7 +49,6 @@ local unitDef = {
 	side = [[THUNDERBIRDS]],
 	sightDistance = 370,
 	smoothAnim = true,
-	TEDClass = [[METAL]],
 	turnRate = 0,
 	unitname = [[chickend1]],
 	upright = false,

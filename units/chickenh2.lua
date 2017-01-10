@@ -48,7 +48,6 @@ local unitDef = {
 	sightDistance = 700,
 	smoothAnim = true,
 	steeringmode = [[2]],
-	TEDClass = [[KBOT]],
 	trackOffset = 0,
 	trackStrength = 8,
 	trackStretch = 1,

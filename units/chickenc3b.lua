@@ -50,7 +50,6 @@ local unitDef = {
   smoothAnim         = false,
   sonarDistance      = 450,
   steeringmode       = 2,
-  TEDClass           = [[KBOT]],
   trackOffset        = 0.5,
   trackStrength      = 9,
   trackStretch       = 1,

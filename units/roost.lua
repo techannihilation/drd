@@ -46,7 +46,6 @@ local unitDef = {
 	side = [[ARM]],
 	sightDistance = 100000,
 	smoothAnim = true,
-	TEDClass = [[ENERGY]],
 	turnRate = 0,
 	unitname = [[roost]],
 	upright = false,
