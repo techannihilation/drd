@@ -550,6 +550,7 @@ end
 function widget:MouseMove(x, y, dx, dy, button)
   if (enabled and moving) then
     UpdatePos(x1 + dx, y1 + dy)
+  end
 end
 
 
