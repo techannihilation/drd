@@ -487,13 +487,13 @@ local function GetSquadCountTable(type, sortByPower)
   local t = {}
   for _, colorInfo in ipairs(chickenColors) do
     if gameInfo[colorInfo[1]..type] == nil then
-      Spring.Echo("Check def for unit: ",colorInfo[1])
+      Spring.Echo("Check def and setup for unit: ",colorInfo[1])
     end
     local subTotal = gameInfo[colorInfo[1]..type]
     local squadDef = UnitDefNames[colorInfo[1]]
 
-    -- skip empty squaddefs and burrows
-    if subTotal > 0 and (squadDef and squadDef.name ~= "rroost") then
+    -- skip empty squaddefs and burrows, subtotal can be nil
+    if (subTotal and subTotal > 0) and (squadDef and squadDef.name ~= "rroost") then
       local squadPower = squadDef.power*subTotal
       local squadName = squadDef.humanName
       table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
@@ -819,9 +819,48 @@ end
 function widget:MouseMove(x, y, dx, dy, button)
   if (enabled and moving) then
     UpdatePos(x1 + dx, y1 + dy)
-  end
 end
 
+
+function widget:IsAbove(x, y)
+  local hoverXMin = x1 + 110
+  local hoverYMin = y1 + 160
+  local yMargin = 7
+  -- within unitdefs text row in chicken box and grace passed and more than 0 squads spawned
+  if hoverXMin < x and y1 + 145 < y and x < x1 + 240 and y < hoverYMin and currentTime > gameInfo.gracePeriod and #GetSquadCountTable('Count', true) > 0 then
+    local squadCountTable = GetSquadCountTable('Count', true)
+    DeleteSpawnPanel()
+    spawnPanel = gl.CreateList(function()
+      local dropdownIndent = 130
+      local squadDropdownHeight = (#squadCountTable)*(panelFontSize+panelSpacingY)+yMargin
+      DrawBlackAlphaBox(hoverXMin+35,hoverYMin,0,hoverXMin+160,hoverYMin-squadDropdownHeight,0)
+      gl.PushMatrix()
+      gl.Translate(x1, y1, 0)
+
+      fontHandler.DisableCache()
+      fontHandler.UseFont(panelFont)
+      fontHandler.BindTexture()
+      for i, v in ipairs(squadCountTable) do
+        v = ShortenColorString(v, 19)
+        -- draw row with indentation and top margin
+        local displayListX, displayListY = PanelRow(1 + i, dropdownIndent)
+        fontHandler.DrawStatic(v, displayListX, displayListY-yMargin)
+      end
+
+      gl.PopMatrix()
+    end)
+  else
+    DeleteSpawnPanel()
+  end
+
+end
+
+function DeleteSpawnPanel()
+  if spawnPanel then
+    gl.DeleteList(spawnPanel)
+    spawnPanel = nil
+  end
+end
 
 function widget:IsAbove(x, y)
   local hoverXMin = x1 + 110
