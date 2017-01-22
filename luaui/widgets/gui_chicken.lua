@@ -25,20 +25,26 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local GetGameSeconds  = Spring.GetGameSeconds
-local GetGameRulesParam = Spring.GetGameRulesParam
-local Spring          = Spring
-local gl              = gl
-local widgetHandler   = widgetHandler
-local math            = math
-local table           = table
+local Spring              = Spring
+local GetGameSeconds      = Spring.GetGameSeconds
+local GetGameRulesParam   = Spring.GetGameRulesParam
+local GetGameRulesParams  = Spring.GetGameRulesParams
+local gl                  = gl
+local widgetHandler       = widgetHandler
+local math                = math
+local table               = table
+local UnitDefNames        = UnitDefNames
 
-local displayList
-local spawnList
-local fontHandler     = loadstring(VFS.LoadFile(LUAUI_DIRNAME.."modfonts.lua", VFS.ZIP_FIRST))()
-local panelFont       = LUAUI_DIRNAME.."Fonts/FreeSansBold_14"
-local waveFont        = LUAUI_DIRNAME.."Fonts/Skrawl_40"
+local displayList       -- investigate me todo
+local dropdownCreepList
+local fontHandler       = loadstring(VFS.LoadFile(LUAUI_DIRNAME.."modfonts.lua", VFS.ZIP_FIRST))()
+local panelFont         = LUAUI_DIRNAME.."Fonts/FreeSansBold_14"
+local waveFont          = LUAUI_DIRNAME.."Fonts/Skrawl_40"
 local panelTexture
+local guiPanel          -- a displayList
+local spawnPanel        -- a displayList
+local updatePanel
+local updateSpawnPanel
 
 local viewSizeX, viewSizeY = 0,0
 local w               = 300
@@ -48,37 +54,37 @@ local y1              = - h - 50
 local panelMarginX    = 30
 local panelMarginY    = 40
 local panelSpacingY   = 7
+local squadPaddingY   = 12
+local squadPaddingX   = 10
+local squadSpacingY   = 1
 local waveSpacingY    = 7
 local moving
 local capture
 local gameInfo
 local waveSpeed       = 0.2
 local waveCount       = 0
-local currentTime = 0
-local waveTime
-local SecondsAtWave
+local currentTimeSeconds
+local waveTimeTimer
+local waveTimeSeconds
 local enabled
 local gotScore
-local scoreCount    = 0
+local scoreCount	  = 0
 
-local guiPanel --// a displayList
-local spawnPanel --// a displayList
-local updatePanel
-local updateSpawnPanel
 local hasChickenEvent = false
 
 
 local side
 local aifaction
-local cenabled = tonumber(Spring.GetModOptions().mo_norobot) or 0
+local chickenEnabled = Spring.GetModOptions().mo_norobot == '1'
 
-if (cenabled == 1) then
+
+if chickenEnabled then
   side = "Queen"
-  aifaction = "Chicken's"
+  aifaction = "Chicken"
   panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga"
 else
   side = "King"
-  aifaction = "Robot's"
+  aifaction = "Robot"
   panelTexture    = ":n:"..LUAUI_DIRNAME.."Images/panel.tga" -- todo make panel for robot mode
 end
 
@@ -97,10 +103,6 @@ local difficulties = {
     [8] = 'Survival',
 }
 
-local rules = {}
-
-
-
 local waveColors = {}
 waveColors[1] = "\255\184\100\255"
 waveColors[2] = "\255\120\50\255"
@@ -114,364 +116,17 @@ waveColors[9] = "\255\100\100\255"
 waveColors[10] = "\255\200\050\050"
 waveColors[11] = "\255\255\255\255"
 
-local chickenColors
-if (cenabled == 1) then
-  rules = {
-    "queenTime",
-    "queenAnger",
-    "gracePeriod",
-    "queenLife",
-    "lagging",
-    "difficulty",
-    "chickenCount",
-    "chickenaCount",
-    "chickensCount",
-    "chickenfCount",
-    "chickenrCount",
-    "chickenwCount",
-    "chickencCount",
-    "chickenpCount",
-    "chickenhCount",
-    "chickendCount",
-    "chicken_dodoCount",
-    "roostCount",
-    "chickenKills",
-    "chickenaKills",
-    "chickensKills",
-    "chickenfKills",
-    "chickenrKills",
-    "chickenwKills",
-    "chickencKills",
-    "chickenpKills",
-    "chickenhKills",
-    "chickendKills",
-    "chicken_dodoKills",
-    "roostKills",
-  }
-
-  chickenColors = {
-    {"chicken",      "\255\184\100\255"},
-    {"chickena",     "\255\255\100\100"},
-    {"chickenh",     "\255\255\150\150"},
-    {"chickens",     "\255\100\255\100"},
-    {"chickenw",     "\255\184\075\200"},
-    {"chicken_dodo", "\255\150\001\001"},
-    {"chickenp",     "\255\250\090\090"},
-    {"chickenf",     "\255\255\255\100"},
-    {"chickenc",     "\255\100\255\255"},
-    {"chickenr",     "\255\100\100\255"},
-  }
-
-else
-  rules = {
-    "queenTime",
-    "queenAnger",
-    "gracePeriod",
-    "queenLife",
-    --"lagging",
-    "difficulty",
-
-    "armrlCount",
-    "armrlKills",
-
-    "armflakCount",
-    "armflakKills",
-
-    "arm_big_berthaCount",
-    "arm_big_berthaKills",
-
-    "armshock1Count",
-    "cormist1Count",
-    "cormortCount",
-    "armravenCount",
-    "armsam1Count",
-    "armthundCount",
-    "corcrwCount",
-    "armfleaCount",
-    "marauderCount",
-    "corkrogCount",
-    "corhurcCount",
-    "armflash1Count",
-    "armmerlCount",
-    "corgalaCount",
-    "hyperionCount",
-    "armtarantulaCount",
-    "armorionCount",
-    "armfastCount",
-    "tllmatamataCount",
-    "tllmatamataKills",
-    "armcybrCount",
-    "tllcrawlbCount",
-    "armzeusCount",
-    "abroadsideCount",
-    "corragCount",
-    "corprotCount",
-    "corgolCount",
-    "armraven1Count",
-    "anvilCount",
-    "tllvaliantCount",
-    "armflashCount",
-    "armblzCount",
-    "arm_furieCount",
-    "armjanus1Count",
-    "armpraetCount",
-    "corpyroCount",
-    "armsamCount",
-    "corsumoCount",
-    "krogtaarCount",
-    "armzeus1Count",
-    "heavyimpactCount",
-    "tlllongshotCount",
-    "corkargCount",
-    "clbCount",
-    "taipanCount",
-    "cormonstaCount",
-    "airwolf3gCount",
-    "armcycloneCount",
-    "tremCount",
-    "corsumo1Count",
-    "cordemCount",
-    "armbullCount",
-    "corthudCount",
-    "armcrabeCount",
-    "tllgrimCount",
-    "armtigre2Count",
-    "shivaCount",
-    "aexxecCount",
-    "armsnipeCount",
-    "corhrkCount",
-    "corkarg1Count",
-    "armfboyCount",
-    "corcrashCount",
-    "gorgCount",
-    "tllloggerheadCount",
-    "tllloggerheadKills",
-    "corthud1Count",
-    "cormistCount",
-    "cortotalCount",
-    "armsonicCount",
-    "tankanotorCount",
-    "corspecCount",
-    "armhdpwCount",
-    "armmartCount",
-    "armstumpCount",
-    "tllblindCount",
-    "rroostCount",
-    "armshock1Kills",
-    "cormist1Kills",
-    "cormortKills",
-    "armravenKills",
-    "armsam1Kills",
-    "armthundKills",
-    "corcrwKills",
-    "armfleaKills",
-    "marauderKills",
-    "corkrogKills",
-    "corhurcKills",
-    "armflash1Kills",
-    "armmerlKills",
-    "corgalaKills",
-    "hyperionKills",
-    "armorionKills",
-    "armfastKills",
-    "armcybrKills",
-    "tllcrawlbKills",
-    "armzeusKills",
-    "abroadsideKills",
-    "corragKills",
-    "corprotKills",
-    "corgolKills",
-    "armraven1Kills",
-    "anvilKills",
-    "tllvaliantKills",
-    "shivaKills",
-    "armflashKills",
-    "armblzKills",
-    "arm_furieKills",
-    "armjanus1Kills",
-    "armpraetKills",
-    "corpyroKills",
-    "armsamKills",
-    "corsumoKills",
-    "krogtaarKills",
-    "armzeus1Kills",
-    "heavyimpactKills",
-    "tlllongshotKills",
-    "corkargKills",
-    "clbKills",
-    "taipanKills",
-    "cormonstaKills",
-    "airwolf3gKills",
-    "armcycloneKills",
-    "tremKills",
-    "corsumo1Kills",
-    "cordemKills",
-    "armbullKills",
-    "corthudKills",
-    "armcrabeKills",
-    "tllgrimKills",
-    "armtigre2Kills",
-    "aexxecKills",
-    "armsnipeKills",
-    "corhrkKills",
-    "corkarg1Kills",
-    "armfboyKills",
-    "corcrashKills",
-    "gorgKills",
-    "corthud1Kills",
-    "cormistKills",
-    "cortotalKills",
-    "armsonicKills",
-    "tankanotorKills",
-    "corspecKills",
-    "armhdpwKills",
-    "armmartKills",
-    "armstumpKills",
-    "tllblindKills",
-    "rroostKills",
-    "armtarantulaKills",
-    "corpreCount",
-    "corpreKills",
-    "armamd1Count",
-    "armamd1Kills",
-    "cordoomCount",
-    "cordoomKills",
-    "cormddmKills",
-    "tlldemonKills",
-    "tllhailstormKills",
-    "tllcopterKills",
-    "tllaetherKills",
-    "armtemKills",
-    "coradonKills",
-    "cormddmCount",
-    "tlldemonCount",
-    "tllhailstormCount",
-    "tllcopterCount",
-    "tllaetherCount",
-    "armtemCount",
-    "coradonCount",
-    "tllamphibotKills",
-    "coramphKills",
-    "tllamphibotCount",
-    "coramphCount",
-    "akmechCount",
-    "krogtaarCount",
-    "cortotalCount",
-    "akmechKills",
-    "krogtaarKills",
-    "cortotalKills",
-  }
-
-  chickenColors = {
-    {"armshock1",    "\255\255\100\100"},
-    {"cormist1",     "\255\255\100\100"},
-    {"cormort",     "\255\255\150\150"},
-    {"armraven",     "\255\184\075\200"},
-    {"armsam1",     "\255\255\100\100"},
-    {"armthund",      "\255\184\100\255"},
-    {"corcrw",     "\255\184\075\200"},
-    {"armflea",      "\255\184\100\255"},
-    {"marauder",     "\255\184\075\200"},
-    {"corkrog",     "\255\184\075\200"},
-    {"corhurc",     "\255\255\150\150"},
-    {"armflash1",     "\255\255\100\100"},
-    {"armmerl",     "\255\255\150\150"},
-    {"corgala",     "\255\184\075\200"},
-    {"hyperion",     "\255\184\075\200"},
-    {"armtarantula",     "\255\255\150\150"},
-    {"armorion",     "\255\184\075\200"},
-    {"armfast",     "\255\255\150\150"},
-    {"armcybr",     "\255\184\075\200"},
-    {"tllcrawlb",     "\255\255\150\150"},
-    {"armzeus",     "\255\255\150\150"},
-    {"abroadside",     "\255\184\075\200"},
-    {"corrag",     "\255\255\150\150"},
-    {"corprot",     "\255\184\075\200"},
-    {"corgol",     "\255\255\150\150"},
-    {"armraven1",     "\255\255\100\100"},
-    {"anvil",     "\255\184\075\200"},
-    {"tllvaliant",     "\255\184\075\200"},
-    {"armflash",      "\255\184\100\255"},
-    {"armblz",     "\255\255\100\100"},
-    {"arm_furie",     "\255\184\075\200"},
-    {"armjanus1",     "\255\255\100\100"},
-    {"armpraet",     "\255\184\075\200"},
-    {"corpyro",     "\255\255\150\150"},
-    {"armsam",      "\255\184\100\255"},
-    {"corsumo",     "\255\255\150\150"},
-    {"krogtaar",     "\255\184\075\200"},
-    {"armzeus1",     "\255\255\150\150"},
-    {"heavyimpact",     "\255\184\075\200"},
-    {"tlllongshot",     "\255\184\075\200"},
-    {"corkarg",     "\255\184\075\200"},
-    {"clb",     "\255\255\150\150"},
-    {"taipan",     "\255\255\150\150"},
-    {"cormonsta",     "\255\255\150\150"},
-    {"airwolf3g",     "\255\184\075\200"},
-    {"armcyclone",     "\255\184\075\200"},
-    {"trem",     "\255\184\075\200"},
-    {"corsumo1",     "\255\255\150\150"},
-    {"cordem",     "\255\184\075\200"},
-    {"armbull",     "\255\255\150\150"},
-    {"corthud",      "\255\184\100\255"},
-    {"armcrabe",     "\255\184\075\200"},
-    {"tllgrim",     "\255\184\075\200"},
-    {"armtigre2",     "\255\184\075\200"},
-    {"aexxec",     "\255\255\100\100"},
-    {"armsnipe",     "\255\255\100\100"},
-    {"corhrk",     "\255\255\100\100"},
-    {"shiva",     "\255\255\100\100"},
-    {"corkarg1",     "\255\184\075\200"},
-    {"armfboy",     "\255\255\150\150"},
-    {"corcrash",     "\255\255\100\100"},
-    {"gorg",     "\255\184\075\200"},
-    {"tllmatamata",     "\255\255\100\100"},
-    {"corthud1",     "\255\255\100\100"},
-    {"cormist",     "\255\255\100\100"},
-    {"cortotal",     "\255\255\100\100"},
-    {"armsonic",     "\255\255\100\100"},
-    {"tankanotor",     "\255\255\100\100"},
-    {"corspec",     "\255\255\100\100"},
-    {"armhdpw",     "\255\255\150\150"},
-    {"armmart",     "\255\255\150\150"},
-    {"armstump",      "\255\184\100\255"},
-    {"tllblind",     "\255\184\075\200"},
-    {"tllloggerhead",     "\255\184\075\200"},
-    {"rroost",     "\255\100\100\255"},
-    {"corpre",     "\255\184\075\200"},
-    {"armamd1",     "\255\184\075\200"},
-    {"cordoom",     "\255\184\075\200"},
-    {"cormddm",     "\255\184\075\200"},
-    {"tlldemon",    "\255\184\075\200"},
-    {"tllhailstorm",    "\255\184\075\200"},
-    {"tllcopter",   "\255\184\075\200"},
-    {"tllaether",   "\255\184\075\200"},
-    {"armtem",      "\255\184\075\200"},
-    {"coradon",     "\255\184\075\200"},
-    {"tllamphibot", "\255\184\075\200"},
-    {"coramph",     "\255\184\075\200"},
-    {"akmech",     "\255\184\075\200"},
-    {"krogtaar",     "\255\184\075\200"},
-    {"cortotal",     "\255\184\075\200"},
-
-  }
-end
-
-local chickenColorSet = {}
-for _, t in ipairs(chickenColors) do
-  chickenColorSet[t[1]] = t[2]
-end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-
 fontHandler.UseFont(panelFont)
 local panelFontSize  = fontHandler.GetFontSize()
 fontHandler.UseFont(waveFont)
 local waveFontSize   = fontHandler.GetFontSize()
 
-function CommaValue(amount)
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
+local function CommaValue(amount)
   local formatted = amount
   while true do
     formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
@@ -482,28 +137,76 @@ function CommaValue(amount)
   return formatted
 end
 
-local function GetSquadCountTable(type, sortByPower)
-  local total = 0
-  local t = {}
-  for _, colorInfo in ipairs(chickenColors) do
-    if gameInfo[colorInfo[1]..type] == nil then
-      Spring.Echo("Check def for unit: ",colorInfo[1])
-    end
-    local subTotal = gameInfo[colorInfo[1]..type]
-    local squadDef = UnitDefNames[colorInfo[1]]
+local function LinearRGBScale(RGBInt, oldMin, oldMax)
+--  local oldMin = 0
+--  local oldMax = 255
 
-    -- skip empty squaddefs and burrows
-    if subTotal > 0 and (squadDef and squadDef.name ~= "rroost") then
-      local squadPower = squadDef.power*subTotal
-      local squadName = squadDef.humanName
-      table.insert(t, {colorInfo[2]..subTotal.." "..squadName..white, squadPower})
-      total = total + subTotal
+  local oldRange = (oldMax - oldMin)
+  local newMin = 40
+  local newMax = 90
+  local newValue
+  if (oldRange == 0) then
+    newValue = (newMin + newMax) / 2
+  else
+    local newRange = (newMax - newMin)
+    newValue = (((RGBInt - oldMin) * newRange) / oldRange) + newMin
+  end
+  return newValue
+end
+
+local function ColoredUnits(countTable)
+  local maxPower = -math.huge
+  local minPower = math.huge
+
+  for k,v in pairs( countTable ) do
+    if type(v[2]) == 'number' then
+      maxPower = math.max( maxPower, v[2] )
+      minPower = math.min( minPower, v[2] )
+    end
+  end
+
+  local powerFactor = 0.0003
+  local maxPowerLog = math.log(maxPower*powerFactor+1)
+
+  for i, unit in ipairs(countTable) do
+    local power = math.log(unit[2]*powerFactor+1)
+    power = LinearRGBScale(power, 0, maxPowerLog)
+    --    local green = maxRed - red
+
+    local red = 255*power/ 100
+    local green = 255 * (100 - power)/ 100
+      local blue = 60
+      unit[1] = string.char(255) .. string.char(red) .. string.char(green) .. string.char(blue) .. unit[1]..white
+  end
+  return countTable
+end
+
+local function GetUnitsInfo(count_or_kills, sortByPower, char_length)
+  local total = 0
+  local squads = {}
+  for ruleName, value in pairs(gameInfo) do
+
+    if string.match(ruleName, count_or_kills) then
+      local unitName = ruleName:gsub(count_or_kills, "")
+      local squadDef = UnitDefNames[unitName]
+
+      local squadTotal = value and tonumber(value) or 0
+
+      if chickenEnabled then
+        total = total + squadTotal
+      -- skip empty squaddefs and burrows, subtotal, squaddef and squaddef.name should not be nil
+      elseif squadTotal and squadDef and squadTotal > 0 and squadDef.name ~= "rroost" and squadDef.name ~= "roost" then
+        local squadPower = squadDef.power * squadTotal
+        local squadName = squadDef.humanName
+        table.insert(squads, { squadTotal..' '..squadName, squadPower })
+        total = total + squadTotal
+      end
     end
   end
 
   -- sort squads by cumulative power
   if sortByPower then
-    table.sort(t, function( a,b )
+    table.sort(squads, function( a,b )
       if (a[2] < b[2]) then
         return false
       elseif (a[2] > b[2]) then
@@ -514,50 +217,66 @@ local function GetSquadCountTable(type, sortByPower)
     end)
   end
 
+
+  -- color squads by squad power
+  squads = ColoredUnits(squads)
+
+
   -- strip power sums strings,power-table
   local tempTable = {}
-  for k, v in pairs(t) do
+  for k, v in pairs(squads) do
     tempTable[k] = v[1]
   end
+  squads = nil
 
   return tempTable, total
 end
 
 local function ShortenColorString(str, length)
-  if #str+2 > length then
-    local substring = string.sub(str, 0, length)
-    -- strip color bytes in ending
-    str = string.match(substring, "(.*%w)")..white..'...'
+  if #str:gsub('%W','')+2 > length then
+    local substring = str:sub(0, length-2)
+
+    local brokenCommaColor = substring:find('\44\255', -10)
+    local brokenWhite = substring:find('\255', -3)
+    if brokenCommaColor then
+      substring = str:sub(0, brokenCommaColor-1)
+    elseif brokenWhite then
+      for i = #substring- brokenWhite, 0, -1 do
+        substring = substring..string.char(255)
+      end
+    else
+      -- cut off , character
+      substring = substring:gsub(',$','')
+    end
+
+    str = substring..white..'...'
   end
   return str
 end
 
-local function MakeCountString(type, showbreakdown)
+local function InfoTextRow(type, showbreakdown)
 
-  local t, total = GetSquadCountTable(type, true)
+  local t, total = GetUnitsInfo(type, true)
 
-  if (cenabled == 1) then
-    total = total + gameInfo["chickend"..type]
+  local text
+  if type == 'Count' then
+    text = aifaction..'s: '
   else
-    total = total + gameInfo["armrl"..type]
-    total = total + gameInfo["armflak"..type]
-    total = total + gameInfo["arm_big_bertha"..type]
-    total = total + gameInfo["corpre"..type]
-    total = total + gameInfo["armamd1"..type]
-    total = total + gameInfo["cordoom"..type]
-
+    text = aifaction..'\'s Kills: '
   end
+
+  text = text..total
 
   if showbreakdown then
     -- join squad strings
     local csvColorSquads =  table.concat(t, ",")
-    local squadsShort = ShortenColorString(csvColorSquads, 28)
+    local squadsShort = ShortenColorString(csvColorSquads, 26)
 
     local squadsString = total > 0 and '('..squadsShort..')' or ''
-    return aifaction..': '..total..' '.. squadsString
-  else
-    return (aifaction.." Kills: " .. white .. total)
+    text = text..' '..squadsString
   end
+
+  return text
 end
 
 local function UpdatePos(x, y)
@@ -566,11 +285,13 @@ local function UpdatePos(x, y)
   updatePanel = true
 end
 
-
 local function PanelRow(n, indent)
   return panelMarginX + (indent and indent or 0), h-panelMarginY-(n-1)*(panelFontSize+panelSpacingY)
 end
 
+local function SquadRow(n)
+  return panelMarginX, h-panelMarginY-(n-1)*(panelFontSize+squadSpacingY)
+end
 
 local function WaveRow(n)
   return n*(waveFontSize+waveSpacingY)
@@ -584,28 +305,32 @@ local function CreatePanelDisplayList()
   fontHandler.DisableCache()
   fontHandler.UseFont(panelFont)
   fontHandler.BindTexture()
-  local stageProgress = ""
-  if (currentTime > gameInfo.gracePeriod) then
+  local stageProgressText = ""
+  if (currentTimeSeconds > gameInfo.gracePeriod and waveCount > 0) then
     if gameInfo.queenAnger < 100 then
-      local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (SecondsAtWave and currentTime - SecondsAtWave or 0)))
-      stageProgress = side.." Anger: " .. gameInfo.queenAnger .. "% (wave "..(waveCount+1).." in "..secondsLeftWave.."s)"
+      local secondsLeftWave = math.max(0, math.ceil(GetGameRulesParam('chickenSpawnRate') - (waveTimeSeconds and currentTimeSeconds - waveTimeSeconds or 0)))
+      stageProgressText = side.." Anger: " .. gameInfo.queenAnger .. "% (wave "..(waveCount+1).." in "..secondsLeftWave.."s)"
     else
-      stageProgress = side.." Health: " .. gameInfo.queenLife .. "%"
+      stageProgressText = side.." Health: " .. gameInfo.queenLife .. "%"
     end
   else
-    stageProgress = "Grace Period: " .. math.ceil(((currentTime - gameInfo.gracePeriod) * -1) -0.5)
+    stageProgressText = "Grace Period: " .. math.max(0, math.floor(gameInfo.gracePeriod - currentTimeSeconds))
   end
 
-  fontHandler.DrawStatic(white.. stageProgress, PanelRow(1))
+  fontHandler.DrawStatic(white.. stageProgressText, PanelRow(1))
   fontHandler.DrawStatic(white..gameInfo.unitCounts, PanelRow(2))
   fontHandler.DrawStatic(white..gameInfo.unitKills, PanelRow(3))
 
-  if (cenabled == 1) then
+  if chickenEnabled then
     fontHandler.DrawStatic(white.."Burrows: "..gameInfo.roostCount, PanelRow(4))
     fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.roostKills, PanelRow(5))
   else
     fontHandler.DrawStatic(white.."Burrows: "..gameInfo.rroostCount, PanelRow(4))
     fontHandler.DrawStatic(white.."Burrow Kills: "..gameInfo.rroostKills, PanelRow(5))
+  end
+
+  if mo_level then
+    fontHandler.DrawStatic(white.."Level: "..mo_level, PanelRow(6, 65))
   end
 
   if gotScore then
@@ -648,11 +373,12 @@ local function DrawBlackAlphaBox(minX, minY, minZ, maxX, maxY, maxZ)
 end
 
 local function Draw()
-  currentTime = GetGameSeconds()
 
-  if (not enabled)or(not gameInfo) then
+  if not enabled or not gameInfo then
     return
   end
+
+  currentTimeSeconds = GetGameSeconds()
 
   if (updatePanel) then
     if (guiPanel) then gl.DeleteList(guiPanel); guiPanel=nil end
@@ -677,7 +403,7 @@ local function Draw()
   if (waveMessage)  then
     local t = Spring.GetTimer()
     fontHandler.UseFont(waveFont)
-    local waveY = viewSizeY - Spring.DiffTimers(t, waveTime)*waveSpeed*viewSizeY
+    local waveY = viewSizeY - Spring.DiffTimers(t, waveTimeTimer)*waveSpeed*viewSizeY
     if (waveY > 0) then
       for i, message in ipairs(waveMessage) do
         fontHandler.DrawCentered(message, viewSizeX/2, waveY-WaveRow(i))
@@ -698,14 +424,28 @@ local function UpdateRules()
   if (not gameInfo) then
     gameInfo = {}
   end
-
-  for _, rule in ipairs(rules) do
-    gameInfo[rule] = Spring.GetGameRulesParam(rule) or 999
-    --Spring.Echo(rule .. "   "..gameInfo[rule])
+  local rulesParams = GetGameRulesParams()
+  for ruleKey, ruleValue in pairs(rulesParams) do
+    -- PD ?
+    if type(ruleValue) == 'table' then
+      for name, value in pairs(ruleValue) do
+        if value ~= nil then
+          gameInfo[name] = value
+        end
+      end
+      -- RD ?
+    elseif type(ruleKey) == 'string' and type(ruleValue) == 'number' then
+      if ruleValue ~= nil then
+        if string.find(ruleKey, '(Count|Kills)') then
+--          Spring.Echo(ruleKey..ruleValue)
+        end
+        gameInfo[ruleKey] = ruleValue
+      end
+    end
   end
 
-  gameInfo.unitCounts = MakeCountString("Count", true)
-  gameInfo.unitKills  = MakeCountString("Kills", false)
+  gameInfo.unitCounts = InfoTextRow("Count", not chickenEnabled)
+  gameInfo.unitKills  = InfoTextRow("Kills", false)
 
   updatePanel = true
 end
@@ -713,29 +453,22 @@ end
 
 function ChickenEvent(chickenEventArgs)
   if (chickenEventArgs.type == "wave") then
-    SecondsAtWave = currentTime
-    if (cenabled == 1) then
-      if (gameInfo.roostCount < 1) then
-        return
-      end
-    else
-      if (gameInfo.rroostCount < 1) then
-        return
-      end
+    waveTimeSeconds = currentTimeSeconds
+    waveTimeTimer = Spring.GetTimer()
+    UpdateRules()
+    if ((gameInfo.roostCount or 0) + (gameInfo.rroostCount or 0)) < 1 then
+      return
     end
     waveMessage    = {}
     waveCount      = waveCount + 1
     waveMessage[1] = "Wave "..waveCount
     waveMessage[2] = waveColors[chickenEventArgs.tech]..chickenEventArgs.number.." "..aifaction
 
-    waveTime = Spring.GetTimer()
-
   elseif (chickenEventArgs.type == "burrowSpawn") then
     UpdateRules()
   elseif (chickenEventArgs.type == "queen") then
     waveMessage    = {}
     waveMessage[1] = "The "..side.." is angered!"
-    waveTime = Spring.GetTimer()
   elseif (chickenEventArgs.type == "score"..(Spring.GetMyTeamID())) then
     gotScore = chickenEventArgs.number
   end
@@ -752,7 +485,7 @@ function widget:Initialize()
     gl.TexRect(0, 0, w, h)
   end)
 
-  spawnList = gl.CreateList( function()
+  dropdownCreepList = gl.CreateList( function()
     gl.Color(0.5, 1, 1, 0)
     gl.Texture(panelTexture)
     gl.TexRect(0, 0, 100, 100)
@@ -761,7 +494,7 @@ function widget:Initialize()
   widgetHandler:RegisterGlobal("ChickenEvent", ChickenEvent)
 
   UpdateRules()
-   viewSizeX, viewSizeY = gl.GetViewSizes()
+  viewSizeX, viewSizeY = gl.GetViewSizes()
   local x = math.abs(math.floor(viewSizeX - 320))
   local y = math.abs(math.floor(viewSizeY - 300))
   UpdatePos(x, y)
@@ -793,8 +526,6 @@ function widget:GameFrame(n)
     if (not enabled and n > 0) then
       enabled = true
     end
-
-  --    queenAnger = math.ceil((((GetGameSeconds()-gameInfo.gracePeriod+gameInfo.queenAnger)/(gameInfo.queenTime-gameInfo.gracePeriod))*100) -0.5)
 
   end
   if gotScore then
@@ -863,6 +594,47 @@ function DeleteSpawnPanel()
   end
 end
 
+function widget:IsAbove(x, y)
+  local hoverXMin = x1 + 110
+  local hoverYMin = y1 + 160
+  -- within unitdefs text row in chicken box and grace passed and more than 0 squads spawned
+  if hoverXMin < x and y1 + 145 < y and x < x1 + 270 and y < hoverYMin and currentTimeSeconds > gameInfo.gracePeriod then
+    local squadCountTable = GetUnitsInfo('Count', true)
+    if #squadCountTable > 0 then
+      DeleteSpawnPanel()
+      spawnPanel = gl.CreateList(function()
+        local squadDropdownHeight = (#squadCountTable)*(panelFontSize+squadSpacingY) + squadPaddingY
+        DrawBlackAlphaBox(hoverXMin+5,hoverYMin,0,hoverXMin+165,hoverYMin-squadDropdownHeight,0)
+        gl.PushMatrix()
+        gl.Translate(x1, y1, 0)
+
+        fontHandler.DisableCache()
+        fontHandler.UseFont(panelFont)
+        fontHandler.BindTexture()
+        for i, v in ipairs(squadCountTable) do
+          v = ShortenColorString(v, 21)
+          -- draw row with indentation and top padding
+          local displayListX, displayListY = SquadRow(1 + i)
+          fontHandler.DrawStatic(v, displayListX+93, displayListY-squadPaddingY)
+        end
+
+        gl.PopMatrix()
+      end)
+    else
+      DeleteSpawnPanel()
+    end
+  else
+    DeleteSpawnPanel()
+  end
+end
+
+function DeleteSpawnPanel()
+  if spawnPanel then
+    gl.DeleteList(spawnPanel)
+    spawnPanel = nil
+  end
+end
+
 function widget:MousePress(x, y, button)
   if (enabled and
        x > x1 and x < x1 + w and
@@ -895,3 +667,58 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- for debug
+function table.has_value(tab, val)
+    for _, value in ipairs (tab) do
+        if value == val then
+            return true
+        end
+    end
+    return false
+end
+
+function table.full_of(tab, val)
+    for _, value in ipairs (tab) do
+        if value ~= val then
+            return false
+        end
+    end
+    return true
+end
+
+-- for printing tables
+function table.val_to_str(v)
+  if "string" == type(v) then
+    v = string.gsub(v, "\n", "\\n" )
+    if string.match(string.gsub(v,"[^'\"]",""), '^"+$' ) then
+      return "'" .. v .. "'"
+    end
+    return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
+  else
+    return "table" == type(v) and table.tostring(v) or
+      tostring(v)
+  end
+end
+
+function table.key_to_str(k)
+  if "string" == type(k) and string.match(k, "^[_%a][_%a%d]*$" ) then
+    return k
+  else
+    return "[" .. table.val_to_str(k) .. "]"
+  end
+end
+
+function table.tostring(tbl)
+  local result, done = {}, {}
+  for k, v in ipairs(tbl ) do
+    table.insert(result, table.val_to_str(v) )
+    done[ k ] = true
+  end
+  for k, v in pairs(tbl) do
+    if not done[ k ] then
+      table.insert(result,
+        table.key_to_str(k) .. "=" .. table.val_to_str(v) )
+    end
+  end
+  return "{" .. table.concat(result, "," ) .. "}"
+end
