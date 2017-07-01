@@ -42,6 +42,17 @@ local options={
        desc="Chicken Defense Custom Difficulty",
        type="section",
     },
+   	{
+ 		key    = "mo_custom_burrowshp",
+ 		name   = "Burrow Hp",
+ 		desc   = "Set burrow hp\nAutoHost Usage :- mo_mo_custom_burrowshp",
+ 		type   = "number",
+ 		def    = 8600,
+ 		min    = 1,
+ 		max    = 10000000,
+ 		step   = 1,
+ 		section= "cust",
+ 	},
     {
 		key    = "mo_preventcombomb",
 		name   = "Prevent Combombs",
