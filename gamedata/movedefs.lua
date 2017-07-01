@@ -103,6 +103,20 @@ local moveDatas = {
 		maxslope = 36,
 		maxwaterdepth = 22,
 	},
+	HKBOT7 = {
+		crushstrength = 12400,
+		depthmod = 0,
+		footprintx = 7,
+		footprintz = 7,
+		maxslope = 36,
+		maxwaterdepth = 30,
+		depthModParams = {
+			minHeight = 4,
+			linearCoeff = 0.03,
+			maxValue = 0.7,
+		}
+	},
+
 	HTKBOT3 = {  
 		crushstrength = 253,
 		footprintx = 3,
@@ -215,6 +229,14 @@ local moveDatas = {
 		crushstrength = 5,
 		subMarine = 1,
 	},
+	UBOAT5 = {
+		footprintx = 5,
+		footprintz = 5,
+		minwaterdepth = 60,
+		crushstrength = 5,
+		subMarine = 1,
+	},
+
 	TANKHOVER3 = {
 		crushstrength = 90,
 		depthmod = 0,
