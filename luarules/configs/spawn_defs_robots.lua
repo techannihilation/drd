@@ -4,6 +4,7 @@
 
 maxChicken           = tonumber(Spring.GetModOptions().mo_maxchicken) or 400
 maxBurrows           = 20
+burrowhp             = tonumber(Spring.GetModOptions().mo_custom_burrowshp) or 8600
 gracePeriod          = tonumber(Spring.GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
 queenTime            = (Spring.GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
 addQueenAnger        = tonumber(Spring.GetModOptions().mo_queenanger) or 1

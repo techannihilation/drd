@@ -741,6 +741,8 @@ local function SpawnBurrow(number)
       burrows[unitID] = 0
       SetUnitBlocking(unitID, false, false)
       SetUnitExperience(unitID, mRandom() * expMod)
+      Spring.SetUnitMaxHealth(unitID,burrowhp)
+      Spring.SetUnitHealth(unitID,burrowhp)
     end
   end
 

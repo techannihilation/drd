@@ -112,6 +112,7 @@ unclassed_air = {
            "corrag",
            "armmin",
            "cormin",
+           "tllhtca",
 },
 --### SEA ###
 ships = {
@@ -188,6 +189,8 @@ experimental_ships = {
            "cortyrnt",
            "corhcar",
            "corblackhy",
+           "tllasgard",
+           "tllhcar",
 },
 --### LAND ###
 experimental_land = {
@@ -372,6 +375,7 @@ commanders = {
            "corcom6",
            "corcom7",
            "tllcom",
+           "tllcom1",
            "tllcom3",
            "tllcom5",
            "tllcom6",
