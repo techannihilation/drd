@@ -427,6 +427,19 @@ local options={
 		step   = 50,
 		section= "chicken",
 	},
+	
+	{
+		key    = "mo_maxAge",
+		name   = "Chicken max age",
+		desc   = "Maximum chicken age in seconds.",
+		type   = "number",
+		def    = 300,
+		min    = 30,
+		max    = 600,
+		step   = 10,
+		section= "chicken",
+	},
+	
 	{
 		key    = "mo_graceperiod",
 		name   = "Grace Period (Seconds)",
