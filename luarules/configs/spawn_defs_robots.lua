@@ -362,7 +362,7 @@ else
    for unitDefID,unitDef in pairs(UnitDefs) do
       if unitDef.isBuilder == false and unitDef.isBuilding == false and unitDef.radarRadius == 0 and unitDef.jammerRadius == 0 and unitDef.minWaterDepth < 0 and unitDef.name ~= "Robot King" and unitDef.name ~= "Chicken Queen" then
 
-        if unitDef.metalCost < 150 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 170 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
           table.insert(Ground_0_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
