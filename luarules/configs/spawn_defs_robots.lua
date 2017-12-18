@@ -479,7 +479,7 @@ else
    end
 
   for n=1, 7 do
-  addWave(1,{"30".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
+  addWave(1,{"20".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
   end
 
   for n=1, 7 do
