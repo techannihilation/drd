@@ -556,8 +556,8 @@ else
   end
     
   for n=1, 7 do
-  addWave(18,{"7".." "..Ground_12_list[mRandom(1,#Ground_11_list)]})
-  addWave(18,{"15".." "..Ground_13_list[mRandom(1,#Ground_12_list)]})
+  addWave(18,{"7".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  addWave(18,{"15".." "..Ground_13_list[mRandom(1,#Ground_13_list)]})
   end
   
 end
