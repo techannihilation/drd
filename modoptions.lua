@@ -455,6 +455,13 @@ local options={
 	def    = false,
 	section= "cust",
 	},
+	key    = "mo_robot_alt",
+	name   = "Alternative robots",
+	desc   = "Switch to new robots",
+	type   = "bool",
+	def    = false,
+	section= "cust",
+	},
 	{
 		key    = "mo_custom_burrowspawn",
 		name   = "Burrow Spawn Rate (Seconds)",
