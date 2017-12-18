@@ -422,9 +422,9 @@ local options={
 		desc   = "Maximum number of chickens on map.",
 		type   = "number",
 		def    = 400,
-		min    = 100,
+		min    = 10,
 		max    = 5000,
-		step   = 50,
+		step   = 10,
 		section= "chicken",
 	},
 	
