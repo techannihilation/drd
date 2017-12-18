@@ -479,34 +479,34 @@ else
    end
 
   for n=1, 7 do
-  addWave(1,{"20".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
+  addWave(1,{"8".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
   end
 
   for n=1, 7 do
-  addWave(2,{"15".." "..Ground_1_list[mRandom(1,#Ground_1_list)]})
+  addWave(2,{"8".." "..Ground_1_list[mRandom(1,#Ground_1_list)]})
   end
 
   for n=1, 7 do
   addWave(3,{"5".." "..Ground_2_list[mRandom(1,#Ground_2_list)]})
-  addWave(3,{"20".." "..Air_0_list[mRandom(1,#Air_0_list)]})
+  addWave(3,{"8".." "..Air_0_list[mRandom(1,#Air_0_list)]})
   end
 
   for n=1, 7 do
-  addWave(4,{"15".." "..Ground_2_list[mRandom(1,#Ground_2_list)]})
+  addWave(4,{"8".." "..Ground_2_list[mRandom(1,#Ground_2_list)]})
   end
 
   for n=1, 7 do
-  addWave(5,{"15".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
-  addWave(5,{"15".." "..Ground_3_list[mRandom(1,#Ground_3_list)]})
+  addWave(5,{"8".." "..Ground_0_list[mRandom(1,#Ground_0_list)]})
+  addWave(5,{"8".." "..Ground_3_list[mRandom(1,#Ground_3_list)]})
   end
 
   for n=1, 7 do
   addWave(6,{"5".." "..Ground_4_list[mRandom(1,#Ground_4_list)]})
-  addWave(6,{"15".." "..Air_1_list[mRandom(1,#Air_1_list)]})
+  addWave(6,{"8".." "..Air_1_list[mRandom(1,#Air_1_list)]})
   end
 
   for n=1, 7 do
-  addWave(7,{"15".." "..Ground_5_list[mRandom(1,#Ground_5_list)]})
+  addWave(7,{"8".." "..Ground_5_list[mRandom(1,#Ground_5_list)]})
   end
 
   for n=1, 7 do
@@ -515,20 +515,20 @@ else
   end
 
   for n=1, 7 do
-  addWave(9,{"15".." "..Ground_7_list[mRandom(1,#Ground_7_list)]})
+  addWave(9,{"8".." "..Ground_7_list[mRandom(1,#Ground_7_list)]})
   end
 
   for n=1, 7 do
   addWave(10,{"5".." "..Ground_8_list[mRandom(1,#Ground_8_list)]})
-  addWave(10,{"20".." "..Air_2_list[mRandom(1,#Air_2_list)]})
+  addWave(10,{"8".." "..Air_2_list[mRandom(1,#Air_2_list)]})
   end
 
   for n=1, 7 do
-  addWave(11,{"15".." "..Ground_8_list[mRandom(1,#Ground_8_list)]})
+  addWave(11,{"8".." "..Ground_8_list[mRandom(1,#Ground_8_list)]})
   end
 
   for n=1, 7 do
-  addWave(12,{"15".." "..Ground_9_list[mRandom(1,#Ground_9_list)]})
+  addWave(12,{"8".." "..Ground_9_list[mRandom(1,#Ground_9_list)]})
   addWave(12,{"5".." "..Air_3_list[mRandom(1,#Air_3_list)]})
   end
 
@@ -537,27 +537,27 @@ else
   end
 
   for n=1, 7 do
-  addWave(14,{"15".." "..Ground_10_list[mRandom(1,#Ground_10_list)]})
+  addWave(14,{"8".." "..Ground_10_list[mRandom(1,#Ground_10_list)]})
   addWave(14,{"8".." "..Air_3_list[mRandom(1,#Air_3_list)]})
   end
 
   for n=1, 7 do
-  addWave(15,{"15".." "..Ground_11_list[mRandom(1,#Ground_11_list)]})
+  addWave(15,{"8".." "..Ground_11_list[mRandom(1,#Ground_11_list)]})
   addWave(15,{"25".." "..Air_3_list[mRandom(1,#Air_3_list)]})
   end
 
   for n=1, 7 do
-  addWave(16,{"15".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  addWave(16,{"8".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
   end
 
   for n=1, 7 do
   addWave(17,{"7".." "..Ground_11_list[mRandom(1,#Ground_11_list)]})
-  addWave(17,{"15".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  addWave(17,{"8".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
   end
     
   for n=1, 12 do
-  addWave(18,{"7".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
-  addWave(18,{"15".." "..Ground_13_list[mRandom(1,#Ground_13_list)]})
+  addWave(18,{"5".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  addWave(18,{"8".." "..Ground_13_list[mRandom(1,#Ground_13_list)]})
   end
   
 end
