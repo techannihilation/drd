@@ -12,7 +12,7 @@ burrowSpawnType      = Spring.GetModOptions().mo_chickenstart or "avoid"
 spawnSquare          = 90       -- size of the chicken spawn square centered on the burrow
 spawnSquareIncrement = 2         -- square size increase for each unit spawned
 burrowName           = "rroost"   -- burrow unit name
-maxAge               = 300      -- chicken die at this age, seconds
+maxAge               = 240      -- chicken die at this age, seconds
 queenName            = Spring.GetModOptions().mo_queendifficulty.."r"  or "n_chickenqr" 
 burrowDef            = UnitDefNames[burrowName].id
 defenderChance       = 0.5       -- probability of spawning a single turret
@@ -362,75 +362,75 @@ else
    for unitDefID,unitDef in pairs(UnitDefs) do
       if unitDef.isBuilder == false and unitDef.isBuilding == false and unitDef.radarRadius == 0 and unitDef.jammerRadius == 0 and unitDef.minWaterDepth < 0 and unitDef.name ~= "Robot King" and unitDef.name ~= "Chicken Queen" then
 
-        if unitDef.metalCost < 100 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 150 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
           table.insert(Ground_0_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-        if unitDef.metalCost < 400 and unitDef.metalCost > 100 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 500 and unitDef.metalCost > 150 and unitDef.isGroundUnit == true then 
           table.insert(Ground_1_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
 
-        if unitDef.metalCost < 1000 and unitDef.metalCost > 400 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 1500 and unitDef.metalCost > 500 and unitDef.isGroundUnit == true then 
           table.insert(Ground_2_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
 
-        if unitDef.metalCost < 2000 and unitDef.metalCost > 1000 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 4000 and unitDef.metalCost > 1500 and unitDef.isGroundUnit == true then 
           table.insert(Ground_3_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-        if unitDef.metalCost < 4000 and unitDef.metalCost > 2000 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 8000 and unitDef.metalCost > 4000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_4_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-        if unitDef.metalCost < 8000 and unitDef.metalCost > 4000 and unitDef.isGroundUnit == true then 
+        if unitDef.metalCost < 15000 and unitDef.metalCost > 8000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_5_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 15000 and unitDef.metalCost > 8000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 30000 and unitDef.metalCost > 15000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_6_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 25000 and unitDef.metalCost > 15000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 45000 and unitDef.metalCost > 30000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_7_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-          if unitDef.metalCost < 40000 and unitDef.metalCost > 25000 and unitDef.isGroundUnit == true then 
+          if unitDef.metalCost < 70000 and unitDef.metalCost > 45000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_8_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 70000 and unitDef.metalCost > 40000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 100000 and unitDef.metalCost > 70000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_9_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 110000 and unitDef.metalCost > 70000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 130000 and unitDef.metalCost > 100000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_10_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-            if unitDef.metalCost < 150000 and unitDef.metalCost > 100000 and unitDef.isGroundUnit == true then 
+            if unitDef.metalCost < 150000 and unitDef.metalCost > 130000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_11_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
@@ -487,7 +487,7 @@ else
   end
 
   for n=1, 7 do
-  addWave(3,{"3".." "..Ground_2_list[mRandom(1,#Ground_2_list)]})
+  addWave(3,{"5".." "..Ground_2_list[mRandom(1,#Ground_2_list)]})
   addWave(3,{"20".." "..Air_0_list[mRandom(1,#Air_0_list)]})
   end
 
@@ -501,7 +501,7 @@ else
   end
 
   for n=1, 7 do
-  addWave(6,{"3".." "..Ground_4_list[mRandom(1,#Ground_4_list)]})
+  addWave(6,{"5".." "..Ground_4_list[mRandom(1,#Ground_4_list)]})
   addWave(6,{"15".." "..Air_1_list[mRandom(1,#Air_1_list)]})
   end
 
@@ -510,7 +510,7 @@ else
   end
 
   for n=1, 7 do
-  addWave(8,{"4".." "..Ground_6_list[mRandom(1,#Ground_6_list)]})
+  addWave(8,{"5".." "..Ground_6_list[mRandom(1,#Ground_6_list)]})
   addWave(8,{"10".." "..Air_2_list[mRandom(1,#Air_2_list)]})
   end
 
@@ -519,7 +519,7 @@ else
   end
 
   for n=1, 7 do
-  addWave(10,{"4".." "..Ground_8_list[mRandom(1,#Ground_8_list)]})
+  addWave(10,{"5".." "..Ground_8_list[mRandom(1,#Ground_8_list)]})
   addWave(10,{"20".." "..Air_2_list[mRandom(1,#Air_2_list)]})
   end
 
@@ -555,7 +555,7 @@ else
   addWave(17,{"15".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
   end
     
-  for n=1, 7 do
+  for n=1, 12 do
   addWave(18,{"7".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
   addWave(18,{"15".." "..Ground_13_list[mRandom(1,#Ground_13_list)]})
   end
