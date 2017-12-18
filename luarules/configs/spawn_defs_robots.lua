@@ -441,6 +441,7 @@ else
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
+        end
           if  unitDef.metalCost < 360000 and unitDef.metalCost > 180000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_13_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
