@@ -406,7 +406,7 @@ else
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 45000 and unitDef.metalCost > 30000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 45000 and unitDef.metalCost > 25000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_7_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
@@ -418,25 +418,25 @@ else
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 100000 and unitDef.metalCost > 70000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 100000 and unitDef.metalCost > 60000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_9_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-         if unitDef.metalCost < 130000 and unitDef.metalCost > 100000 and unitDef.isGroundUnit == true then 
+         if unitDef.metalCost < 130000 and unitDef.metalCost > 80000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_10_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-            if unitDef.metalCost < 150000 and unitDef.metalCost > 130000 and unitDef.isGroundUnit == true then 
+            if unitDef.metalCost < 170000 and unitDef.metalCost > 100000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_11_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
         end
-          if  unitDef.metalCost < 320000 and unitDef.metalCost > 150000 and unitDef.isGroundUnit == true then 
+          if  unitDef.metalCost < 320000 and unitDef.metalCost > 140000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_12_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
