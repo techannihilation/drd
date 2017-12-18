@@ -455,6 +455,7 @@ local options={
 	def    = false,
 	section= "cust",
 	},
+	{
 	key    = "mo_robot_alt",
 	name   = "Alternative robots",
 	desc   = "Switch to new robots",
