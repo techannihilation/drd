@@ -429,7 +429,7 @@ local options={
 	},
 	
 	{
-		key    = "mo_maxAge",
+		key    = "mo_maxage",
 		name   = "Chicken max age",
 		desc   = "Maximum chicken age in seconds.",
 		type   = "number",
