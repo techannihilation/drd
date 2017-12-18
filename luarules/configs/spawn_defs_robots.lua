@@ -351,6 +351,7 @@ else
   local Ground_10_list = {}
   local Ground_11_list = {}
   local Ground_12_list = {}
+  local Ground_13_list = {}
 
   local Air_0_list = {}
   local Air_1_list = {}
@@ -359,7 +360,7 @@ else
 
 
    for unitDefID,unitDef in pairs(UnitDefs) do
-      if unitDef.isBuilder == false and unitDef.isBuilding == false and unitDef.radarRadius == 0 and unitDef.jammerRadius == 0 and unitDef.minWaterDepth < 0 and unitDef.name ~= "Robot King" then
+      if unitDef.isBuilder == false and unitDef.isBuilding == false and unitDef.radarRadius == 0 and unitDef.jammerRadius == 0 and unitDef.minWaterDepth < 0 and unitDef.name ~= "Robot King" and unitDef.name ~= "Chicken Queen" then
 
         if unitDef.metalCost < 100 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
           table.insert(Ground_0_list,unitDef.name) 
@@ -437,6 +438,11 @@ else
         end
           if  unitDef.metalCost < 320000 and unitDef.metalCost > 150000 and unitDef.isGroundUnit == true then 
           table.insert(Ground_12_list,unitDef.name) 
+          if not chickenTypes[unitDef.name] then
+             chickenTypes[unitDef.name] = true
+          end
+          if  unitDef.metalCost < 360000 and unitDef.metalCost > 180000 and unitDef.isGroundUnit == true then 
+          table.insert(Ground_13_list,unitDef.name) 
           if not chickenTypes[unitDef.name] then
              chickenTypes[unitDef.name] = true
           end
@@ -544,8 +550,13 @@ else
   end
 
   for n=1, 7 do
-  addWave(17,{"20".." "..Ground_11_list[mRandom(1,#Ground_11_list)]})
-  addWave(17,{"20".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  addWave(17,{"7".." "..Ground_11_list[mRandom(1,#Ground_11_list)]})
+  addWave(17,{"15".." "..Ground_12_list[mRandom(1,#Ground_12_list)]})
+  end
+    
+  for n=1, 7 do
+  addWave(18,{"7".." "..Ground_12_list[mRandom(1,#Ground_11_list)]})
+  addWave(18,{"15".." "..Ground_13_list[mRandom(1,#Ground_12_list)]})
   end
   
 end
