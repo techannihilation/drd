@@ -37,6 +37,7 @@ local DGUN = {
   [WeaponDefNames['corcom6_arm_disintegrator2'].id] = 15000,
   [WeaponDefNames['corcom7_arm_disintegrator2'].id] = 15000,
   [WeaponDefNames['tllcom_arm_disintegrator3'].id] = 15000,
+  [WeaponDefNames['tllcom1_arm_disintegrator'].id] = 15000,
   [WeaponDefNames['tllcom3_tll_disintegrator1'].id] = 15000,
   [WeaponDefNames['tllcom5_tll_disintegrator2'].id] = 15000,
   [WeaponDefNames['tllcom6_tll_disintegrator2'].id] = 15000,
