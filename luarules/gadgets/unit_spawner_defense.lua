@@ -279,6 +279,10 @@ if (modes[highestLevel] == INSANE) then
 	chickenDebtCount = math.max(chickenDebtCount, 150)
 	expMod = 1
 end
+if tonumber(Spring.GetModOptions().mo_gracepenalty) == 0 then
+  gracePenalty = 0
+  Spring.Echo("gracePenalty = "..gracePenalty)
+end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
