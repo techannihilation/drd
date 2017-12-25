@@ -477,6 +477,14 @@ local options={
 	section= "cust",
 	},
 	{
+	key    = "mo_gracepenalty",
+	name   = "Grace Penalty",
+	desc   = "Grace Penalty add more robots if grace time is bigger than 270sec",
+	type   = "bool",
+	def    = true,
+	section= "cust",
+	},
+	{
 		key    = "mo_custom_burrowspawn",
 		name   = "Burrow Spawn Rate (Seconds)",
 		desc   = "Time between burrow spawns.",
