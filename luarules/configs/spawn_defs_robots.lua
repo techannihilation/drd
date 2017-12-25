@@ -338,316 +338,242 @@ addWave(11,{"3 armcybr", "3 armcybr", "3 armcybr", "3 armcybr", "2 tllhailstorm"
 addWave(11,{"6 corcrw", "6 corcrw", "6 corcrw", "6 corcrw"})
 else
 -- Altenative Robots
-  local Ground_1 = {}
-  local Ground_2 = {}
-  local Ground_3 = {}
-  local Ground_4 = {}
-  local Ground_5 = {}
-  local Ground_6 = {}
-  local Ground_7 = {}
-  local Ground_8 = {}
-  local Ground_9 = {}
-  local Ground_10 = {}
-  local Ground_11 = {}
-  local Ground_12 = {}
-  local Ground_13 = {}
-  local Ground_14 = {}
+chickenTypes = {}
+local Wave1 = {}
+local Wave2 = {}
+local Wave3 = {}
+local Wave4 = {}
+local Wave5 = {}
+local Wave6 = {}
+local Wave7 = {}
+local Wave8 = {}
+local Wave9 = {}
+local Wave10 = {}
+local Wave11 = {}
 
-  local Air_1 = {}
-  local Air_2 = {}
-  local Air_3 = {}
-  local Air_4 = {}
+local blackList =
+{
+  ahermes = true,
+  armaak = true,
+  armabad = true,
+  armah = true,
+  armaser = true,
+  armatlas = true,
+  armawac = true,
+  armclaw = true,
+  armdfly = true,
+  armeak = true,
+  armfig = true,
+  armfig = true,
+  armhuntsman = true,
+  armiguana = true,
+  armjam = true,
+  armjeth = true,
+  armlance = true,
+  armmark = true,
+  armorbweaver = true,
+  armpeep = true,
+  armscab = true,
+  armscab1 = true,
+  armseap = true,
+  armseer = true,
+  armsehak = true,
+  armsfig = true,
+  armsh175 = true,
+  armsl = true,
+  armspy = true,
+  armyork = true,
+  blotter = true,
+  chicken1 = true,
+  chicken1b = true,
+  chicken1c = true,
+  chicken1d = true,
+  chicken1x = true,
+  chicken1y = true,
+  chicken1z = true,
+  chicken2 = true,
+  chicken2b = true,
+  chicken_dodo1 = true,
+  chicken_dodo2 = true,
+  chickena1 = true,
+  chickena1b = true,
+  chickena1c = true,
+  chickena2 = true,
+  chickena2b = true,
+  chickenc1 = true,
+  chickenc2 = true,
+  chickenc3 = true,
+  chickenc3b = true,
+  chickenc3c = true,
+  chickend1 = true,
+  chickenf1 = true,
+  chickenf1b = true,
+  chickenf2 = true,
+  chickenh1 = true,
+  chickenh1b = true,
+  chickenh2 = true,
+  chickenh3 = true,
+  chickenh4 = true,
+  chickenh5 = true,
+  chickenp1 = true,
+  chickenr1 = true,
+  chickenr2 = true,
+  chickenr3 = true,
+  chickens1 = true,
+  chickens2 = true,
+  chickens3 = true,
+  chickenw1 = true,
+  chickenw1b = true,
+  chickenw1c = true,
+  chickenw1d = true,
+  chickenw2 = true,
+  concealer = true,
+  coraak = true,
+  corah = true,
+  corawac = true,
+  corbtrans = true,
+  corcrash = true,
+  coreak = true,
+  coreslingshot = true,
+  coreter = true,
+  corfalc = true,
+  corfink = true,
+  corfrog = true,
+  corhelo = true,
+  corhunt = true,
+  corjeag = true,
+  cormabm = true,
+  cormabm1 = true,
+  cormaw = true,
+  corseap = true,
+  corsent = true,
+  corsfig = true,
+  corshieldgen = true,
+  corspec = true,
+  corspy = true,
+  cortitan = true,
+  corvalk = true,
+  corvamp = true,
+  corveng = true,
+  corvoyr = true,
+  corvrad = true,
+  e_chickenq = true,
+  e_chickenqr = true,
+  epic_chickenq = true,
+  fh_chickenq = true,
+  fh_chickenqr = true,
+  h_chickenq = true,
+  h_chickenqr = true,
+  intruder = true,
+  n_chickenq = true,
+  n_chickenqr = true,
+  nsaagriz = true,
+  nsacanglr = true,
+  r75v = true,
+  requ1 = true,
+  roost = true,
+  rroost = true,
+  tllaak = true,
+  tllacid = true,
+  tllconfuser = true,
+  tlldivine = true,
+  tllfflak = true,
+  tllfight = true,
+  tllfirestarter = true,
+  tllhickatee = true,
+  tllhoplit = true,
+  tllhovermissile = true,
+  tllleatherback = true,
+  tllloggerhead = true,
+  tllobscurer = true,
+  tllobserver = true,
+  tllprob = true,
+  tllpuncher = true,
+  tllrobber = true,
+  tllrsplane = true,
+  tllseab = true,
+  tllseaf = true,
+  tllshu = true,
+  tllsideneck = true,
+  tllsoftshell = true,
+  tllsonpl = true,
+  tllspy = true,
+  tlltorpp = true,
+  tlltplane = true,
+  tllturtle = true,
+  ve_chickenq = true,
+  ve_chickenqr = true,
+  vh_chickenq = true,
+  vh_chickenqr = true,
+  watcher = true,
+}
 
-  local Wave1 = {}
-  local Wave2 = {}
-  local Wave3 = {}
-  local Wave4 = {}
-  local Wave5 = {}
-  local Wave6 = {}
-  local Wave7 = {}
-  local Wave8 = {}
-  local Wave9 = {}
-  local Wave10 = {}
-  local Wave11 = {}
-  local Wave12 = {}
-  local Wave13 = {}
-  local Wave14 = {}
-
-  local blackList = 
-	{
-		chicken1 = true,
-		chicken1b = true,
-		chicken1c = true,
-		chicken1d = true,
-		chicken1x = true,
-		chicken1y = true,
-		chicken1z = true,
-		chicken2 = true,
-		chicken2b = true,
-		chickena1 = true,
-		chickena1b = true,
-		chickena1c = true,
-		chickena2 = true,
-		chickena2b = true,
-		chickenc1 = true,
-		chickenc2 = true,
-		chickenc3 = true,
-		chickenc3b = true,
-		chickenc3c = true,
-		chickend1 = true,
-		chickenf1 = true,
-		chickenf1b = true,
-		chickenf2 = true,
-		chickenh1 = true,
-		chickenh1b = true,
-		chickenh2 = true,
-		chickenh3 = true,
-		chickenh4 = true,
-		chickenh5 = true,
-		chickenp1 = true,
-		chickenr1 = true,
-		chickenr2 = true,
-		chickenr3 = true,
-		chickens1 = true,
-		chickens2 = true,
-		chickens3 = true,
-		chickenw1 = true,
-		chickenw1b = true,
-		chickenw1c = true,
-		chickenw1d = true,
-		chickenw2 = true,
-		--chicken_dodo1 = true,
-		chicken_dodo2 = true,
-		epic_chickenq = true,
-		e_chickenq = true,
-		e_chickenqr = true,
-		fh_chickenq = true,
-		fh_chickenqr = true,
-		h_chickenq = true,
-		h_chickenqr = true,
-		n_chickenq = true,
-		n_chickenqr = true,
-		roost = true,
-		rroost = true,
-		ve_chickenq = true,
-		ve_chickenqr = true,
-		vh_chickenq = true,
-		vh_chickenqr = true,
-		-------------------
-		armspy = true,
-		corspy = true,
-		tllspy = true,
-		tllleatherback = true,
-		corseap = true,
-		tllacid = true,
-		armsl = true,
-		corshieldgen = true,
-		nsacanglr = true,
-		cormabm = true,
-		intruder = true,
-		corvalk = true,
-		corfalc = true,
-		tllsonpl = true,
-		tlltorpp = true,
-		ahermes = true,
-		armaak = true,
-		armah = true,
-		armeak = true,
-		armfig = true,
-		armhuntsman = true,
-		armiguana = true,
-		armjeth = true,
-		armsfig = true,
-		armyork = true,
-		coraak = true,
-		corah = true,
-		corcrash = true,
-		coreak = true,
-		coreslingshot = true,
-		corfrog = true,
-		corjeag = true,
-		corsent = true,
-		corsfig = true,
-		corvamp = true,
-		corveng = true,
-		tllaak = true,
-		tllfflak = true,
-		tllfight = true,
-		tllseaf = true,
-		tllfirestarter = true,
-		tllhoplit = true,
-		tllhovermissile = true,
-		tllloggerhead = true,
-		tllpuncher = true,
-		tllrobber = true,
-		tllsideneck = true,
-	}
-
-   for unitDefID,unitDef in pairs(UnitDefs) do
-      if not blackList[unitDef.name]
-      and unitDef.isBuilder == false 
-      and unitDef.isBuilding == false 
-      and unitDef.radarRadius == 0 
-      and unitDef.jammerRadius == 0 
-      and unitDef.minWaterDepth < 0 
-      --and unitDef.name ~= "Robot King" 
-      --and Game.armorTypes[unitDef.armorType] ~= "chicken" 
-      
-      then
-
-        if unitDef.metalCost < 250 and unitDef.metalCost > 0 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_1,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-        if unitDef.metalCost < 1000 and unitDef.metalCost > 250 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_2,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-
-        if unitDef.metalCost < 3000 and unitDef.metalCost > 1000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_3,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-
-        if unitDef.metalCost < 8000 and unitDef.metalCost > 3000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_4,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-        if unitDef.metalCost < 14000 and unitDef.metalCost > 8000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_5,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-        if unitDef.metalCost < 22000 and unitDef.metalCost > 14000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_6,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-         if unitDef.metalCost < 35000 and unitDef.metalCost > 22000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_7,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-         if unitDef.metalCost < 45000 and unitDef.metalCost > 35000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_8,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-          if unitDef.metalCost < 65000 and unitDef.metalCost > 45000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_9,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-         if unitDef.metalCost < 85000 and unitDef.metalCost > 65000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_10,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-         if unitDef.metalCost < 100000 and unitDef.metalCost > 85000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_11,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-            if unitDef.metalCost < 160000 and unitDef.metalCost > 100000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_12,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-          if  unitDef.metalCost < 230000 and unitDef.metalCost > 160000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_13,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-          if  unitDef.metalCost < 500000 and unitDef.metalCost > 180000 and unitDef.isGroundUnit == true then 
-          table.insert(Ground_14,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-        end
-	---AIR
-      if unitDef.metalCost < 400 and unitDef.metalCost > 0 and unitDef.isGroundUnit == false then 
-          table.insert(Air_1,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-      end
-      if unitDef.metalCost < 900 and unitDef.metalCost > 400 and unitDef.isGroundUnit == false then 
-          table.insert(Air_2,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-      end
-      if unitDef.metalCost < 3000 and unitDef.metalCost > 900 and unitDef.isGroundUnit == false then 
-          table.insert(Air_3,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-      end
-      if unitDef.metalCost > 2500 and unitDef.isGroundUnit == false then 
-          table.insert(Air_4,unitDef.name) 
-          if not chickenTypes[unitDef.name] then
-             chickenTypes[unitDef.name] = true
-          end
-      end
-      end
-	---
-   end
-
-  local unitCount = 3
-  for n=1, 5 do
-  	table.insert(Wave1,unitCount.." "..Ground_1[mRandom(1,#Ground_1)])
-  	table.insert(Wave2,unitCount.." "..Ground_2[mRandom(1,#Ground_2)])
-  	table.insert(Wave3,unitCount.." "..Ground_3[mRandom(1,#Ground_3)])
-  	table.insert(Wave3,unitCount.." "..Air_1[mRandom(1,#Air_1)]) --air in wave 3
-  	table.insert(Wave4,unitCount.." "..Ground_4[mRandom(1,#Ground_4)])
-  	table.insert(Wave5,unitCount.." "..Ground_5[mRandom(1,#Ground_5)])
-  	table.insert(Wave5,unitCount.." "..Air_2[mRandom(1,#Air_2)]) -- air in wave 5
-  	table.insert(Wave6,unitCount.." "..Ground_6[mRandom(1,#Ground_6)])
-  	table.insert(Wave7,unitCount.." "..Ground_7[mRandom(1,#Ground_7)])
-  	table.insert(Wave7,unitCount.." "..Air_3[mRandom(1,#Air_3)]) -- air in wave 7
-  	table.insert(Wave8,unitCount.." "..Ground_8[mRandom(1,#Ground_8)])
-  	table.insert(Wave8,unitCount.." "..Air_3[mRandom(1,#Air_3)]) -- air in wave 7
-	  table.insert(Wave8,unitCount.." "..Air_3[mRandom(1,#Air_3)]) -- air in wave 7
-  	table.insert(Wave9,unitCount.." "..Ground_9[mRandom(1,#Ground_9)])
-  	table.insert(Wave10,unitCount.." "..Ground_10[mRandom(1,#Ground_10)])
-  	table.insert(Wave10,unitCount.." "..Air_4[mRandom(1,#Air_4)]) -- air in wave 10
-  	table.insert(Wave10,unitCount.." "..Air_4[mRandom(1,#Air_4)]) -- air in wave 10
-  	table.insert(Wave11,unitCount.." "..Ground_11[mRandom(1,#Ground_11)])
-  	table.insert(Wave12,unitCount.." "..Ground_12[mRandom(1,#Ground_12)])
-  	table.insert(Wave13,unitCount.." "..Ground_13[mRandom(1,#Ground_13)])
-  	table.insert(Wave14,unitCount.." "..Ground_14[mRandom(1,#Ground_14)])
+local function addUnits(wave,unitName)
+  if mRandom(0,1) == 1 and #wave < 5  then
+    chickenTypes[unitName] = true
+    table.insert(wave,"3".." "..unitName)
   end
-  addWave(1,Wave1)
-  addWave(2,Wave2)
-  addWave(3,Wave3)
-  addWave(4,Wave4)
-  addWave(5,Wave5)
-  addWave(6,Wave6)
-  addWave(7,Wave7)
-  addWave(8,Wave8)
-  addWave(9,Wave9)
-  addWave(10,Wave10)
-  addWave(11,Wave11)
-  addWave(12,Wave12)
-  addWave(13,Wave13)
-  addWave(14,Wave14)
+end
+
+for unitDefID,unitDef in pairs(UnitDefs) do
+
+  if not blackList[unitDef.name]
+  and unitDef.isBuilder == false
+  and unitDef.moveDef.name
+  and unitDef.minWaterDepth < 0 
+  or 
+  unitDef.canFly
+  and not blackList[unitDef.name]
+  and unitDef.isBuilder == false
+  then
+
+    if unitDef.buildTime < 3000 and unitDef.buildTime > 0 then
+      addUnits(Wave1,unitDef.name)
+    end
+     if unitDef.buildTime < 4700 and unitDef.buildTime > 3000 then
+      addUnits(Wave2,unitDef.name) 
+    end
+    if unitDef.buildTime < 9000 and unitDef.buildTime > 4700 then
+      addUnits(Wave3,unitDef.name)
+    end
+    if unitDef.buildTime < 15000 and unitDef.buildTime > 9000 then
+      addUnits(Wave4,unitDef.name)
+    end
+    if unitDef.buildTime < 25000 and unitDef.buildTime > 15000 then
+      addUnits(Wave5,unitDef.name)
+    end
+    if unitDef.buildTime < 40000 and unitDef.buildTime > 25000 then
+      addUnits(Wave6,unitDef.name)
+    end
+    if unitDef.buildTime < 80000 and unitDef.buildTime > 40000 then
+      addUnits(Wave7,unitDef.name)
+    end
+    if unitDef.buildTime < 130000 and unitDef.buildTime > 80000 then
+      addUnits(Wave8,unitDef.name)
+    end
+    if unitDef.buildTime < 240000 and unitDef.buildTime > 130000 then
+      addUnits(Wave9,unitDef.name)
+    end
+    if unitDef.buildTime < 400000 and unitDef.buildTime > 240000 then
+      addUnits(Wave10,unitDef.name)
+    end
+    if unitDef.buildTime < 1200000 and unitDef.buildTime > 400000 then
+      addUnits(Wave11,unitDef.name)
+    end
+  end
+end
+addWave(1,Wave1)
+addWave(2,Wave2)
+newWaveSquad[2] = {"1 armack","1 armacv","1 corack","1 coracv","1 tllack", "1 tllacv","2 armfark","2 consul","2 corfast","2 corassis","2 tllarchnano","2 tllhtcb"}
+addWave(3,Wave3)
+addWave(4,Wave4)
+addWave(5,Wave5)
+addWave(6,Wave6)
+addWave(7,Wave7)
+addWave(8,Wave8)
+addWave(9,Wave9)
+addWave(10,Wave10)
+addWave(11,Wave11)
 end
 
 VERYEASY = "Chicken: Very Easy"
