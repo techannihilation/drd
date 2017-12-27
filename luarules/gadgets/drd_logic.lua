@@ -5,7 +5,7 @@ function gadget:GetInfo()
     return {
         name = "Dynamic Robot Defense Spawner",
         desc = "Spawn Robots",
-        author = "KING",
+        author = "TheFatController/quantum heavly modified by KING's",
         date = "27 October, 2017",
         license = "GNU GPL, v2 or later",
         layer = 0,
@@ -33,6 +33,7 @@ if (gadgetHandler:IsSyncedCode()) then
     local GetGaiaTeamID = Spring.GetGaiaTeamID
     local SetGameRulesParam = Spring.SetGameRulesParam
     local GetGameRulesParam = Spring.GetGameRulesParam
+    local GetTeamResources = Spring.GetTeamResources
     local GetTeamUnitsCounts = Spring.GetTeamUnitsCounts
     local GetTeamUnitCount = Spring.GetTeamUnitCount
     local GetGameFrame = Spring.GetGameFrame
@@ -157,22 +158,6 @@ if (gadgetHandler:IsSyncedCode()) then
         [8] = SURVIVAL
     }
 
-    local function dump(o)
-        if type(o) == "table" then
-            local s = "{ "
-            for k, v in pairs(o) do
-                if type(k) ~= "number" then
-                    k = '"' .. k .. '"'
-                end
-                s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
-            end
-            return s .. "} "
-        else
-            return tostring(o)
-        end
-    end
-    --Echo(VERYEASY)
-
     for i, v in ipairs(modes) do -- make it bi-directional
         modes[v] = i
     end
@@ -216,6 +201,21 @@ if (gadgetHandler:IsSyncedCode()) then
     --
     -- Utility
     --
+
+    local function dump(o)
+      if type(o) == "table" then
+          local s = "{ "
+          for k, v in pairs(o) do
+              if type(k) ~= "number" then
+                  k = '"' .. k .. '"'
+              end
+              s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
+          end
+          return s .. "} "
+      else
+          return tostring(o)
+      end
+    end
 
     local function SetToList(set)
         local list = {}
@@ -356,14 +356,8 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     local EMP_GOO = {}
-    EMP_GOO[WeaponDefNames["chickenr1_goolauncher"].id] = WeaponDefNames["chickenr1_goolauncher"].damages[1]
     EMP_GOO[WeaponDefNames["weaver_death"].id] = WeaponDefNames["weaver_death"].damages[1]
-    local LOBBER = UnitDefNames["chickenr1"].id
     local SKIRMISH = {
-        [UnitDefNames["chickens1"].id] = {distance = 270, chance = 0.33},
-        [UnitDefNames["chickens2"].id] = {distance = 620, chance = 0.5},
-        [UnitDefNames["chickenf2"].id] = {distance = 2000, chance = 0.5},
-        [UnitDefNames["chickenw1b"].id] = {distance = 900, chance = 0.33},
         --Robots
         [UnitDefNames["corthud"].id] = {distance = 300, chance = 0.8},
         [UnitDefNames["corcrash"].id] = {distance = 800, chance = 0.8},
@@ -375,10 +369,6 @@ if (gadgetHandler:IsSyncedCode()) then
         [UnitDefNames["armraven1"].id] = {distance = 800, chance = 0.8}
     }
     local COWARD = {
-        [UnitDefNames["chickenh1"].id] = {distance = 300, chance = 0.5},
-        [UnitDefNames["chickenh1b"].id] = {distance = 15, chance = 0.1},
-        [UnitDefNames["chickenr1"].id] = {distance = 300, chance = 0.33},
-        [UnitDefNames["chickenw1c"].id] = {distance = 900, chance = 0.33},
         --Robots
         [UnitDefNames["cortotal"].id] = {distance = 1300, chance = 0.7},
         [UnitDefNames["heavyimpact"].id] = {distance = 1200, chance = 0.8},
@@ -391,7 +381,6 @@ if (gadgetHandler:IsSyncedCode()) then
     }
     local JUNO = {[WeaponDefNames["cjuno_juno_pulse"].id] = true, [WeaponDefNames["ajuno_juno_pulse"]] = true}
     local KROW_ID = UnitDefNames["corcrw"].id
-    local OVERSEER_ID = UnitDefNames["chickenh1"].id --chickenh1h
     local KROW_LASER = "krow_laser_index"
     local SMALL_UNIT = UnitDefNames["cormaw"].id
     local MEDIUM_UNIT = UnitDefNames["armwin"].id
@@ -456,6 +445,24 @@ if (gadgetHandler:IsSyncedCode()) then
     --
     -- Spawn Dynamics
     --
+
+    local function getPerPlayerEIncome()
+      local perPlayerEIncome = {}
+      local perPlayerPercentage = {}
+      local totalIncome = 0
+      local eincome = 0
+      for teamID, _ in pairs(humanTeams) do
+        _, _, _, eincome = Spring.GetTeamResources(teamID, "energy")
+        perPlayerEIncome[teamID] = eincome
+        totalIncome = totalIncome + eincome
+      end
+
+      for teamID, eincome in pairs(perPlayerEIncome) do
+        perPlayerPercentage = eincome / totalIncome * 100
+      end
+
+      return perPlayerPercentage      
+    end    
 
     local function addChickenTarget(chickenID, targetID)
         if (not targetID) or (GetUnitTeam(targetID) == chickenTeamID) or (GetUnitTeam(chickenID) ~= chickenTeamID) then
@@ -743,16 +750,6 @@ if (gadgetHandler:IsSyncedCode()) then
             queenLifePercent = lifeCheck
             SetGameRulesParam("queenLife", queenLifePercent)
         end
-    end
-
-    local function stunUnit(unitID, seconds)
-        local f = GetGameFrame()
-        seconds = f + (seconds * 30)
-        if stunList[unitID] then
-            seconds = math.max(stunList[unitID], seconds)
-        end
-        stunList[unitID] = seconds
-        SetUnitHealth(unitID, {paralyze = 99999999})
     end
 
     local function SpawnQueen()
@@ -1126,10 +1123,6 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-        if EMP_GOO[weaponID] and (unitTeam ~= chickenTeamID) and (lobberEMPTime > 0) then
-            stunUnit(unitID, ((damage / EMP_GOO[weaponID]) * lobberEMPTime))
-        end
-
         if chickenBirths[attackerID] then
             chickenBirths[attackerID].deathDate = (t + maxAge)
         end
@@ -1181,30 +1174,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if (unitDefID == LOBBER) then
-            local nSpawn = false
-            if ((GetUnitHealth(unitID) < 2475) and (damage < (2000 + mRandom(1, 500)))) then
-                nSpawn = true
-            end
-            if ((JUNO[weaponID]) and (mRandom(1, 2) == 1)) then
-                nSpawn = true
-            end
-            if nSpawn then
-                local bx, by, bz = GetUnitPosition(unitID)
-                local h = GetUnitHeading(unitID)
-                SetUnitBlocking(unitID, false, false)
-                local newUnitID = CreateUnit("chickenr2", bx, by, bz, "n", unitTeam)
-                Spring.SetUnitNoDraw(newUnitID, true)
-                Spring.MoveCtrl.Enable(newUnitID)
-                Spring.MoveCtrl.SetHeading(newUnitID, h)
-                Spring.MoveCtrl.Disable(newUnitID)
-                SetUnitExperience(newUnitID, mRandom() * expMod)
-                Spring.SetUnitNoDraw(newUnitID, false)
-                deathQueue[unitID] = {selfd = false, reclaimed = true}
-                idleOrderQueue[newUnitID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                return
-            end
-        elseif (unitID == queenID) then
+        if (unitID == queenID) then
             if paralyzer then
                 SetUnitHealth(unitID, {paralyze = 0})
                 return
@@ -1272,7 +1242,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    local function SpawnChickens()
+    local function SpawnRobots()
         local i, defs = next(spawnQueue)
         if not i or not defs then
             return
@@ -1379,28 +1349,14 @@ if (gadgetHandler:IsSyncedCode()) then
             _, queenMaxHP = GetUnitHealth(queenID)
             SetUnitExperience(queenID, expMod)
             timeOfLastWave = t
-            SKIRMISH[UnitDefNames["chickenc1"].id] = {distance = 150, chance = 0.5}
-            SKIRMISH[UnitDefNames["chickenf1"].id] = {distance = 1200, chance = 0.25}
-            SKIRMISH[UnitDefNames["chickenw1"].id] = {distance = 1800, chance = 0.5}
-            COWARD[UnitDefNames["chicken_dodo1"].id] = {distance = 1100, chance = 0.33}
 
             local chickenUnits = GetTeamUnits(chickenTeamID)
-            for _, unitID in pairs(chickenUnits) do
-                if (GetUnitDefID(unitID) == OVERSEER_ID) then
-                    deathQueue[unitID] = {selfd = false, reclaimed = false}
-                end
-            end
 
             if (modes[highestLevel] == EPIC) then
                 table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
                 table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
                 table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
                 table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
-            end
-
-            if (queenName == "epic_chickenq") then
-                table.insert(spawnQueue, {burrow = queenID, unitName = "chickenr3", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "chickenr3", team = chickenTeamID})
             end
 
             if (queenName == "fh_chickenq") then
@@ -1439,7 +1395,9 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function gadget:GameFrame(n)
+    function gadget:GameFrame(n)        
+        Echo(dump(getPerPlayerEIncome()))
+
         if gameOver then
             chickenCount = UpdateUnitCount()
             if (n > gameOver) then
@@ -1460,7 +1418,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         if (chickenCount < maxChicken) then
-            SpawnChickens()
+            SpawnRobots()
         end
 
         for unitID in pairs(stunList) do
@@ -1674,7 +1632,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     burrowAnger = 0
                     SetGameRulesParam("queenAnger", queenAnger)
                     SpawnBurrow()
-                    SpawnChickens() -- spawn new chickens (because queen could be the last one)
+                    SpawnRobots() -- spawn new chickens (because queen could be the last one)
                 else
                     gameOver = GetGameFrame() + 120
                     spawnQueue = {}
