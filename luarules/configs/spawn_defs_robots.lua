@@ -2,18 +2,21 @@
 --Robot Defense Config
 --------------------------------------------------------------------------------
 
-maxChicken           = tonumber(Spring.GetModOptions().mo_maxchicken) or 400
+local GetModOptions = Spring.GetModOptions
+
+maxChicken           = tonumber(GetModOptions().mo_maxchicken) or 400
 maxBurrows           = 20
-burrowhp             = tonumber(Spring.GetModOptions().mo_custom_burrowshp) or 8600
-gracePeriod          = tonumber(Spring.GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
-queenTime            = (Spring.GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
-addQueenAnger        = tonumber(Spring.GetModOptions().mo_queenanger) or 1
-burrowSpawnType      = Spring.GetModOptions().mo_chickenstart or "avoid"
+burrowhp             = tonumber(GetModOptions().mo_custom_burrowshp) or 8600
+gracePeriod          = tonumber(GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
+queenTime            = (GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
+addQueenAnger        = tonumber(GetModOptions().mo_queenanger) or 1
+burrowSpawnType      = GetModOptions().mo_chickenstart or "avoid"
 spawnSquare          = 90       -- size of the chicken spawn square centered on the burrow
 spawnSquareIncrement = 2         -- square size increase for each unit spawned
 burrowName           = "rroost"   -- burrow unit name
-maxAge               = tonumber(Spring.GetModOptions().mo_maxage) or 300  -- chicken die at this age, seconds
-queenName            = Spring.GetModOptions().mo_queendifficulty.."r"  or "n_chickenqr" 
+maxAge               = tonumber(GetModOptions().mo_maxage) or 300  -- chicken die at this age, seconds
+mo_queendifficulty   = GetModOptions()["mo_queendifficulty"] or "n_chickenq"
+queenName            = mo_queendifficulty .."r"
 burrowDef            = UnitDefNames[burrowName].id
 defenderChance       = 0.5       -- probability of spawning a single turret
 maxTurrets           = 3   		 -- Max Turrets per burrow
@@ -181,7 +184,7 @@ local defenders = {
   cordoom = true,
 }
 
-if tonumber(Spring.GetModOptions().mo_robot_alt) == 0 then
+if tonumber(GetModOptions().mo_robot_alt) == 0 then
 --t1 only
 if (mRandom(0,1) == 1) then addWave(1,{"5 armflea", "5 armflea"}) else addWave(1,{"2 armflash", "4 corthud"}) end
 if (mRandom(0,1) == 1) then addWave(1,{"5 armflea", "2 armflash", "4 corthud"}) else addWave(1,{"2 armflash", "2 corthud"}) end
@@ -627,17 +630,17 @@ difficulties = {
   
   
   [CUSTOM] = {
-    chickenSpawnRate  = tonumber(Spring.GetModOptions().mo_custom_chickenspawn),
-    burrowSpawnRate   = tonumber(Spring.GetModOptions().mo_custom_burrowspawn),
-    queenSpawnMult    = tonumber(Spring.GetModOptions().mo_custom_queenspawnmult),
-    angerBonus        = tonumber(Spring.GetModOptions().mo_custom_angerbonus),
-    expStep           = (tonumber(Spring.GetModOptions().mo_custom_expstep) or 0.6) * -1,
-    lobberEMPTime     = tonumber(Spring.GetModOptions().mo_custom_lobberemp),
+    chickenSpawnRate  = tonumber(GetModOptions().mo_custom_chickenspawn),
+    burrowSpawnRate   = tonumber(GetModOptions().mo_custom_burrowspawn),
+    queenSpawnMult    = tonumber(GetModOptions().mo_custom_queenspawnmult),
+    angerBonus        = tonumber(GetModOptions().mo_custom_angerbonus),
+    expStep           = (tonumber(GetModOptions().mo_custom_expstep) or 0.6) * -1,
+    lobberEMPTime     = tonumber(GetModOptions().mo_custom_lobberemp),
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
-    chickensPerPlayer = tonumber(Spring.GetModOptions().mo_custom_minchicken),
-    spawnChance       = (tonumber(Spring.GetModOptions().mo_custom_spawnchance) or 50) / 100,
-    damageMod         = (tonumber(Spring.GetModOptions().mo_custom_damagemod) or 100) / 100,
+    chickensPerPlayer = tonumber(GetModOptions().mo_custom_minchicken),
+    spawnChance       = (tonumber(GetModOptions().mo_custom_spawnchance) or 50) / 100,
+    damageMod         = (tonumber(GetModOptions().mo_custom_damagemod) or 100) / 100,
   },
 
   [SURVIVAL] = {

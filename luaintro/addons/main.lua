@@ -19,19 +19,20 @@ local infoMessage = {}
 
 table.insert(infoMessage, "Spring Engine version 104.0 or above is needed for this version")
 
-if Spring.GetModOptions() then 
-	if Spring.GetModOptions().mo_queendifficulty then
-		if Spring.GetModOptions().mo_queendifficulty == "ve_chickenq" then
+if Spring.GetModOptions() then
+	local mo_queendifficulty = Spring.GetModOptions()["mo_queendifficulty"]
+	if mo_queendifficulty then
+		if mo_queendifficulty == "ve_chickenq" then
     		message = "Queen difficulty set to Very Easy"
-  		elseif Spring.GetModOptions().mo_queendifficulty == "e_chickenq" then
+  		elseif mo_queendifficulty == "e_chickenq" then
     		message = "Queen difficulty set to Easy"
-  		elseif Spring.GetModOptions().mo_queendifficulty == "n_chickenq" then
+  		elseif mo_queendifficulty == "n_chickenq" then
     		message = "Queen difficulty set to Normal"
-		elseif Spring.GetModOptions().mo_queendifficulty == "h_chickenq" then
+		elseif mo_queendifficulty == "h_chickenq" then
     		message = "Queen difficulty set to Hard"
-		elseif Spring.GetModOptions().mo_queendifficulty == "vh_chickenq" then
+		elseif mo_queendifficulty == "vh_chickenq" then
     		message = "Queen difficulty set to Very Easy"
-		elseif Spring.GetModOptions().mo_queendifficulty == "fh_chickenq" then
+		elseif mo_queendifficulty == "fh_chickenq" then
     		message = "Queen difficulty set to Fricking Hard"
 		end
 	table.insert(infoMessage, message)
