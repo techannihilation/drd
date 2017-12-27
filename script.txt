@@ -1,0 +1,163 @@
+[GAME]
+{
+	HostIP=;
+	HostPort=8452;
+	IsHost=1;
+	MyPlayerName=Player;
+
+	ModHash=1010351247;
+	MapHash=4027815563;
+	Mapname=EgoGreenFields v666;
+	GameType=Dynamic Robot Defense $VERSION;
+
+	startpostype=3;
+	[mapoptions]
+	{
+	}
+	[modoptions]
+	{
+		relayhoststartpostype=3;
+		disablemapdamage=1;
+		fixedallies=0;
+		ghostedbuildings=1;
+		mo_allowfactionchange=1;
+		mo_comgate=0;
+		mo_coop=0;
+		mo_dynamic=1;
+		mo_ecorace=0;
+		mo_enemywrecks=1;
+		mo_gracepenalty=1;
+		mo_greenfields=0;
+		mo_heatmap=1;
+		mo_nanoframedecay=0;
+		mo_no_close_spawns=1;
+		mo_noowner=0;
+		mo_noshare=1;
+		mo_nowrecks=0;
+		mo_preventdraw=0;
+		mo_progmines=0;
+		mo_queenanger=1;
+		mo_robot_alt=1;
+		mo_startpoint_assist=0;
+		mo_terraforming=0;
+		mo_wall=0;
+		shareddynamicalliancevictory=0;
+		maxspeed=3;
+		maxunits=1000;
+		minspeed=0.3;
+		mo_comtranslock=0;
+		mo_custom_angerbonus=0.15;
+		mo_custom_burrowshp=8600;
+		mo_custom_burrowspawn=120;
+		mo_custom_chickenspawn=93;
+		mo_custom_damagemod=100;
+		mo_custom_expstep=1.5;
+		mo_custom_lobberemp=4;
+		mo_custom_minchicken=8;
+		mo_custom_queenspawnmult=1;
+		mo_custom_spawnchance=100;
+		mo_graceperiod=1;
+		mo_maxage=300;
+		mo_maxchicken=380;
+		mo_queentime=40;
+		startenergy=1000;
+		startmetal=1059;
+		wall_size=45;
+		wall_time=10;
+		deathmode=neverend;
+		mo_chickenstart=alwaysbox;
+		mo_preventcombomb=off;
+		mo_queendifficulty=e_chickenq;
+		mo_storageowner=team;
+		mo_transportenemy=none;
+		qtpfs=normal;
+		wall_los=1;
+		wall_weapons=1;
+	}
+	NumRestrictions=0;
+	[RESTRICT]
+	{
+	}
+
+	NumPlayers=1;
+	NumUsers=3;
+
+	[PLAYER2]
+	{
+		Name=Player;
+		CountryCode=;
+		Spectator=0;
+		Rank=0;
+		IsFromDemo=0;
+		Team=2;
+	}
+	[AI0]
+	{
+		Name=Bot1;
+		ShortName=Chicken: Custom;
+		Version=<not-versioned>;
+		Team=0;
+		IsFromDemo=0;
+		Host=2;
+		[Options]
+		{
+		}
+	}
+	[AI1]
+	{
+		Name=Bot2;
+		ShortName=NullAI;
+		Version=0.1;
+		Team=1;
+		IsFromDemo=0;
+		Host=2;
+		[Options]
+		{
+			maphack=0;
+			reporturl=http://myAIStats.myDomain.com/statsReceiver.cgi;
+			maxgroupsize=10;
+			resourcebonous=0;
+			aggressiveness=normal;
+		}
+	}
+
+	[TEAM0]
+	{
+		TeamLeader=2;
+		StartPosX=5120;
+		StartPosZ=10240;
+		AllyTeam=1;
+		RGBColor=0.976471 1 0;
+		Side=ARM;
+		Handicap=0;
+	}
+	[TEAM1]
+	{
+		TeamLeader=2;
+		StartPosX=3561;
+		StartPosZ=865;
+		AllyTeam=0;
+		RGBColor=0.509804 0.498039 1;
+		Side=ARM;
+		Handicap=0;
+	}
+	[TEAM2]
+	{
+		TeamLeader=2;
+		StartPosX=5599;
+		StartPosZ=978;
+		AllyTeam=0;
+		RGBColor=0.101961 0.101961 0.101961;
+		Side=ARM;
+		Handicap=0;
+	}
+
+	[ALLYTEAM1]
+	{
+		NumAllies=0;
+	}
+	[ALLYTEAM0]
+	{
+		NumAllies=0;
+	}
+}
