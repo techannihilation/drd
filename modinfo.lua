@@ -1,6 +1,6 @@
 return { 
-  name='Robot Defense',
-  description='The New Generation Of War',
+  name='Dynamic Robot Defense',
+  description='The New Dynamic Generation Of Robot Defense',
   shortname='TA',
   version='$VERSION',
   mutator='',
