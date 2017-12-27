@@ -11,5 +11,5 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 ## Authors
 
 - All Authors of Robot Defense
-- [ksilversurfer](https://github.com/ksilversurfer)
-- [pcdummy](https://github.com/pcdummy/)
+- [ksilversurfer](https://github.com/ksilversurfer) - [KING]Silver
+- [pcdummy](https://github.com/pcdummy/) - [KING]Fast
