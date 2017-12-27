@@ -106,17 +106,6 @@ local options = {
     def    = true,
     section= "ta_others",
   },
---[[
--- the following options can create problems and were never used by interface programs, thus are commented out for the moment
-
-  {
-    key    = 'NoHelperAIs',
-    name   = 'Disable helper AIs',
-    desc   = 'Disables luaui ai usage for all players',
-    type   = 'bool',
-    def    = false,
-  },
---]]
 }
 
 return options

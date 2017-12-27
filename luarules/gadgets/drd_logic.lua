@@ -127,8 +127,6 @@ local heroChicken         = {}
 local defenseMap 		  = {}
 local maxAges = {}
 
-local cenabled = false
-
 do -- load config file
 local CONFIG_FILE
   CONFIG_FILE  = "LuaRules/Configs/spawn_defs_robots.lua"
@@ -266,9 +264,6 @@ chickensPerPlayer = (chickensPerPlayer * SetCount(humanTeams))
 maxBurrows = maxBurrows + math.floor(SetCount(humanTeams) * 1.334)
 queenTime = (queenTime + gracePeriod)
 chickenDebtCount = math.ceil((math.max((gracePeriod - 270),0) / 3))
--- eggChance scales - 20% at 0-300 grace, 10% at 400 grace, 0% at 500+ grace
-local eggChance = 0.20 * math.max(0, math.min(1, (500-gracePeriod)/200))
-local bonusEggs = math.ceil(24 * math.max(0, math.min(1, (500-gracePeriod)/200)))
 
 if (modes[highestLevel] == INSANE) then
 	gracePenalty = gracePenalty + 15
@@ -392,12 +387,6 @@ local COWARD = {
   --Robots
 --  [UnitDefNames["chickens3"].id] = { distance = 440, chance = 0.1 },
 
-}
-local EGG_DROPPER = {
---  [UnitDefNames["chicken1"].id] = "chicken_egg",
---  [UnitDefNames["chicken1b"].id] = "chicken_eggb",
---  [UnitDefNames["chicken1c"].id] = "chicken_eggc",
---  [UnitDefNames["chicken1d"].id] = "chicken_eggd",
 }
 local JUNO = { [WeaponDefNames["cjuno_juno_pulse"].id]= true, [WeaponDefNames["ajuno_juno_pulse"]] = true }
 local KROW_ID = UnitDefNames["corcrw"].id
@@ -1508,17 +1497,6 @@ function gadget:GameFrame(n)
 end
 
 function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID)
-
-  if (eggChance > 0) and ((bonusEggs > 0) or (EGG_DROPPER[unitDefID] and (mRandom() < eggChance))) then
-	local x,y,z = GetUnitPosition(unitID)
-	if x then
-		local h = GetUnitHeading(unitID)
-		if h then
-			--Spring.CreateFeature(EGG_DROPPER[unitDefID],x,y,z,h)
-			bonusEggs = bonusEggs - 1
-		end
-	end
-  end
 
   if heroChicken[unitID] then heroChicken[unitID] = nil end
   if stunList[unitID] then stunList[unitID] = nil end
