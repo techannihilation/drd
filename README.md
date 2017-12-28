@@ -5,8 +5,13 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 ## TODO
 
 - Add Bosses (strong units that spawn at stages).
-- Add logic so Robots attack big eco spots first.
 - Bonus for killing stuff in robot base - robot makes base.
+
+## Changes
+
+### master
+
+- 28.Dec.2017: Add logic so Robots attack big eco spots first.
 
 ## Authors
 
