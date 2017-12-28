@@ -554,17 +554,6 @@ local options={
 		section= "cust",
 	},
 	{
-		key    = "mo_custom_lobberemp",
-		name   = "Lobber EMP Duration",
-		desc   = "Max duration of Lobber EMP artillery",
-		type   = "number",
-		def    = 4,
-		min    = 0,
-		max    = 30,
-		step   = 0.5,
-		section= "cust",
-	},
-	{
 		key    = "mo_custom_damagemod",
 		name   = "Damage Mod",
 		desc   = "Percent modifier for chicken damage",
