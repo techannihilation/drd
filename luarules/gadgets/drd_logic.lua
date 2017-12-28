@@ -26,7 +26,6 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Speed-ups
     --
 
-    local GetUnitHeading = Spring.GetUnitHeading
     local ValidUnitID = Spring.ValidUnitID
     local GetUnitNeutral = Spring.GetUnitNeutral
     local GetTeamList = Spring.GetTeamList
@@ -63,6 +62,13 @@ if (gadgetHandler:IsSyncedCode()) then
     local GetUnitDirection = Spring.GetUnitDirection
     local Echo = Spring.Echo
 
+    local math = math
+    local mRandom = math.random
+    local Game = Game
+    local table = table
+    local ipairs = ipairs
+    local pairs = pairs
+
     --
     -- Utility
     --
@@ -73,17 +79,14 @@ if (gadgetHandler:IsSyncedCode()) then
     -- enable when needed
     -- local Dump = Spring.Utilities.Dump
 
-
-    local mRandom = math.random
-    local math = math
-    local Game = Game
-    local table = table
-    local ipairs = ipairs
-    local pairs = pairs
-
+    --
+    -- Constants
+    --
     local MAPSIZEX = Game.mapSizeX
     local MAPSIZEZ = Game.mapSizeZ
     local DMAREA = 160
+    -- Target units with energymake >= x
+    local TARGET_ENERGYMAKE = 400
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -182,6 +185,9 @@ if (gadgetHandler:IsSyncedCode()) then
         c._teamID = teamID
         c._attackingRobotsCount = 0
         c._attackingRobots = {}
+
+        c._unitsCount = 0
+        c._units = {}
     end)
 
     function Team:getEIncome()
@@ -189,15 +195,14 @@ if (gadgetHandler:IsSyncedCode()) then
         return eincome
     end
 
-    function Team:addAttackingRobot(unitID)
-        self._attackingRobotsCount = self._attackingRobotsCount + 1
-        self._attackingRobots[unitID] = true
-    end
-
     function Team:removeAttackingRobot(unitID)
-        if self._attackingRobots[unitID] then
-            self._attackingRobots[unitID] = nil
+        if not self._attackingRobots[unitID] then
+            return false
         end
+
+        self._attackingRobots[unitID] = nil
+        self._attackingRobotsCount = self._attackingRobotsCount - 1
+        return true
     end
 
     function Team:attackThisTeam(maxTeamRobots)
@@ -207,6 +212,41 @@ if (gadgetHandler:IsSyncedCode()) then
 
         return true
     end
+
+    function Team:addUnit(unitID, unitDefID)
+        if UnitDefs[unitDefID] and (UnitDefs[unitDefID].energyMake and UnitDefs[unitDefID].energyMake >= TARGET_ENERGYMAKE) then
+            self._units[unitID] = true
+            self._unitsCount = self._unitsCount + 1
+        end
+    end
+
+    function Team:removeUnit(unitID)
+        if not self._units[unitID] then
+            return false
+        end
+
+        self._units[unitID] = nil
+        self._unitsCount = self._unitsCount - 1
+        return true
+    end
+
+    --
+    -- Adds the robot unit to attacking units and returns best target of this team to attack
+    --
+    function Team:addAttackingRobotAndGetTarget(robotUnitID)
+        self._attackingRobotsCount = self._attackingRobotsCount + 1
+        self._attackingRobots[robotUnitID] = true
+
+        if self._unitsCount < 1 then
+            local units = GetTeamUnits(self._teamID)
+            return units[mRandom(#units)]
+        end
+
+        local unitsSet = SetToList(self._units)
+        return unitsSet[mRandom(#unitsSet)]
+    end
+
+
 
     local teamsRAW = GetTeamList()
     local highestLevel = 0
@@ -496,42 +536,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
     -- selects a enemy target
     local function ChooseTarget(unitID)
-        local humanTeamList = SetToList(humanTeams)
-        if (#humanTeamList == 0) or gameOver then
+        if SetCount(humanTeams) == 0 or gameOver then
             return getRandomMapPos()
         end
 
         -- Select team
         local teamID = chooseTeamToAttack()
-        humanTeams[teamID]:addAttackingRobot(unitID)
 
-        -- Find the units producing the most E
-        local units = GetTeamUnits(teamID)
-        local EnergyCache = {}
-        local a = 1
-        for i = 1, #units do
-            local defID = GetUnitDefID(units[i])
-            if UnitDefs[defID] and (UnitDefs[defID].energyMake and UnitDefs[defID].energyMake > 500) then
-                energy = UnitDefs[defID].energyMake
-                --Echo(UnitDefs[defID].name," Added to EnergyCache table", units[i])
-                EnergyCache[a] = units[i]
-                a = a + 1
-            end
-        end
-        local target
-        if EnergyCache[2] then
-            target = EnergyCache[mRandom(1, #EnergyCache)]
-        else
-            target = EnergyCache[1]
-        end
-
-        if not target or target == 1 then
-            -- no target with > 500 E found attack random unit of that team
-            target = units[mRandom(#units)]
-        end
-
-        --Echo(UnitDefs[GetUnitDefID(target)].name," target")
-        return target
+        -- Add attacking robot to the team and get best target from it        
+        local team = humanTeams[teamID]
+        return team:addAttackingRobotAndGetTarget(unitID)
     end
 
     local function getChickenSpawnLoc(burrowID, size)
@@ -958,6 +972,7 @@ if (gadgetHandler:IsSyncedCode()) then
             failChickens[unitID] = failCount + 1
         end
 
+        Echo("UnitID: ", unitID)
         local target = ChooseTarget(unitID)
         local targetPos = {GetUnitPosition(target)}
         idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
@@ -968,9 +983,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:UnitCreated(unitID, unitDefID, unitTeam)
         -- filter out chicken units
-        if unitTeam == chickenTeamID and chickenDefTypes[unitDefID] then
+        if unitTeam == chickenTeamID then
             return
         end
+
+        -- no human team? be save and return
+        if not humanTeams[unitTeam] then
+            return
+        end
+
+        humanTeams[unitTeam]:addUnit(unitID, unitDefID)
     end
 
     function gadget:UnitPreDamaged(
@@ -1444,6 +1466,19 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID)
+        if not computerTeams[unitTeam] then
+            -- Human team
+            if not humanTeams[unitTeam] then
+                -- also not human team bogus exit
+                return
+            end
+
+            humanTeams[unitTeam]:removeUnit(unitID)
+
+            -- no more work for human teams
+            return
+        end
+
         if heroChicken[unitID] then
             heroChicken[unitID] = nil
         end
@@ -1469,7 +1504,9 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- remove that robot from all teams
         for _, team in pairs(humanTeams) do
-            team:removeAttackingRobot(unitID)
+            if team:removeAttackingRobot(unitID) then
+                break
+            end
         end
 
         if (unitTeam == chickenTeamID) and chickenDefTypes[unitDefID] then
