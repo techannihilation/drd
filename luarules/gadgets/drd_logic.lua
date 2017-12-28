@@ -77,7 +77,7 @@ if (gadgetHandler:IsSyncedCode()) then
     local SetCount = Spring.Utilities.SetCount
     local Round = Spring.Utilities.Round
     -- enable when needed
-    -- local Dump = Spring.Utilities.Dump
+    local Dump = Spring.Utilities.Dump
 
     --
     -- Constants
@@ -159,13 +159,21 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Teams
     --
 
+    local Team = class(function(c, teamID)
+        c._teamID = teamID
+    end)
+
+    function Team:getTeamID()
+        return self._teamID
+    end
+
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --
     -- HumanTeam class
     --
-    local HumanTeam = class(function(c, teamID)
-        c._teamID = teamID
+    local HumanTeam = class(Team, function(c, teamID)
+        Team.init(c, teamID)
         c._attackingRobotsCount = 0
         c._attackingRobots = {}
 
@@ -230,8 +238,8 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
 
-    local RobotTeam = class(function(c, teamID)
-        c._teamID = teamID
+    local RobotTeam = class(Team, function(c, teamID)
+        Team.init(c, teamID)
     end)
 
     local modes = {
@@ -298,7 +306,7 @@ if (gadgetHandler:IsSyncedCode()) then
         gadget.difficulties = nil
     end
 
-    SetGlobals(luaAI or "Chicken: Normal") -- set difficulty
+    SetGlobals(luaAI or "Robot: Normal") -- set difficulty
 
     if (queenName == "asc") then
         queenName = "ve_chickenq"
@@ -523,6 +531,13 @@ if (gadgetHandler:IsSyncedCode()) then
                 return teamID
             end
         end
+
+        -- Random team if all teams are full
+        local teamList = {}
+        for teamID, _ in pairs(humanTeams) do
+            table.insert(teamList, teamID)
+        end
+        return teamList[mRandom(#teamList)]
     end
 
     -- selects a enemy target

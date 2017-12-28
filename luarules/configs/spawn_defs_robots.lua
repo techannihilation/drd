@@ -534,14 +534,14 @@ addWave(10,Wave10)
 addWave(11,Wave11)
 end
 
-VERYEASY = "Chicken: Very Easy"
-EASY = "Chicken: Easy"
-NORMAL = "Chicken: Normal"
-HARD = "Chicken: Hard"
-VERYHARD = "Chicken: Very Hard"
-INSANE = "Chicken: Insane"
-CUSTOM = "Chicken: Custom"
-SURVIVAL = "Chicken: Survival"
+VERYEASY = "Robot: Very Easy"
+EASY = "Robot: Easy"
+NORMAL = "Robot: Normal"
+HARD = "Robot: Hard"
+VERYHARD = "Robot: Very Hard"
+INSANE = "Robot: Insane"
+CUSTOM = "Robot: Custom"
+SURVIVAL = "Robot: Survival"
 
 difficulties = {
   [VERYEASY] = {
@@ -652,7 +652,7 @@ difficulties = {
 
 
 
-defaultDifficulty = 'Chicken: Custom'
+defaultDifficulty = 'Robot: Custom'
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

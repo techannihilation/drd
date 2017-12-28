@@ -52,7 +52,6 @@
 		mo_custom_chickenspawn=93;
 		mo_custom_damagemod=100;
 		mo_custom_expstep=1.5;
-		mo_custom_lobberemp=4;
 		mo_custom_minchicken=8;
 		mo_custom_queenspawnmult=1;
 		mo_custom_spawnchance=100;
@@ -94,7 +93,7 @@
 	[AI0]
 	{
 		Name=Bot1;
-		ShortName=Chicken: Custom;
+		ShortName=Robot: Custom;
 		Version=<not-versioned>;
 		Team=0;
 		IsFromDemo=0;

@@ -9,35 +9,35 @@
 
 return {
   {
-    name = 'Chicken: Very Easy',
+    name = 'Robot: Very Easy',
     desc = 'Trivial Games'
   },
   {
-    name = 'Chicken: Easy',
+    name = 'Robot: Easy',
     desc = 'Normal Games'
   },
   {
-    name = 'Chicken: Normal',
+    name = 'Robot: Normal',
     desc = 'Average Games'
   },
   {
-    name = 'Chicken: Hard',
+    name = 'Robot: Hard',
     desc = 'Large Games'
   },
   {
-    name = 'Chicken: Very Hard',
+    name = 'Robot: Very Hard',
     desc = 'Hardcore Games'
   },
   {
-    name = 'Chicken: Insane',
+    name = 'Robot: Insane',
     desc = 'Insane Games'
   },
   {
-    name = 'Chicken: Custom',
+    name = 'Robot: Custom',
     desc = 'Settings in ModOptions'
   },
   {
-    name = 'Chicken: Survival',
+    name = 'Robot: Survival',
     desc = 'Infinite Games'
   },
 }
