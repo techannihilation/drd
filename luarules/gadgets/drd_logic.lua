@@ -67,10 +67,12 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Utility
     --
     local class = Spring.Utilities.Class
-    local Dump = Spring.Utilities.Dump
     local SetToList = Spring.Utilities.SetToList
     local SetCount = Spring.Utilities.SetCount
     local Round = Spring.Utilities.Round
+    -- enable when needed
+    -- local Dump = Spring.Utilities.Dump
+
 
     local mRandom = math.random
     local math = math
@@ -171,13 +173,39 @@ if (gadgetHandler:IsSyncedCode()) then
         modes[v] = i
     end
 
-    local Team = class(function(p, teamID)
-        p._teamID = teamID
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Team class
+    --
+    local Team = class(function(c, teamID)
+        c._teamID = teamID
+        c._attackingRobotsCount = 0
+        c._attackingRobots = {}
     end)
 
     function Team:getEIncome()
         _, _, _, eincome = GetTeamResources(self._teamID, "energy")
         return eincome
+    end
+
+    function Team:addAttackingRobot(unitID)
+        self._attackingRobotsCount = self._attackingRobotsCount + 1
+        self._attackingRobots[unitID] = true
+    end
+
+    function Team:removeAttackingRobot(unitID)
+        if self._attackingRobots[unitID] then
+            self._attackingRobots[unitID] = nil
+        end
+    end
+
+    function Team:attackThisTeam(maxTeamRobots)
+        if self._attackingRobotsCount >= maxTeamRobots then
+            return false
+        end
+
+        return true
     end
 
     local teamsRAW = GetTeamList()
@@ -435,7 +463,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local totalIncome = 0
         local eincome = 0
         for teamID, team in pairs(humanTeams) do
-            eincome = team.getEIncome()
+            eincome = team:getEIncome()
             perPlayerEIncome[teamID] = eincome
             totalIncome = totalIncome + eincome
         end
@@ -455,29 +483,12 @@ if (gadgetHandler:IsSyncedCode()) then
         return {x, y, z}
     end
 
-    local function assignUnitToTeamAttack(teamID, unitID)
-        attackTeamUnitIDs[teamID][unitID] = true
-        attackTeamCount[teamID] = attackTeamCount[teamID] + 1
-    end
-
-    local function removeUnitFromTeamAttack(unitID)
-        for teamID, _ in pairs(attackTeamUnitIDs) do
-            if attackTeamUnitIDs[teamID][unitID] then
-                attackTeamCount[teamID] = attackTeamCount[teamID] - 1
-                attackTeamUnitIDs[teamID][unitID] = nil
-                return
-            end
-        end
-    end
-
     local function chooseTeamToAttack()
         local numChickens = #GetTeamUnits(chickenTeamID)
-
-        local chickensPerTeam = {}
         local perTeamEIncome = getPerTeamEIncome()
+
         for teamID, eIncome in pairs(perTeamEIncome) do
-            chickensPerTeam[teamID] = Round(numChickens * eIncome)
-            if attackTeamCount[teamID] < chickensPerTeam[teamID] then
+            if humanTeams[teamID]:attackThisTeam(Round(numChickens * eIncome)) then
                 return teamID
             end
         end
@@ -492,7 +503,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- Select team
         local teamID = chooseTeamToAttack()
-        assignUnitToTeamAttack(teamID, unitID)
+        humanTeams[teamID]:addAttackingRobot(unitID)
 
         -- Find the units producing the most E
         local units = GetTeamUnits(teamID)
@@ -516,11 +527,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
         if not target or target == 1 then
             -- no target with > 500 E found attack random unit of that team
-            return {units[mRandom(#units)]}
+            target = units[mRandom(#units)]
         end
 
         --Echo(UnitDefs[GetUnitDefID(target)].name," target")
-        return {GetUnitPosition(target)}
+        return target
     end
 
     local function getChickenSpawnLoc(burrowID, size)
@@ -947,10 +958,11 @@ if (gadgetHandler:IsSyncedCode()) then
             failChickens[unitID] = failCount + 1
         end
 
-        local chickenParams = ChooseTarget(unitID)
-        idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
-        if GetUnitNeutral(chickenParams[0]) then
-            idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = chickenParams, opts = {}}
+        local target = ChooseTarget(unitID)
+        local targetPos = {GetUnitPosition(target)}
+        idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
+        if GetUnitNeutral(target) then
+            idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
         end
     end
 
@@ -1100,7 +1112,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     qMove = false
                     qDamage = 0 - mRandom(0, 100000)
                 else
-                    local cC = ChooseTarget(queenID)
+                    local cC = {GetUnitPosition(ChooseTarget(queenID))}
                     local xQ, _, zQ = GetUnitPosition(queenID)
                     if cC then
                         local angle = math.atan2((cC[1] - xQ), (cC[3] - zQ))
@@ -1189,9 +1201,9 @@ if (gadgetHandler:IsSyncedCode()) then
             if (queenID) then
                 idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
             else
-                local chickenParams
-                chickenParams = ChooseTarget(unitID)
-                idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
+                local targetPosition
+                targetPosition = {GetUnitPosition(ChooseTarget(unitID))}
+                idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
                 chickenBirths[unitID] = {deathDate = t + (maxAges[defs.unitName] or maxAge), burrowID = defs.burrow}
 
                 chickenCount = chickenCount + 1
@@ -1455,7 +1467,10 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        removeUnitFromTeamAttack(unitID)
+        -- remove that robot from all teams
+        for _, team in pairs(humanTeams) do
+            team:removeAttackingRobot(unitID)
+        end
 
         if (unitTeam == chickenTeamID) and chickenDefTypes[unitDefID] then
             local name = UnitDefs[unitDefID].name

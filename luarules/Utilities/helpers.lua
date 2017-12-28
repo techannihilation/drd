@@ -13,7 +13,7 @@ function Spring.Utilities.Dump(o)
             if type(k) ~= "number" then
                 k = '"' .. k .. '"'
             end
-            s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
+            s = s .. "[" .. k .. "] = " .. Spring.Utilities.Dump(v) .. ",\n"
         end
         return s .. "} "
     else
