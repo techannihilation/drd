@@ -141,8 +141,6 @@ if (gadgetHandler:IsSyncedCode()) then
     local heroChicken = {}
     local defenseMap = {}
     local maxAges = {}
-    local attackTeamCount = {}
-    local attackTeamUnitIDs = {}
 
     do -- load config file
         local CONFIG_FILE
@@ -161,6 +159,81 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Teams
     --
 
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- HumanTeam class
+    --
+    local HumanTeam = class(function(c, teamID)
+        c._teamID = teamID
+        c._attackingRobotsCount = 0
+        c._attackingRobots = {}
+
+        c._unitsCount = 0
+        c._units = {}
+    end)
+
+    function HumanTeam:getEIncome()
+        _, _, _, eincome = GetTeamResources(self._teamID, "energy")
+        return eincome
+    end
+
+    function HumanTeam:removeAttackingRobot(unitID)
+        if not self._attackingRobots[unitID] then
+            return false
+        end
+
+        self._attackingRobots[unitID] = nil
+        self._attackingRobotsCount = self._attackingRobotsCount - 1
+        return true
+    end
+
+    function HumanTeam:attackThisTeam(maxTeamRobots)
+        if self._attackingRobotsCount >= maxTeamRobots then
+            return false
+        end
+
+        return true
+    end
+
+    function HumanTeam:addUnit(unitID, unitDefID)
+        if UnitDefs[unitDefID] and (UnitDefs[unitDefID].energyMake and UnitDefs[unitDefID].energyMake >= TARGET_ENERGYMAKE) then
+            self._units[unitID] = true
+            self._unitsCount = self._unitsCount + 1
+        end
+    end
+
+    function HumanTeam:removeUnit(unitID)
+        if not self._units[unitID] then
+            return false
+        end
+
+        self._units[unitID] = nil
+        self._unitsCount = self._unitsCount - 1
+        return true
+    end
+
+    --
+    -- Adds the robot unit to attacking units and returns best target of this team to attack
+    --
+    function HumanTeam:addAttackingRobotAndGetTarget(robotUnitID)
+        self._attackingRobotsCount = self._attackingRobotsCount + 1
+        self._attackingRobots[robotUnitID] = true
+
+        if self._unitsCount < 1 then
+            local units = GetTeamUnits(self._teamID)
+            return units[mRandom(#units)]
+        end
+
+        local unitsSet = SetToList(self._units)
+        return unitsSet[mRandom(#unitsSet)]
+    end
+
+
+    local RobotTeam = class(function(c, teamID)
+        c._teamID = teamID
+    end)
+
     local modes = {
         [1] = VERYEASY,
         [2] = EASY,
@@ -176,78 +249,6 @@ if (gadgetHandler:IsSyncedCode()) then
         modes[v] = i
     end
 
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Team class
-    --
-    local Team = class(function(c, teamID)
-        c._teamID = teamID
-        c._attackingRobotsCount = 0
-        c._attackingRobots = {}
-
-        c._unitsCount = 0
-        c._units = {}
-    end)
-
-    function Team:getEIncome()
-        _, _, _, eincome = GetTeamResources(self._teamID, "energy")
-        return eincome
-    end
-
-    function Team:removeAttackingRobot(unitID)
-        if not self._attackingRobots[unitID] then
-            return false
-        end
-
-        self._attackingRobots[unitID] = nil
-        self._attackingRobotsCount = self._attackingRobotsCount - 1
-        return true
-    end
-
-    function Team:attackThisTeam(maxTeamRobots)
-        if self._attackingRobotsCount >= maxTeamRobots then
-            return false
-        end
-
-        return true
-    end
-
-    function Team:addUnit(unitID, unitDefID)
-        if UnitDefs[unitDefID] and (UnitDefs[unitDefID].energyMake and UnitDefs[unitDefID].energyMake >= TARGET_ENERGYMAKE) then
-            self._units[unitID] = true
-            self._unitsCount = self._unitsCount + 1
-        end
-    end
-
-    function Team:removeUnit(unitID)
-        if not self._units[unitID] then
-            return false
-        end
-
-        self._units[unitID] = nil
-        self._unitsCount = self._unitsCount - 1
-        return true
-    end
-
-    --
-    -- Adds the robot unit to attacking units and returns best target of this team to attack
-    --
-    function Team:addAttackingRobotAndGetTarget(robotUnitID)
-        self._attackingRobotsCount = self._attackingRobotsCount + 1
-        self._attackingRobots[robotUnitID] = true
-
-        if self._unitsCount < 1 then
-            local units = GetTeamUnits(self._teamID)
-            return units[mRandom(#units)]
-        end
-
-        local unitsSet = SetToList(self._units)
-        return unitsSet[mRandom(#unitsSet)]
-    end
-
-
-
     local teamsRAW = GetTeamList()
     local highestLevel = 0
     for _, teamID in ipairs(teamsRAW) do
@@ -258,9 +259,9 @@ if (gadgetHandler:IsSyncedCode()) then
                 highestLevel = modes[teamLuaAI]
             end
             chickenTeamID = teamID
-            computerTeams[teamID] = true
+            computerTeams[teamID] = RobotTeam(teamID)
         else
-            humanTeams[teamID] = Team(teamID)
+            humanTeams[teamID] = HumanTeam(teamID)
         end
     end
 
@@ -276,11 +277,6 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     humanTeams[gaiaTeamID] = nil
-
-    for teamID, _ in pairs(humanTeams) do
-        attackTeamCount[teamID] = 0
-        attackTeamUnitIDs[teamID] = {}
-    end
 
     if (modes[highestLevel] and luaAI == 0) then
         return false
@@ -406,8 +402,6 @@ if (gadgetHandler:IsSyncedCode()) then
         return total
     end
 
-    local EMP_GOO = {}
-    EMP_GOO[WeaponDefNames["weaver_death"].id] = WeaponDefNames["weaver_death"].damages[1]
     local SKIRMISH = {
         --Robots
         [UnitDefNames["corthud"].id] = {distance = 300, chance = 0.8},
@@ -427,10 +421,7 @@ if (gadgetHandler:IsSyncedCode()) then
         [UnitDefNames["armraven"].id] = {distance = 1200, chance = 0.7},
         [UnitDefNames["armsnipe"].id] = {distance = 800, chance = 0.6},
         [UnitDefNames["clb"].id] = {distance = 3000, chance = 0.9}
-        --Robots
-        --  [UnitDefNames["chickens3"].id] = { distance = 440, chance = 0.1 },
     }
-    local JUNO = {[WeaponDefNames["cjuno_juno_pulse"].id] = true, [WeaponDefNames["ajuno_juno_pulse"]] = true}
     local KROW_ID = UnitDefNames["corcrw"].id
     local KROW_LASER = "krow_laser_index"
     local SMALL_UNIT = UnitDefNames["cormaw"].id
@@ -780,10 +771,6 @@ if (gadgetHandler:IsSyncedCode()) then
             currentWave = #waves
         end
 
-        if (currentWave == 10) then
-            COWARD[UnitDefNames["chickenc1"].id] = {distance = 700, chance = 0.1}
-        end
-
         if (queenAnger >= 100) then
             currentWave = #waves
         end
@@ -924,36 +911,6 @@ if (gadgetHandler:IsSyncedCode()) then
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --
-    -- Get rid of the AI
-    --
-
-    local function DisableUnit(unitID)
-        Spring.MoveCtrl.Enable(unitID)
-        Spring.MoveCtrl.SetNoBlocking(unitID, true)
-        Spring.MoveCtrl.SetPosition(unitID, Game.mapSizeX + 500, 2000, Game.mapSizeZ + 500) --don't move too far out or prevent_aicraft_hax will explode it!
-        --Spring.SetUnitCloak(unitID, true)
-        Spring.SetUnitHealth(unitID, {paralyze = 99999999})
-        Spring.SetUnitNoDraw(unitID, true)
-        Spring.SetUnitStealth(unitID, true)
-        Spring.SetUnitNoSelect(unitID, true)
-        Spring.SetUnitNoMinimap(unitID, true)
-        Spring.GiveOrderToUnit(unitID, CMD.MOVE_STATE, {0}, {})
-        Spring.GiveOrderToUnit(unitID, CMD.FIRE_STATE, {0}, {})
-        disabledUnits[unitID] = true
-    end
-
-    local function DisableComputerUnits()
-        for teamID in pairs(computerTeams) do
-            local teamUnits = GetTeamUnits(teamID)
-            for _, unitID in ipairs(teamUnits) do
-                DisableUnit(unitID)
-            end
-        end
-    end
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
     -- Call-ins
     --
 
@@ -972,7 +929,6 @@ if (gadgetHandler:IsSyncedCode()) then
             failChickens[unitID] = failCount + 1
         end
 
-        Echo("UnitID: ", unitID)
         local target = ChooseTarget(unitID)
         local targetPos = {GetUnitPosition(target)}
         idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
@@ -1045,10 +1001,6 @@ if (gadgetHandler:IsSyncedCode()) then
                         queenResistance[weaponID].notify = 1
                         for i = 1, 20, 1 do
                             table.insert(spawnQueue, {burrow = queenID, unitName = "corkarg", team = chickenTeamID})
-                        end
-                        for i = 1, 4, 1 do
-                            table.insert(spawnQueue, {burrow = queenID, unitName = "chickenh1", team = chickenTeamID})
-                            table.insert(spawnQueue, {burrow = queenID, unitName = "chickenh1b", team = chickenTeamID})
                         end
                     end
                     damage = damage - (damage * resistPercent)
@@ -1332,7 +1284,24 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         if n == 15 then
-            DisableComputerUnits()
+            -- Get rid of the AI
+            for teamID in pairs(computerTeams) do
+                local teamUnits = GetTeamUnits(teamID)
+                for _, unitID in ipairs(teamUnits) do
+                    Spring.MoveCtrl.Enable(unitID)
+                    Spring.MoveCtrl.SetNoBlocking(unitID, true)
+                    Spring.MoveCtrl.SetPosition(unitID, Game.mapSizeX + 500, 2000, Game.mapSizeZ + 500) --don't move too far out or prevent_aicraft_hax will explode it!
+                    --Spring.SetUnitCloak(unitID, true)
+                    Spring.SetUnitHealth(unitID, {paralyze = 99999999})
+                    Spring.SetUnitNoDraw(unitID, true)
+                    Spring.SetUnitStealth(unitID, true)
+                    Spring.SetUnitNoSelect(unitID, true)
+                    Spring.SetUnitNoMinimap(unitID, true)
+                    Spring.GiveOrderToUnit(unitID, CMD.MOVE_STATE, {0}, {})
+                    Spring.GiveOrderToUnit(unitID, CMD.FIRE_STATE, {0}, {})
+                    disabledUnits[unitID] = true
+                end
+            end
         end
 
         if ((n % 90) == 0) then
@@ -1635,8 +1604,6 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         humanTeams[teamID] = nil
-        attackTeamCount[teamID] = nil
-        attackTeamUnitIDs[teamID] = nil
 
         computerTeams[teamID] = nil
     end
@@ -1657,7 +1624,6 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:GameOver()
         if modes[highestLevel] ~= SURVIVAL then -- don't end game in survival mode
-            --		Echo("Set Gameover")
             gameOver = GetGameFrame()
         end
     end
