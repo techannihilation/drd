@@ -15,6 +15,7 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+
 if (gadgetHandler:IsSyncedCode()) then
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -61,6 +62,15 @@ if (gadgetHandler:IsSyncedCode()) then
     local GetCommandQueue = Spring.GetCommandQueue
     local GetUnitDirection = Spring.GetUnitDirection
     local Echo = Spring.Echo
+
+    --
+    -- Utility
+    --
+    local class = Spring.Utilities.Class
+    local Dump = Spring.Utilities.Dump
+    local SetToList = Spring.Utilities.SetToList
+    local SetCount = Spring.Utilities.SetCount
+    local Round = Spring.Utilities.Round
 
     local mRandom = math.random
     local math = math
@@ -161,9 +171,18 @@ if (gadgetHandler:IsSyncedCode()) then
         modes[v] = i
     end
 
-    local teams = GetTeamList()
+    local Team = class(function(p, teamID)
+        p._teamID = teamID
+    end)
+
+    function Team:getEIncome()
+        _, _, _, eincome = GetTeamResources(self._teamID, "energy")
+        return eincome
+    end
+
+    local teamsRAW = GetTeamList()
     local highestLevel = 0
-    for _, teamID in ipairs(teams) do
+    for _, teamID in ipairs(teamsRAW) do
         local teamLuaAI = GetTeamLuaAI(teamID)
         if (teamLuaAI and teamLuaAI ~= "") then
             luaAI = teamLuaAI
@@ -173,7 +192,7 @@ if (gadgetHandler:IsSyncedCode()) then
             chickenTeamID = teamID
             computerTeams[teamID] = true
         else
-            humanTeams[teamID] = true
+            humanTeams[teamID] = Team(teamID)
         end
     end
 
@@ -200,52 +219,7 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     SetGameRulesParam("chickenTeamID", chickenTeamID)
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Utility
-    --
 
-    local function dump(o)
-        if type(o) == "table" then
-            local s = "{ "
-            for k, v in pairs(o) do
-                if type(k) ~= "number" then
-                    k = '"' .. k .. '"'
-                end
-                s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
-            end
-            return s .. "} "
-        else
-            return tostring(o)
-        end
-    end
-
-    local function SetToList(set)
-        local list = {}
-        for k in pairs(set) do
-            table.insert(list, k)
-        end
-        return list
-    end
-
-    local function SetCount(set)
-        local count = 0
-        for k in pairs(set) do
-            count = count + 1
-        end
-        return count
-    end
-
-    local function getSqrDistance(x1, z1, x2, z2)
-        local dx, dz = x1 - x2, z1 - z2
-        return (dx * dx) + (dz * dz)
-    end
-
-    function round(num, numDecimalPlaces)
-        local mult = 10 ^ (numDecimalPlaces or 0)
-        return math.floor(num * mult + 0.5) / mult
-    end
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -460,8 +434,8 @@ if (gadgetHandler:IsSyncedCode()) then
         local perPlayerPercentage = {}
         local totalIncome = 0
         local eincome = 0
-        for teamID, _ in pairs(humanTeams) do
-            _, _, _, eincome = GetTeamResources(teamID, "energy")
+        for teamID, team in pairs(humanTeams) do
+            eincome = team.getEIncome()
             perPlayerEIncome[teamID] = eincome
             totalIncome = totalIncome + eincome
         end
@@ -502,7 +476,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local chickensPerTeam = {}
         local perTeamEIncome = getPerTeamEIncome()
         for teamID, eIncome in pairs(perTeamEIncome) do
-            chickensPerTeam[teamID] = round(numChickens * eIncome)
+            chickensPerTeam[teamID] = Round(numChickens * eIncome)
             if attackTeamCount[teamID] < chickensPerTeam[teamID] then
                 return teamID
             end
