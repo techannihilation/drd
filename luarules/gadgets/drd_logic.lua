@@ -292,7 +292,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     local chickenDefTypes = {}
     for unitName in pairs(chickenTypes) do
-        Echo("Adding unitname to spawner database:= " .. unitName)
+        --Echo("Adding unitname to spawner database:= " .. unitName)
         chickenDefTypes[UnitDefNames[unitName].id] = unitName
         unitCounts[(unitName)] = {count = 0, lastCount = 0}
     end
@@ -452,7 +452,7 @@ if (gadgetHandler:IsSyncedCode()) then
       local totalIncome = 0
       local eincome = 0
       for teamID, _ in pairs(humanTeams) do
-        _, _, _, eincome = Spring.GetTeamResources(teamID, "energy")
+        _, _, _, eincome = GetTeamResources(teamID, "energy")
         perPlayerEIncome[teamID] = eincome
         totalIncome = totalIncome + eincome
       end
@@ -484,7 +484,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     local function AttackNearestEnemy(unitID, unitDefID, unitTeam)
         local targetID = GetUnitNearestEnemy(unitID)
-        if (targetID) and (not GetUnitIsDead(targetID)) and (not GetUnitNeutral(targetID)) then
+        if targetID and not GetUnitIsDead(targetID) then
             local defID = GetUnitDefID(targetID)
             local myDefID = GetUnitDefID(unitID)
             if UnitDefs[defID] and UnitDefs[myDefID] and (UnitDefs[myDefID].speed < (UnitDefs[defID].speed * 1.15)) then
@@ -494,9 +494,9 @@ if (gadgetHandler:IsSyncedCode()) then
             idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = {x, y, z}, opts = {}}
             addChickenTarget(unitID, targetID)
             return true
-        else
-            return false
         end
+
+        return false
     end
 
     -- returns a random map position
@@ -513,6 +513,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if (#humanTeamList == 0) or gameOver then
             return getRandomMapPos()
         end
+
         if targetCache and ((targetCacheCount >= nextSquadSize) or GetUnitIsDead(targetCache)) then
             local tries = 0
             repeat
@@ -569,11 +570,15 @@ if (gadgetHandler:IsSyncedCode()) then
         if (#humanTeamList == 0) or gameOver then
             return getRandomMapPos()
         end
+
+        -- Select team
         local teamID = humanTeamList[mRandom(#humanTeamList)]
         if (teamID == lastTeamID) then
             teamID = humanTeamList[mRandom(#humanTeamList)]
         end
         lastTeamID = teamID
+
+        -- Find the units producing the most E
         local units = GetTeamUnits(teamID)
         local EnergyCache = {}
         local a = 1
@@ -586,18 +591,20 @@ if (gadgetHandler:IsSyncedCode()) then
                 a = a + 1
             end
         end
-        --Echo("energycache length ",#EnergyCache,#units)
+        local target
         if EnergyCache[2] then
-            targetCache = EnergyCache[mRandom(1, #EnergyCache)]
+          target = EnergyCache[mRandom(1, #EnergyCache)]
         else
-            targetCache = EnergyCache[1]
+          target = EnergyCache[1]
         end
-        if not targetCache or targetCache == 1 then -- no target could be found, use random map pos
+
+        -- no target could be found (if no unit produces more than 500 E), use random map pos
+        if not target or target == 1 then
             return ChooseTargetOld()
-        else
-            --Echo(UnitDefs[GetUnitDefID(targetCache)].name," target")
-            return {GetUnitPosition(targetCache)}
         end
+
+        --Echo(UnitDefs[GetUnitDefID(targetCache)].name," target")
+        return {GetUnitPosition(targetCache)}
     end
 
     local function getChickenSpawnLoc(burrowID, size)
@@ -744,6 +751,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if not queenID then
             return
         end
+
         local curH, maxH = GetUnitHealth(queenID)
         local lifeCheck = math.ceil(((curH / maxH) * 100) - 0.5)
         if queenLifePercent ~= lifeCheck then -- health changed since last update, update it
@@ -1009,9 +1017,13 @@ if (gadgetHandler:IsSyncedCode()) then
     --
 
     function gadget:UnitIdle(unitID, unitDefID, unitTeam)
-        if (unitTeam ~= chickenTeamID) or (not chickenDefTypes[unitDefID]) then -- filter out non chicken units
+        -- filter out non chicken units
+        if (unitTeam ~= chickenTeamID) or (not chickenDefTypes[unitDefID]) then 
             return
         end
+
+        Echo("PerPlayerEIncome: ", dump(getPerPlayerEIncome()))
+
         local failCount = failChickens[unitID]
         if (failCount == nil) then
             if (unitID ~= queenID) then
@@ -1035,9 +1047,11 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:UnitCreated(unitID, unitDefID, unitTeam)
-        if unitTeam == chickenTeamID and chickenDefTypes[unitDefID] then -- filter out chicken units
+        -- filter out chicken units
+        if unitTeam == chickenTeamID and chickenDefTypes[unitDefID] then
             return
         end
+
         if chickenTargets[unitID] then
             chickenTargets[unitID] = nil
         end
@@ -1062,16 +1076,13 @@ if (gadgetHandler:IsSyncedCode()) then
             return (damage * damageMod)
         end
 
-        if (heroChicken[unitID]) then
-            damage = (damage * heroChicken[unitID])
-            local x, y, z = GetUnitPosition(unitID)
-        --Spring.SpawnCEG("CHICKENHERO", x,y,z,0,0,0)
-        end
-
         if (unitID == queenID) then -- special case queen
+
+            -- prevents dguns
             if (weaponID == -1) and (damage > 25000) then
                 return 25000
             end
+
             if attackerDefID then
                 if (attackerDefID == KROW_ID) then
                     weaponID = KROW_LASER
@@ -1396,8 +1407,6 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:GameFrame(n)        
-        Echo(dump(getPerPlayerEIncome()))
-
         if gameOver then
             chickenCount = UpdateUnitCount()
             if (n > gameOver) then
