@@ -83,7 +83,6 @@ if (gadgetHandler:IsSyncedCode()) then
     local oldDamageMod = 1
     local currentWave = 1
     local lastWave = 1
-    local targetCache = 1
     local minBurrows = 1
     local timeOfLastSpawn = 0
     local timeOfLastFakeSpawn = 0
@@ -92,7 +91,6 @@ if (gadgetHandler:IsSyncedCode()) then
     local burrowTarget = 0
     local qDamage = 0
     local lastTeamID = 0
-    local targetCacheCount = 0
     local nextSquadSize = 0
     local chickenCount = 0
     local t = 0 -- game time in seconds
@@ -123,12 +121,13 @@ if (gadgetHandler:IsSyncedCode()) then
     local turrets = {}
     local chickenBirths = {}
     local failChickens = {}
-    local chickenTargets = {}
     local burrows = {}
     local failBurrows = {}
     local heroChicken = {}
     local defenseMap = {}
     local maxAges = {}
+    local attackTeamCount = {}
+    local attackTeamUnitIDs = {}
 
     do -- load config file
         local CONFIG_FILE
@@ -191,6 +190,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
     humanTeams[gaiaTeamID] = nil
 
+    for teamID, _ in pairs(humanTeams) do
+        attackTeamCount[teamID] = 0
+        attackTeamUnitIDs[teamID] = {}
+    end
+
     if (modes[highestLevel] and luaAI == 0) then
         return false
     end
@@ -203,18 +207,18 @@ if (gadgetHandler:IsSyncedCode()) then
     --
 
     local function dump(o)
-      if type(o) == "table" then
-          local s = "{ "
-          for k, v in pairs(o) do
-              if type(k) ~= "number" then
-                  k = '"' .. k .. '"'
-              end
-              s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
-          end
-          return s .. "} "
-      else
-          return tostring(o)
-      end
+        if type(o) == "table" then
+            local s = "{ "
+            for k, v in pairs(o) do
+                if type(k) ~= "number" then
+                    k = '"' .. k .. '"'
+                end
+                s = s .. "[" .. k .. "] = " .. dump(v) .. ",\n"
+            end
+            return s .. "} "
+        else
+            return tostring(o)
+        end
     end
 
     local function SetToList(set)
@@ -236,6 +240,11 @@ if (gadgetHandler:IsSyncedCode()) then
     local function getSqrDistance(x1, z1, x2, z2)
         local dx, dz = x1 - x2, z1 - z2
         return (dx * dx) + (dz * dz)
+    end
+
+    function round(num, numDecimalPlaces)
+        local mult = 10 ^ (numDecimalPlaces or 0)
+        return math.floor(num * mult + 0.5) / mult
     end
 
     --------------------------------------------------------------------------------
@@ -446,57 +455,22 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Spawn Dynamics
     --
 
-    local function getPerPlayerEIncome()
-      local perPlayerEIncome = {}
-      local perPlayerPercentage = {}
-      local totalIncome = 0
-      local eincome = 0
-      for teamID, _ in pairs(humanTeams) do
-        _, _, _, eincome = GetTeamResources(teamID, "energy")
-        perPlayerEIncome[teamID] = eincome
-        totalIncome = totalIncome + eincome
-      end
-
-      for teamID, eincome in pairs(perPlayerEIncome) do
-        perPlayerPercentage = eincome / totalIncome * 100
-      end
-
-      return perPlayerPercentage      
-    end    
-
-    local function addChickenTarget(chickenID, targetID)
-        if (not targetID) or (GetUnitTeam(targetID) == chickenTeamID) or (GetUnitTeam(chickenID) ~= chickenTeamID) then
-            return
-        end
-        --debug--Echo(t .. " addChickenTarget " .. chickenID .. "," .. targetID)
-        if chickenTargets[chickenID] and chickenTargets[chickenTargets[chickenID]] then
-            chickenTargets[chickenTargets[chickenID]][chickenID] = nil
-        end
-        if (chickenTargets[targetID] == nil) then
-            chickenTargets[targetID] = {}
-            chickenTargets[targetID][chickenID] = targetID
-            chickenTargets[chickenID] = targetID
-        else
-            chickenTargets[targetID][chickenID] = targetID
-            chickenTargets[chickenID] = targetID
-        end
-    end
-
-    local function AttackNearestEnemy(unitID, unitDefID, unitTeam)
-        local targetID = GetUnitNearestEnemy(unitID)
-        if targetID and not GetUnitIsDead(targetID) then
-            local defID = GetUnitDefID(targetID)
-            local myDefID = GetUnitDefID(unitID)
-            if UnitDefs[defID] and UnitDefs[myDefID] and (UnitDefs[myDefID].speed < (UnitDefs[defID].speed * 1.15)) then
-                return false
-            end
-            local x, y, z = GetUnitPosition(targetID)
-            idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = {x, y, z}, opts = {}}
-            addChickenTarget(unitID, targetID)
-            return true
+    local function getPerTeamEIncome()
+        local perPlayerEIncome = {}
+        local perPlayerPercentage = {}
+        local totalIncome = 0
+        local eincome = 0
+        for teamID, _ in pairs(humanTeams) do
+            _, _, _, eincome = GetTeamResources(teamID, "energy")
+            perPlayerEIncome[teamID] = eincome
+            totalIncome = totalIncome + eincome
         end
 
-        return false
+        for teamID, eincome in pairs(perPlayerEIncome) do
+            perPlayerPercentage[teamID] = eincome / totalIncome
+        end
+
+        return perPlayerPercentage
     end
 
     -- returns a random map position
@@ -507,76 +481,44 @@ if (gadgetHandler:IsSyncedCode()) then
         return {x, y, z}
     end
 
-    -- selects a enemy target
-    local function ChooseTargetOld()
-        local humanTeamList = SetToList(humanTeams)
-        if (#humanTeamList == 0) or gameOver then
-            return getRandomMapPos()
-        end
+    local function assignUnitToTeamAttack(teamID, unitID)
+        attackTeamUnitIDs[teamID][unitID] = true
+        attackTeamCount[teamID] = attackTeamCount[teamID] + 1
+    end
 
-        if targetCache and ((targetCacheCount >= nextSquadSize) or GetUnitIsDead(targetCache)) then
-            local tries = 0
-            repeat
-                local teamID = humanTeamList[mRandom(#humanTeamList)]
-                if (teamID == lastTeamID) then
-                    teamID = humanTeamList[mRandom(#humanTeamList)]
-                end
-                lastTeamID = teamID
-                local units = GetTeamUnits(teamID)
-                if units[2] then
-                    targetCache = units[mRandom(1, #units)]
-                else
-                    targetCache = units[1]
-                end
-                local slowunit = true
-                if targetCache and tries < 5 then
-                    local defID = GetUnitDefID(targetCache)
-                    --Echo(UnitDefs[defID].name,UnitDefs[defID].speed)
-                    if UnitDefs[defID] and (UnitDefs[defID].speed > 75) then
-                        slowunit = false
-                    end
-                end
-                tries = (tries + 1)
-            until (targetCache and (not GetUnitIsDead(targetCache)) and (not GetUnitNeutral(targetCache)) and slowunit) or
-                (tries > maxTries)
-            targetCacheCount = 0
-            nextSquadSize = 6 + mRandom(0, 4)
-        else
-            targetCacheCount = targetCacheCount + 1
-        end
-        if not targetCache then -- no target could be found, use random map pos
-            return getRandomMapPos()
-        end
-        if (mRandom(100) < 50) then
-            local angle = math.rad(mRandom(1, 360))
-            --		Echo(targetCache)
-            local x, y, z = GetUnitPosition(targetCache)
-            if not x or not y or not z then
-                --Echo("Invalid pos in GetUnitPosition: " .. tostring(targetCache))
-                return getRandomMapPos()
+    local function removeUnitFromTeamAttack(unitID)
+        for teamID, _ in pairs(attackTeamUnitIDs) do
+            if attackTeamUnitIDs[teamID][unitID] then
+                attackTeamCount[teamID] = attackTeamCount[teamID] - 1
+                attackTeamUnitIDs[teamID][unitID] = nil
+                return
             end
-            local distance = mRandom(50, 900)
-            x = math.min(math.max(x - (math.sin(angle) * distance), 16), MAPSIZEX - 16)
-            z = math.min(math.max(z - (math.cos(angle) * distance), 16), MAPSIZEZ - 16)
-            return {x, y, z}
-        else
-            return {GetUnitPosition(targetCache)}
+        end
+    end
+
+    local function chooseTeamToAttack()
+        local numChickens = #GetTeamUnits(chickenTeamID)
+
+        local chickensPerTeam = {}
+        local perTeamEIncome = getPerTeamEIncome()
+        for teamID, eIncome in pairs(perTeamEIncome) do
+            chickensPerTeam[teamID] = round(numChickens * eIncome)
+            if attackTeamCount[teamID] < chickensPerTeam[teamID] then
+                return teamID
+            end
         end
     end
 
     -- selects a enemy target
-    local function ChooseTarget()
+    local function ChooseTarget(unitID)
         local humanTeamList = SetToList(humanTeams)
         if (#humanTeamList == 0) or gameOver then
             return getRandomMapPos()
         end
 
         -- Select team
-        local teamID = humanTeamList[mRandom(#humanTeamList)]
-        if (teamID == lastTeamID) then
-            teamID = humanTeamList[mRandom(#humanTeamList)]
-        end
-        lastTeamID = teamID
+        local teamID = chooseTeamToAttack()
+        assignUnitToTeamAttack(teamID, unitID)
 
         -- Find the units producing the most E
         local units = GetTeamUnits(teamID)
@@ -593,18 +535,18 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         local target
         if EnergyCache[2] then
-          target = EnergyCache[mRandom(1, #EnergyCache)]
+            target = EnergyCache[mRandom(1, #EnergyCache)]
         else
-          target = EnergyCache[1]
+            target = EnergyCache[1]
         end
 
-        -- no target could be found (if no unit produces more than 500 E), use random map pos
         if not target or target == 1 then
-            return ChooseTargetOld()
+            -- no target with > 500 E found attack random unit of that team
+            return {units[mRandom(#units)]}
         end
 
-        --Echo(UnitDefs[GetUnitDefID(targetCache)].name," target")
-        return {GetUnitPosition(targetCache)}
+        --Echo(UnitDefs[GetUnitDefID(target)].name," target")
+        return {GetUnitPosition(target)}
     end
 
     local function getChickenSpawnLoc(burrowID, size)
@@ -1018,11 +960,9 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:UnitIdle(unitID, unitDefID, unitTeam)
         -- filter out non chicken units
-        if (unitTeam ~= chickenTeamID) or (not chickenDefTypes[unitDefID]) then 
+        if (unitTeam ~= chickenTeamID) or (not chickenDefTypes[unitDefID]) then
             return
         end
-
-        Echo("PerPlayerEIncome: ", dump(getPerPlayerEIncome()))
 
         local failCount = failChickens[unitID]
         if (failCount == nil) then
@@ -1032,17 +972,11 @@ if (gadgetHandler:IsSyncedCode()) then
         else
             failChickens[unitID] = failCount + 1
         end
-        -- Echo(t .. " unitIdle " .. unitID)
-        if AttackNearestEnemy(unitID, unitDefID, unitTeam) then
-            return
-        end
-        local chickenParams = ChooseTargetOld()
-        if targetCache then
-            idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
-            if GetUnitNeutral(targetCache) then
-                idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = {targetCache}, opts = {}}
-            end
-            addChickenTarget(unitID, targetCache)
+
+        local chickenParams = ChooseTarget(unitID)
+        idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
+        if GetUnitNeutral(chickenParams[0]) then
+            idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = chickenParams, opts = {}}
         end
     end
 
@@ -1050,10 +984,6 @@ if (gadgetHandler:IsSyncedCode()) then
         -- filter out chicken units
         if unitTeam == chickenTeamID and chickenDefTypes[unitDefID] then
             return
-        end
-
-        if chickenTargets[unitID] then
-            chickenTargets[unitID] = nil
         end
     end
 
@@ -1077,7 +1007,6 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         if (unitID == queenID) then -- special case queen
-
             -- prevents dguns
             if (weaponID == -1) and (damage > 25000) then
                 return 25000
@@ -1197,7 +1126,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     qMove = false
                     qDamage = 0 - mRandom(0, 100000)
                 else
-                    local cC = ChooseTarget()
+                    local cC = ChooseTarget(queenID)
                     local xQ, _, zQ = GetUnitPosition(queenID)
                     if cC then
                         local angle = math.atan2((cC[1] - xQ), (cC[3] - zQ))
@@ -1210,9 +1139,6 @@ if (gadgetHandler:IsSyncedCode()) then
                                 {}
                             )
                             GiveOrderToUnit(queenID, CMD.FIGHT, cC, {"shift"})
-                            if targetCache then
-                                addChickenTarget(queenID, targetCache)
-                            end
                             qDamage = 0 - mRandom(50000, 250000)
                             Wave()
                             qMove = true
@@ -1290,26 +1216,8 @@ if (gadgetHandler:IsSyncedCode()) then
                 idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
             else
                 local chickenParams
-                if mRandom(1, 100) > 50 then
-                    chickenParams = ChooseTargetOld()
-                else
-                    chickenParams = ChooseTarget()
-                end
-                if targetCache and (unitID ~= queenID) and (mRandom(1, 15) == 5) then
-                    idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = {targetCache}, opts = {}}
-                else
-                    if (mRandom(100) > 20) then
-                        idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
-                    else
-                        idleOrderQueue[unitID] = {cmd = CMD.MOVE, params = chickenParams, opts = {}}
-                    end
-                end
-                if targetCache then
-                    if GetUnitNeutral(targetCache) then
-                        idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = {targetCache}, opts = {}}
-                    end
-                    addChickenTarget(unitID, targetCache)
-                end
+                chickenParams = ChooseTarget(unitID)
+                idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = chickenParams, opts = {}}
                 chickenBirths[unitID] = {deathDate = t + (maxAges[defs.unitName] or maxAge), burrowID = defs.burrow}
 
                 chickenCount = chickenCount + 1
@@ -1406,7 +1314,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function gadget:GameFrame(n)        
+    function gadget:GameFrame(n)
         if gameOver then
             chickenCount = UpdateUnitCount()
             if (n > gameOver) then
@@ -1573,25 +1481,7 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        if chickenTargets[unitID] then
-            if (unitTeam ~= chickenTeamID) then
-                --debug--Echo(t .. " chickenTargets " .. unitID)
-                for chickenID in pairs(chickenTargets[unitID]) do
-                    --debug--Echo(t .. " stopChicken " .. chickenID)
-                    if GetUnitDefID(chickenID) then
-                        idleOrderQueue[chickenID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                    end
-                end
-            elseif chickenTargets[chickenTargets[unitID]] then
-                chickenTargets[chickenTargets[unitID]][unitID] = nil
-            end
-            chickenTargets[unitID] = nil
-        end
-
-        if (unitID == targetCache) then
-            targetCache = 1
-            targetCacheCount = math.huge
-        end
+        removeUnitFromTeamAttack(unitID)
 
         if (unitTeam == chickenTeamID) and chickenDefTypes[unitDefID] then
             local name = UnitDefs[unitDefID].name
@@ -1717,7 +1607,11 @@ if (gadgetHandler:IsSyncedCode()) then
                 minBurrows = (minBurrows - 1)
             end
         end
+
         humanTeams[teamID] = nil
+        attackTeamCount[teamID] = nil
+        attackTeamUnitIDs[teamID] = nil
+
         computerTeams[teamID] = nil
     end
 
