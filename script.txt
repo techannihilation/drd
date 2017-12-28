@@ -56,7 +56,7 @@
 		mo_custom_minchicken=8;
 		mo_custom_queenspawnmult=1;
 		mo_custom_spawnchance=100;
-		mo_graceperiod=1;
+		mo_graceperiod=30;
 		mo_maxage=300;
 		mo_maxchicken=380;
 		mo_queentime=40;
