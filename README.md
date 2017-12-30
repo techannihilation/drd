@@ -1,6 +1,6 @@
 # Dynamic Robot Defense
 
-This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Defense) where Silver and Fast work on complete dynamic spawning of robots.
+This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Defense) where we work on complete dynamic spawning of robots.
 
 ## TODO
 
