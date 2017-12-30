@@ -9,7 +9,7 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ## Changes
 
-### master
+### v0.0.3
 
 - 28.Dec.2017: Add logic so Robots attack big eco spots first.
 
