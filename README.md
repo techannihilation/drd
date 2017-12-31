@@ -9,6 +9,10 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ## Changes
 
+### v0.1.3
+
+- 31.Dec.2017: Make multiple bots fully working, means by adding 2 bots you get two times the harder game.
+
 ### v0.0.3
 
 - 28.Dec.2017: Add logic so Robots attack big eco spots first.
