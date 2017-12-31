@@ -4,34 +4,32 @@
 
 local GetModOptions = Spring.GetModOptions
 
-maxChicken           = tonumber(GetModOptions().mo_maxchicken) or 400
-maxBurrows           = 20
-burrowhp             = tonumber(GetModOptions().mo_custom_burrowshp) or 8600
-gracePeriod          = tonumber(GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
-queenTime            = (GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
-addQueenAnger        = tonumber(GetModOptions().mo_queenanger) or 1
+settingMaxChicken    = tonumber(GetModOptions().mo_maxchicken) or 400
+settingMaxBurrows    = 20
+settingBurrowhp      = tonumber(GetModOptions().mo_custom_burrowshp) or 8600
+settingGracePeriod   = tonumber(GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
+settingQueenTime     = (GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
+settingAddQueenAnger = tonumber(GetModOptions().mo_queenanger) or 1
 burrowSpawnType      = GetModOptions().mo_chickenstart or "avoid"
 spawnSquare          = 90       -- size of the chicken spawn square centered on the burrow
 spawnSquareIncrement = 2         -- square size increase for each unit spawned
 burrowName           = "rroost"   -- burrow unit name
-maxAge               = tonumber(GetModOptions().mo_maxage) or 300  -- chicken die at this age, seconds
-mo_queendifficulty   = GetModOptions()["mo_queendifficulty"] or "n_chickenq"
-queenName            = mo_queendifficulty .."r"
-burrowDef            = UnitDefNames[burrowName].id
+settingMaxAge        = tonumber(GetModOptions().mo_maxage) or 300  -- chicken die at this age, seconds
+local mo_queendifficulty   = GetModOptions()["mo_queendifficulty"] or "n_chickenq"
+settingQueenName     = mo_queendifficulty .."r"
+settingBurrowDef     = UnitDefNames[burrowName].id
 defenderChance       = 0.5       -- probability of spawning a single turret
 maxTurrets           = 3   		 -- Max Turrets per burrow
 queenSpawnMult       = 1         -- how many times bigger is a queen hatch than a normal burrow hatch
 burrowSpawnRate      = 60
 chickenSpawnRate     = 59
-minBaseDistance      = 600      
+minBaseDistance      = 600
 maxBaseDistance      = 7200
 chickensPerPlayer    = 8
 spawnChance          = 0.5
-bonusTurret          = "armrl" -- Turret that gets spawned when a burrow dies
+settingBonusTurret          = "armrl" -- Turret that gets spawned when a burrow dies
 angerBonus           = 0.25
 expStep              = 0.0625
-lobberEMPTime        = 4
-damageMod            = 1
 waves                = {}
 newWaveSquad         = {}
 
@@ -47,7 +45,7 @@ bonusTurret7c = "cordoom"
 --------------------------------------------------------------------------------
 
 local function Copy(original)
-  local copy = {} 
+  local copy = {}
   for k, v in pairs(original) do
     if (type(v) == "table") then
       copy[k] = Copy(v)
@@ -67,7 +65,7 @@ end
 
 
 
-   
+
 local chickenTypes = {
   ve_chickenqr  =  true,
   e_chickenqr   =  true,
@@ -153,7 +151,7 @@ local chickenTypes = {
   tlllongshot   =  true, --piece count 5
   tllcrawlb     =  true,
   airwolf3g     =  true,
-  
+
   --new by skymyj
   tllamphibot   = true, -- piece count 5
   coramph       = true, -- piece count 5
@@ -167,15 +165,15 @@ local chickenTypes = {
   cortotal      = true, -- piece count 10
   krogtaar      = true, -- piece count 15
   akmech        = true, -- piece count 15
-  
+
   --added only for insane king spawn
-  abroadside    =  true, 
-  cdevastator   =  true, 
+  abroadside    =  true,
+  cdevastator   =  true,
   monkeylord    =  true,
   irritator     =  true,
 }
 
-local defenders = { 
+local defenders = {
   armrl = true,
   armflak = true,
   arm_big_bertha = true,
@@ -206,7 +204,7 @@ if (mRandom(0,1) == 1) then addWave(2,{"2 corcrash", "1 aexxec", "1 cormist1"}) 
 if (mRandom(0,1) == 1) then addWave(2,{"2 aexxec", "1 cormist1"}) else addWave(2,{"2 armjanus1", "2 armjanus1"}) end
 if (mRandom(0,1) == 1) then addWave(2,{"2 armflash"}) else addWave(2,{"2 armflash", "2 armsam"}) end
 
---t1.5 
+--t1.5
 newWaveSquad[3] = {"2 armjanus1", "4 aexxec", "24 armflash1"}
 if (mRandom(0,1) == 1) then addWave(3,{"3 armflash1"}) else addWave(3,{"2 armflash1", "2 armjanus1"}) end
 if (mRandom(0,1) == 1) then addWave(3,{"1 aexxec"}) else addWave(3,{"2 armjanus1", "2 corcrash"}) end
@@ -478,8 +476,8 @@ for unitDefID,unitDef in pairs(UnitDefs) do
   if not blackList[unitDef.name]
   and unitDef.isBuilder == false
   and unitDef.moveDef.name
-  and unitDef.minWaterDepth < 0 
-  or 
+  and unitDef.minWaterDepth < 0
+  or
   unitDef.canFly
   and not blackList[unitDef.name]
   and unitDef.isBuilder == false
@@ -489,7 +487,7 @@ for unitDefID,unitDef in pairs(UnitDefs) do
       addUnits(Wave1,unitDef.name)
     end
      if unitDef.buildTime < 4700 and unitDef.buildTime > 3000 then
-      addUnits(Wave2,unitDef.name) 
+      addUnits(Wave2,unitDef.name)
     end
     if unitDef.buildTime < 9000 and unitDef.buildTime > 4700 then
       addUnits(Wave3,unitDef.name)
@@ -545,7 +543,7 @@ SURVIVAL = "Robot: Survival"
 
 difficulties = {
   [VERYEASY] = {
-    chickenSpawnRate  = 100, 
+    chickenSpawnRate  = 100,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.05,
@@ -557,7 +555,7 @@ difficulties = {
     damageMod         = 0.6,
   },
   [EASY] = {
-    chickenSpawnRate  = 100, 
+    chickenSpawnRate  = 100,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.075,
@@ -608,7 +606,7 @@ difficulties = {
     spawnChance       = 0.6,
     damageMod         = 1.25,
   },
-  
+
   [INSANE] = {
     chickenSpawnRate  = 30,
     burrowSpawnRate   = 28,
@@ -621,8 +619,8 @@ difficulties = {
     spawnChance       = 0.8,
     damageMod         = 1.5,
   },
-  
-  
+
+
   [CUSTOM] = {
     chickenSpawnRate  = tonumber(GetModOptions().mo_custom_chickenspawn),
     burrowSpawnRate   = tonumber(GetModOptions().mo_custom_burrowspawn),

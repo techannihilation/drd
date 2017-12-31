@@ -77,70 +77,36 @@ if (gadgetHandler:IsSyncedCode()) then
     local SetCount = Spring.Utilities.SetCount
     local Round = Spring.Utilities.Round
     -- enable when needed
-    local Dump = Spring.Utilities.Dump
+    -- local Dump = Spring.Utilities.Dump
 
     --
     -- Constants
     --
+    local UPDATE = 15 -- update every x frames
+    local MAXTRIES = 30
     local MAPSIZEX = Game.mapSizeX
     local MAPSIZEZ = Game.mapSizeZ
     local DMAREA = 160
     -- Target units with energymake >= x
     local TARGET_ENERGYMAKE = 400
 
+    local KROW_ID = UnitDefNames["corcrw"].id
+    local KROW_LASER = "krow_laser_index"
+    local SMALL_UNIT = UnitDefNames["cormaw"].id
+    local MEDIUM_UNIT = UnitDefNames["armwin"].id
+    local LARGE_UNIT = UnitDefNames["armsolar"].id
+
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
 
-    local survivalQueenMod = 0.8
-    local queenLifePercent = 100
-    local maxTries = 30
-    local oldMaxChicken = 0
-    local oldDamageMod = 1
-    local currentWave = 1
-    local lastWave = 1
-    local minBurrows = 1
-    local timeOfLastSpawn = 0
-    local timeOfLastFakeSpawn = 0
-    local timeOfLastWave = 0
-    local expMod = 0
-    local burrowTarget = 0
-    local qDamage = 0
-    local lastTeamID = 0
-    local nextSquadSize = 0
-    local chickenCount = 0
-    local t = 0 -- game time in seconds
-    local timeCounter = 0
-    local queenAnger = 0
-    local burrowSpawnProgress = 0
-    local queenMaxHP = 0
-    local chickenDebtCount = 0
-    local burrowAnger = 0
-    local firstSpawn = true
     local gameOver = nil
-    local qMove = false
     local noBotWarningMessage = false
-    local ascendingQueen = false
-    local nextQueenSpawn = nil
+    local disabledUnits = {}
+
     local computerTeams = {}
     local humanTeams = {}
-    local disabledUnits = {}
-    local spawnQueue = {}
-    local deathQueue = {}
-    local idleOrderQueue = {}
-    local queenResistance = {}
-    local stunList = {}
-    local queenID
-    local chickenTeamID
+
     local luaAI
-    local lsx1, lsz1, lsx2, lsz2
-    local turrets = {}
-    local chickenBirths = {}
-    local failChickens = {}
-    local burrows = {}
-    local failBurrows = {}
-    local heroChicken = {}
-    local defenseMap = {}
-    local maxAges = {}
 
     do -- load config file
         local CONFIG_FILE
@@ -151,6 +117,104 @@ if (gadgetHandler:IsSyncedCode()) then
         local chunk = assert(loadstring(s, file))
         setfenv(chunk, gadget)
         chunk()
+    end
+
+    local function chickenEvent(type, num, tech)
+        --Echo(type ,num, tech)
+        SendToUnsynced("ChickenEvent", type, num, tech)
+    end
+
+
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Game End Stuff
+    --
+
+    local function KillAllComputerUnits()
+        for teamID in pairs(computerTeams) do
+            local teamUnits = GetTeamUnits(teamID)
+            for _, unitID in pairs(teamUnits) do
+                if disabledUnits[unitID] then
+                    DestroyUnit(unitID, false, true)
+                else
+                    DestroyUnit(unitID, true)
+                end
+            end
+        end
+    end
+
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Spawn Dynamics
+    --
+
+    local function getPerTeamEIncome()
+        local perPlayerEIncome = {}
+        local perPlayerPercentage = {}
+        local totalIncome = 0
+        local eincome = 0
+        for teamID, team in pairs(humanTeams) do
+            eincome = team:getEIncome()
+            perPlayerEIncome[teamID] = eincome
+            totalIncome = totalIncome + eincome
+        end
+
+        for teamID, eincome in pairs(perPlayerEIncome) do
+            perPlayerPercentage[teamID] = eincome / totalIncome
+        end
+
+        return perPlayerPercentage
+    end
+
+    -- returns a random map position
+    local function getRandomMapPos()
+        local x = math.random(MAPSIZEX - 16)
+        local z = math.random(MAPSIZEZ - 16)
+        local y = GetGroundHeight(x, z)
+        return {x, y, z}
+    end
+
+    local function chooseTeamToAttack()
+        local numChickens = 0
+        for _, robotTeam in pairs(computerTeams) do
+            numChickens = numChickens + robotTeam:getChickenCount()
+        end
+        local perTeamEIncome = getPerTeamEIncome()
+
+        for teamID, eIncome in pairs(perTeamEIncome) do
+            if humanTeams[teamID]:attackThisTeam(Round(numChickens * eIncome)) then
+                return teamID
+            end
+        end
+
+        -- Random team if all teams are full
+        local teamList = {}
+        for teamID, _ in pairs(humanTeams) do
+            table.insert(teamList, teamID)
+        end
+        return teamList[mRandom(#teamList)]
+    end
+
+    -- selects a enemy target
+    local function ChooseTarget(unitID)
+        if SetCount(humanTeams) == 0 or gameOver then
+            return getRandomMapPos()
+        end
+
+        -- Select team
+        local teamID = chooseTeamToAttack()
+
+        -- Add attacking robot to the team and get best target from it
+        local team = humanTeams[teamID]
+        return team:addAttackingRobotAndGetTarget(unitID)
+    end
+
+    local function SpawnBurrow(count)
+        for _, robotTeam in pairs(computerTeams) do
+            robotTeam:SpawnBurrows(count)
+        end
     end
 
     --------------------------------------------------------------------------------
@@ -238,323 +302,160 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
 
-    local RobotTeam = class(Team, function(c, teamID)
+    local RobotTeam = class(Team, function(c, teamID, luaAI)
         Team.init(c, teamID)
+        c._luaAI = luaAI or NORMAL
+
+        c._queenID = false
+
+        -- box vars
+        c.lsx1 = 0
+        c.lsz1 = 0
+        c.lsx2 = 0
+        c.lsz2 = 0
+
+        -- difficulty: by default VERYEASY
+        c.chickenSpawnRate  = 100
+        c.burrowSpawnRate   = 120
+        c.queenSpawnMult    = 0
+        c.angerBonus        = 0.05
+        c.expStep           = 0
+        c.chickenTypes      = {}
+        c.defenders         = {}
+        c.chickensPerPlayer = 3
+        c.spawnChance       = 0.25
+        c.damageMod         = 0.6
+
+        -- failing stuff
+        c._failBurrows = {}
+        c._failChickens = {}
+
+        -- burrows
+        c._burrows = {}
+        c._minBurrows = 1
+        c._burrowTarget = 0
+
+        -- queue's
+        c._spawnQueue = {}
+        c._deathQueue = {}
+        c._idleOrderQueue = {}
+
+        -- Other variables
+        c._currentWave = 1
+        c._gameTimeSeconds = 0
+        c._ascendingQueen = false
+        c._queenResistance = {}
+        c._timeCounter = 0
+        c._queenAnger = 0
+        c._isBestRobot = false
+        c._chickenCount = 0
+        c._chickenDebtCount = 0
+        c._chickenBirths = {}
+        c._queenLifePercent = 100
+        c._nextQueenSpawn = nil
+        c._survivalQueenMod = 0.8
+        c._oldDamageMod = 1
+        c._firstSpawn = true
+        c._timeOfLastSpawn = 0
+        c._timeOfLastFakeSpawn = 0
+        c._timeOfLastWave = 0
+        c._lastWave = 1
+        c._burrowAnger = 0
+        c._qDamage = 0
+        c._qMove = false
+        c._queenMaxHP = 0
+
+        -- Settings
+        c._maxChicken = settingMaxChicken
+        -- to save maxChicken in SURVIVAL mod
+        c._oldMaxChicken = 0
+        c._queenName = settingQueenName
+        c._maxAge = settingMaxAge
+        c._bonusTurret = settingBonusTurret
+        c._queenTime = settingQueenTime + settingGracePeriod
     end)
 
-    local modes = {
-        [1] = VERYEASY,
-        [2] = EASY,
-        [3] = NORMAL,
-        [4] = HARD,
-        [5] = VERYHARD,
-        [6] = INSANE,
-        [7] = CUSTOM,
-        [8] = SURVIVAL
-    }
+    function RobotTeam:setUp(isBestRobot)
+        -- load/set difficulty
+        for key, value in pairs(gadget.difficulties[self._luaAI]) do
+            self[key] = value
+        end
 
-    for i, v in ipairs(modes) do -- make it bi-directional
-        modes[v] = i
-    end
+        self:_getDefTypes()
 
-    local teamsRAW = GetTeamList()
-    local highestLevel = 0
-    for _, teamID in ipairs(teamsRAW) do
-        local teamLuaAI = GetTeamLuaAI(teamID)
-        if (teamLuaAI and teamLuaAI ~= "") then
-            luaAI = teamLuaAI
-            if (modes[teamLuaAI] > highestLevel) then -- get chicken ai with highest level
-                highestLevel = modes[teamLuaAI]
-            end
-            chickenTeamID = teamID
-            computerTeams[teamID] = RobotTeam(teamID)
+        self._expMod = 0
+        if self.expStep > 0 then
+            self._expIncrement = ((SetCount(humanTeams) * self.expStep) / settingQueenTime)
         else
-            humanTeams[teamID] = HumanTeam(teamID)
+           self._expIncrement = ((self.expStep * -1) / settingQueenTime)
+        end
+
+        -- Queentime in 10 waves in 60 seconds
+        self._nextWave = (self._queenTime - settingGracePeriod) / 10 / 60
+
+        self._isBestRobot = isBestRobot
+        if isBestRobot == true then
+            SetGameRulesParam("queenLife", self._queenLifePercent)
+            SetGameRulesParam("queenAnger", self._queenAnger)
+            SetGameRulesParam("chickenSpawnRate", self.chickenSpawnRate)
+        end
+
+        -- queen
+        if (self._queenName == "asc") then
+            self._queenName = "ve_chickenqr"
+            self._ascendingQueen = true
         end
     end
 
-    luaAI = modes[highestLevel]
+    function RobotTeam:_getDefTypes()
+        self._chickenDefTypes = {}
+        self._unitCounts = {}
+        self._defendersDefs = {}
 
-    local gaiaTeamID = GetGaiaTeamID()
-    if not chickenTeamID then
-        chickenTeamID = gaiaTeamID
+        for unitName in pairs(self.chickenTypes) do
+            --Echo("Adding unitname to spawner database:= " .. unitName)
+            self._chickenDefTypes[UnitDefNames[unitName].id] = unitName
+            self._unitCounts[(unitName)] = {count = 0, lastCount = 0}
 
-        noBotWarningMessage = true
-    else
-        computerTeams[gaiaTeamID] = nil
-    end
-
-    humanTeams[gaiaTeamID] = nil
-
-    if (modes[highestLevel] and luaAI == 0) then
-        return false
-    end
-
-    SetGameRulesParam("chickenTeamID", chickenTeamID)
-
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Difficulty
-    --
-
-    local function SetGlobals(difficulty)
-        for key, value in pairs(gadget.difficulties[difficulty]) do
-            gadget[key] = value
-        end
-        gadget.difficulties = nil
-    end
-
-    SetGlobals(luaAI or "Robot: Normal") -- set difficulty
-
-    if (queenName == "asc") then
-        queenName = "ve_chickenq"
-        ascendingQueen = true
-    end
-
-    local expIncrement = ((SetCount(humanTeams) * expStep) / queenTime)
-    if expStep < 0 then
-        expIncrement = ((expStep * -1) / queenTime)
-    end
-    local nextWave = ((queenTime / 10) / 60)
-    local gracePenalty = math.max(math.floor(((gracePeriod - 270) / burrowSpawnRate) + 0.5), 0)
-    chickensPerPlayer = (chickensPerPlayer * SetCount(humanTeams))
-    maxBurrows = maxBurrows + math.floor(SetCount(humanTeams) * 1.334)
-    queenTime = (queenTime + gracePeriod)
-    chickenDebtCount = math.ceil((math.max((gracePeriod - 270), 0) / 3))
-
-    if (modes[highestLevel] == INSANE) then
-        gracePenalty = gracePenalty + 15
-        maxBurrows = math.max(maxBurrows * 1.5, 50)
-        chickenDebtCount = math.max(chickenDebtCount, 150)
-        expMod = 1
-    end
-    if tonumber(Spring.GetModOptions().mo_gracepenalty) == 0 then
-        gracePenalty = 0
-        Echo("gracePenalty = " .. gracePenalty)
-    end
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Game Rules
-    --
-
-    local UPDATE = 15
-
-    local unitCounts = {}
-
-    local chickenDefTypes = {}
-    for unitName in pairs(chickenTypes) do
-        --Echo("Adding unitname to spawner database:= " .. unitName)
-        chickenDefTypes[UnitDefNames[unitName].id] = unitName
-        unitCounts[(unitName)] = {count = 0, lastCount = 0}
-    end
-
-    local defendersDefs = {}
-    for unitName in pairs(defenders) do
-        defendersDefs[UnitDefNames[unitName].id] = unitName
-    end
-
-    local function SetupUnit(unitName)
-        SetGameRulesParam(unitName .. "Count", 0)
-        SetGameRulesParam(unitName .. "Kills", 0)
-    end
-
-    SetGameRulesParam("queenTime", queenTime)
-    SetGameRulesParam("queenLife", queenLifePercent)
-    SetGameRulesParam("queenAnger", queenAnger)
-    SetGameRulesParam("gracePeriod", gracePeriod)
-    SetGameRulesParam("chickenSpawnRate", chickenSpawnRate)
-
-    for unitName in pairs(chickenTypes) do
-        SetupUnit(unitName)
-    end
-
-    for unitName in pairs(defenders) do
-        SetupUnit(unitName)
-    end
-
-    SetupUnit(burrowName)
-
-    local difficulty = modes[luaAI] or 3
-    SetGameRulesParam("difficulty", difficulty)
-
-    local function UpdateUnitCount()
-        local teamUnitCounts = GetTeamUnitsCounts(chickenTeamID)
-        local total = 0
-
-        for shortName in pairs(unitCounts) do
-            unitCounts[shortName].count = 0
+            -- this is needed for the GUI widget
+            SetGameRulesParam(unitName .. "Count", 0)
+            SetGameRulesParam(unitName .. "Kills", 0)
         end
 
-        for unitDefID, number in pairs(teamUnitCounts) do
-            if UnitDefs[unitDefID] then
-                local shortName
-                shortName = (UnitDefs[unitDefID].name)
-                if unitCounts[shortName] then
-                    unitCounts[shortName].count = unitCounts[shortName].count + number
-                end
-            end
+        for unitName in pairs(self.defenders) do
+            self._defendersDefs[UnitDefNames[unitName].id] = unitName
+
+            -- this is needed for the GUI widget
+            SetGameRulesParam(unitName .. "Count", 0)
+            SetGameRulesParam(unitName .. "Kills", 0)
         end
 
-        for shortName, counts in pairs(unitCounts) do
-            if (counts.count ~= counts.lastCount) then
-                SetGameRulesParam(shortName .. "Count", counts.count)
-                counts.lastCount = counts.count
-            end
-            total = total + counts.count
-        end
-
-        return total
+        -- this is needed for the GUI widget
+        SetGameRulesParam(burrowName .. "Count", 0)
+        SetGameRulesParam(burrowName .. "Kills", 0)
     end
 
-    local SKIRMISH = {
-        --Robots
-        [UnitDefNames["corthud"].id] = {distance = 300, chance = 0.8},
-        [UnitDefNames["corcrash"].id] = {distance = 800, chance = 0.8},
-        [UnitDefNames["armsam"].id] = {distance = 440, chance = 0.9},
-        [UnitDefNames["cormist"].id] = {distance = 440, chance = 0.6},
-        [UnitDefNames["armjanus1"].id] = {distance = 400, chance = 0.8},
-        [UnitDefNames["corhrk"].id] = {distance = 1200, chance = 0.7},
-        [UnitDefNames["tankanotor"].id] = {distance = 900, chance = 0.6},
-        [UnitDefNames["armraven1"].id] = {distance = 800, chance = 0.8}
-    }
-    local COWARD = {
-        --Robots
-        [UnitDefNames["cortotal"].id] = {distance = 1300, chance = 0.7},
-        [UnitDefNames["heavyimpact"].id] = {distance = 1200, chance = 0.8},
-        [UnitDefNames["tlllongshot"].id] = {distance = 5000, chance = 0.8},
-        [UnitDefNames["armraven"].id] = {distance = 1200, chance = 0.7},
-        [UnitDefNames["armsnipe"].id] = {distance = 800, chance = 0.6},
-        [UnitDefNames["clb"].id] = {distance = 3000, chance = 0.9}
-    }
-    local KROW_ID = UnitDefNames["corcrw"].id
-    local KROW_LASER = "krow_laser_index"
-    local SMALL_UNIT = UnitDefNames["cormaw"].id
-    local MEDIUM_UNIT = UnitDefNames["armwin"].id
-    local LARGE_UNIT = UnitDefNames["armsolar"].id
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Clean up
-    --
-
-    local function KillOldChicken()
-        for unitID, defs in pairs(chickenBirths) do
-            if (t > defs.deathDate) then
-                if (unitID ~= queenID) then
-                    deathQueue[unitID] = {selfd = false, reclaimed = false}
-                    chickenCount = chickenCount - 1
-                    chickenDebtCount = chickenDebtCount + 1
-                    local failCount = failBurrows[defs.burrowID]
-                    if (failBurrows[defs.burrowID] == nil) then
-                        failBurrows[defs.burrowID] = 5
-                    else
-                        failBurrows[defs.burrowID] = failCount + 5
-                    end
+    function RobotTeam:GameStart()
+        if (burrowSpawnType == "initialbox") or (burrowSpawnType == "alwaysbox") then
+            local _, _, _, _, _, luaAllyID = Spring.GetTeamInfo(self._teamID)
+            if luaAllyID then
+                self.lsx1, self.lsz1, self.lsx2, self.lsz2 = Spring.GetAllyTeamStartBox(luaAllyID)
+                if (not self.lsx1) or (not self.lsz1) or (not self.lsx2) or (not self.lsz2) then
+                    burrowSpawnType = "avoid"
+                    Echo("No Chicken start box available, Burrow Placement set to 'Avoid Players'")
+                elseif (self.lsx1 == 0) and (self.lsz1 == 0) and (self.lsx2 == MAPSIZEX) and (self.lsz2 == MAPSIZEZ) then
+                    burrowSpawnType = "avoid"
+                    Echo("No Chicken start box available, Burrow Placement set to 'Avoid Players'")
                 end
             end
         end
     end
 
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Game End Stuff
-    --
-
-    local function KillAllChicken()
-        local chickenUnits = GetTeamUnits(chickenTeamID)
-        for _, unitID in pairs(chickenUnits) do
-            if disabledUnits[unitID] then
-                DestroyUnit(unitID, false, true)
-            else
-                DestroyUnit(unitID, true)
-            end
-        end
+    function RobotTeam:getDamageMod()
+        return self.damageMod
     end
 
-    local function KillAllComputerUnits()
-        for teamID in pairs(computerTeams) do
-            local teamUnits = GetTeamUnits(teamID)
-            for _, unitID in pairs(teamUnits) do
-                if disabledUnits[unitID] then
-                    DestroyUnit(unitID, false, true)
-                else
-                    DestroyUnit(unitID, true)
-                end
-            end
-        end
-    end
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Spawn Dynamics
-    --
-
-    local function getPerTeamEIncome()
-        local perPlayerEIncome = {}
-        local perPlayerPercentage = {}
-        local totalIncome = 0
-        local eincome = 0
-        for teamID, team in pairs(humanTeams) do
-            eincome = team:getEIncome()
-            perPlayerEIncome[teamID] = eincome
-            totalIncome = totalIncome + eincome
-        end
-
-        for teamID, eincome in pairs(perPlayerEIncome) do
-            perPlayerPercentage[teamID] = eincome / totalIncome
-        end
-
-        return perPlayerPercentage
-    end
-
-    -- returns a random map position
-    local function getRandomMapPos()
-        local x = math.random(MAPSIZEX - 16)
-        local z = math.random(MAPSIZEZ - 16)
-        local y = GetGroundHeight(x, z)
-        return {x, y, z}
-    end
-
-    local function chooseTeamToAttack()
-        local numChickens = #GetTeamUnits(chickenTeamID)
-        local perTeamEIncome = getPerTeamEIncome()
-
-        for teamID, eIncome in pairs(perTeamEIncome) do
-            if humanTeams[teamID]:attackThisTeam(Round(numChickens * eIncome)) then
-                return teamID
-            end
-        end
-
-        -- Random team if all teams are full
-        local teamList = {}
-        for teamID, _ in pairs(humanTeams) do
-            table.insert(teamList, teamID)
-        end
-        return teamList[mRandom(#teamList)]
-    end
-
-    -- selects a enemy target
-    local function ChooseTarget(unitID)
-        if SetCount(humanTeams) == 0 or gameOver then
-            return getRandomMapPos()
-        end
-
-        -- Select team
-        local teamID = chooseTeamToAttack()
-
-        -- Add attacking robot to the team and get best target from it        
-        local team = humanTeams[teamID]
-        return team:addAttackingRobotAndGetTarget(unitID)
-    end
-
-    local function getChickenSpawnLoc(burrowID, size)
+    function RobotTeam:getChickenSpawnLoc(burrowID, size)
         local x, y, z
         local bx, by, bz = GetUnitPosition(burrowID)
         if (not bx or not bz) then
@@ -579,14 +480,81 @@ if (gadgetHandler:IsSyncedCode()) then
             elseif (z <= 0) then
                 z = mRandom(1, 40)
             end
-        until ((TestBuildOrder(size, x, by, z, 1) == 2) and (not GetGroundBlocked(x, z))) or (tries > maxTries)
+        until ((TestBuildOrder(size, x, by, z, 1) == 2) and (not GetGroundBlocked(x, z))) or (tries > MAXTRIES)
 
         y = GetGroundHeight(x, z)
         return x, y, z
     end
 
-    local function SpawnTurret(burrowID, turret)
-        if (mRandom() > defenderChance) or (not turret) or (burrows[burrowID] >= maxTurrets) then
+    function RobotTeam:SpawnBurrows(count)
+        -- don't spawn new burrows when queen is there
+        if self._queenID then
+            return
+        end
+
+        for i = 1, (count or 1) do
+            local x, z, y
+            local tries = 0
+            repeat
+                if (burrowSpawnType == "initialbox") then
+                    x = mRandom(self.lsx1, self.lsx2)
+                    z = mRandom(self.lsz1, self.lsz2)
+                elseif ((burrowSpawnType == "alwaysbox") and (tries < MAXTRIES)) then
+                    x = mRandom(self.lsx1, self.lsx2)
+                    z = mRandom(self.lsz1, self.lsz2)
+                elseif (burrowSpawnType == "initialbox_post") then
+                    lsx1 = math.max(self.lsx1 * 0.975, spawnSquare)
+                    lsz1 = math.max(self.lsz1 * 0.975, spawnSquare)
+                    lsx2 = math.min(self.lsx2 * 1.025, MAPSIZEX - spawnSquare)
+                    lsz2 = math.min(self.lsz2 * 1.025, MAPSIZEZ - spawnSquare)
+                    x = mRandom(self.lsx1, self.lsx2)
+                    z = mRandom(self.lsz1, self.lsz2)
+                else
+                    x = mRandom(spawnSquare, MAPSIZEX - spawnSquare)
+                    z = mRandom(spawnSquare, MAPSIZEZ - spawnSquare)
+                end
+
+                y = GetGroundHeight(x, z)
+                tries = tries + 1
+                local blocking = TestBuildOrder(MEDIUM_UNIT, x, y, z, 1)
+                if (blocking == 2) and ((burrowSpawnType == "avoid") or (burrowSpawnType == "initialbox_post")) then
+                    local proximity = GetUnitsInCylinder(x, z, minBaseDistance)
+                    local vicinity = GetUnitsInCylinder(x, z, maxBaseDistance)
+                    local humanUnitsInVicinity = false
+                    local humanUnitsInProximity = false
+                    for i = 1, #vicinity, 1 do
+                        if (GetUnitTeam(vicinity[i]) ~= self._teamID) then
+                            humanUnitsInVicinity = true
+                            break
+                        end
+                    end
+
+                    for i = 1, #proximity, 1 do
+                        if (GetUnitTeam(proximity[i]) ~= self._teamID) then
+                            humanUnitsInProximity = true
+                            break
+                        end
+                    end
+
+                    if (humanUnitsInProximity or not humanUnitsInVicinity) then
+                        blocking = 1
+                    end
+                end
+            until (blocking == 2 or tries > (MAXTRIES * 2))
+
+            local unitID = CreateUnit(burrowName, x, y, z, "n", self._teamID)
+            if (unitID) then
+                self._burrows[unitID] = 0
+                SetUnitBlocking(unitID, false, false)
+                SetUnitExperience(unitID, mRandom() * self._expMod)
+                Spring.SetUnitMaxHealth(unitID, settingBurrowhp)
+                Spring.SetUnitHealth(unitID, settingBurrowhp)
+            end
+        end
+    end
+
+    function RobotTeam:SpawnTurret(burrowID, turret)
+        if (mRandom() > defenderChance) or (not turret) or (self._burrows[burrowID] >= maxTurrets) then
             return
         end
 
@@ -613,115 +581,79 @@ if (gadgetHandler:IsSyncedCode()) then
             elseif (z <= 0) then
                 z = mRandom(1, 40)
             end
-        until (not GetGroundBlocked(x, z) or tries > maxTries)
+        until (not GetGroundBlocked(x, z) or tries > MAXTRIES)
 
         y = GetGroundHeight(x, z)
-        local unitID = CreateUnit(turret, x, y, z, "n", chickenTeamID)
+        local unitID = CreateUnit(turret, x, y, z, "n", self._teamID)
         if unitID then
-            idleOrderQueue[unitID] = {cmd = CMD.PATROL, params = {bx, by, bz}, opts = {"meta"}}
+            self._idleOrderQueue[unitID] = {cmd = CMD.PATROL, params = {bx, by, bz}, opts = {"meta"}}
             SetUnitBlocking(unitID, false, false)
-            SetUnitExperience(unitID, mRandom() * expMod)
+            SetUnitExperience(unitID, mRandom() * self._expMod)
             turrets[unitID] = {burrowID, t}
-            burrows[burrowID] = burrows[burrowID] + 1
+            self._burrows[burrowID] = self._burrows[burrowID] + 1
         end
     end
 
-    local function SpawnBurrow(number)
-        if (queenID) then -- don't spawn new burrows when queen is there
+    function RobotTeam:SpawnRobots()
+        local i, defs = next(self._spawnQueue)
+        if not i or not defs then
             return
         end
-
-        local unitDefID = UnitDefNames[burrowName].id
-
-        for i = 1, (number or 1) do
-            local x, z, y
-            local tries = 0
-            repeat
-                if (burrowSpawnType == "initialbox") then
-                    x = mRandom(lsx1, lsx2)
-                    z = mRandom(lsz1, lsz2)
-                elseif ((burrowSpawnType == "alwaysbox") and (tries < maxTries)) then
-                    x = mRandom(lsx1, lsx2)
-                    z = mRandom(lsz1, lsz2)
-                elseif (burrowSpawnType == "initialbox_post") then
-                    lsx1 = math.max(lsx1 * 0.975, spawnSquare)
-                    lsz1 = math.max(lsz1 * 0.975, spawnSquare)
-                    lsx2 = math.min(lsx2 * 1.025, MAPSIZEX - spawnSquare)
-                    lsz2 = math.min(lsz2 * 1.025, MAPSIZEZ - spawnSquare)
-                    x = mRandom(lsx1, lsx2)
-                    z = mRandom(lsz1, lsz2)
-                else
-                    x = mRandom(spawnSquare, MAPSIZEX - spawnSquare)
-                    z = mRandom(spawnSquare, MAPSIZEZ - spawnSquare)
-                end
-
-                y = GetGroundHeight(x, z)
-                tries = tries + 1
-                local blocking = TestBuildOrder(MEDIUM_UNIT, x, y, z, 1)
-                if (blocking == 2) and ((burrowSpawnType == "avoid") or (burrowSpawnType == "initialbox_post")) then
-                    local proximity = GetUnitsInCylinder(x, z, minBaseDistance)
-                    local vicinity = GetUnitsInCylinder(x, z, maxBaseDistance)
-                    local humanUnitsInVicinity = false
-                    local humanUnitsInProximity = false
-                    for i = 1, #vicinity, 1 do
-                        if (GetUnitTeam(vicinity[i]) ~= chickenTeamID) then
-                            humanUnitsInVicinity = true
-                            break
-                        end
-                    end
-
-                    for i = 1, #proximity, 1 do
-                        if (GetUnitTeam(proximity[i]) ~= chickenTeamID) then
-                            humanUnitsInProximity = true
-                            break
-                        end
-                    end
-
-                    if (humanUnitsInProximity or not humanUnitsInVicinity) then
-                        blocking = 1
+        local x, y, z
+        if (self._queenID) then
+            x, y, z = self:getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
+        else
+            x, y, z = self:getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
+        end
+        if not x or not y or not z then
+            self._spawnQueue[i] = nil
+            return
+        end
+        local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
+        if unitID then
+            SetUnitExperience(unitID, mRandom() * expMod)
+            if (mRandom() < 0.1) then
+                local mod = 0.75 - (mRandom() * 0.25)
+                if (mRandom() < 0.1) then
+                    mod = mod - (mRandom() * 0.2)
+                    if (mRandom() < 0.1) then
+                        mod = mod - (mRandom() * 0.2)
                     end
                 end
-            until (blocking == 2 or tries > (maxTries * 2))
+            end
 
-            local unitID = CreateUnit(burrowName, x, y, z, "n", chickenTeamID)
-            if (unitID) then
-                burrows[unitID] = 0
-                SetUnitBlocking(unitID, false, false)
-                SetUnitExperience(unitID, mRandom() * expMod)
-                Spring.SetUnitMaxHealth(unitID, burrowhp)
-                Spring.SetUnitHealth(unitID, burrowhp)
+            if UnitDefs[GetUnitDefID(unitID)].canFly then
+                GiveOrderToUnit(unitID, CMD.IDLEMODE, {0}, {"shift"})
+            end
+
+            if (self._queenID) then
+                self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
+            else
+                local targetPosition = {GetUnitPosition(ChooseTarget(unitID))}
+                self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
+                self._chickenBirths[unitID] = {deathDate = self._gameTimeSeconds + self._maxAge, burrowID = defs.burrow}
+
+                self._chickenCount = self._chickenCount + 1
             end
         end
+        self._spawnQueue[i] = nil
     end
 
-    local function updateQueenLife()
-        if not queenID then
-            return
-        end
-
-        local curH, maxH = GetUnitHealth(queenID)
-        local lifeCheck = math.ceil(((curH / maxH) * 100) - 0.5)
-        if queenLifePercent ~= lifeCheck then -- health changed since last update, update it
-            queenLifePercent = lifeCheck
-            SetGameRulesParam("queenLife", queenLifePercent)
-        end
-    end
-
-    local function SpawnQueen()
-        if (nextQueenSpawn ~= nil) then
-            return CreateUnit(queenName, nextQueenSpawn.x, nextQueenSpawn.y, nextQueenSpawn.z, "n", chickenTeamID)
+    function RobotTeam:_spawnQueen()
+        if (self._nextQueenSpawn ~= nil) then
+            return CreateUnit(self._queenName, self._nextQueenSpawn.x, self._nextQueenSpawn.y, self._nextQueenSpawn.z, "n", self._teamID)
         end
 
         local bestScore = 0
         local sx, sy, sz
-        for burrowID, turretCount in pairs(burrows) do
+        for burrowID, turretCount in pairs(self._burrows) do
             -- Try to spawn the queen at the 'best' burrow
             local x, y, z = GetUnitPosition(burrowID)
             if x and y and z then
                 local score = 0
                 score = score + (mRandom() * turretCount)
-                if failBurrows[burrowID] then
-                    score = score - (failBurrows[burrowID] * 5)
+                if self._failBurrows[burrowID] then
+                    score = score - (self._failBurrows[burrowID] * 5)
                 end
                 if (score > bestScore) then
                     bestScore = score
@@ -733,7 +665,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         if sx and sy and sz then
-            return CreateUnit(queenName, sx, sy, sz, "n", chickenTeamID)
+            return CreateUnit(self._queenName, sx, sy, sz, "n", self._teamID)
         end
 
         local x, y, z
@@ -752,14 +684,14 @@ if (gadgetHandler:IsSyncedCode()) then
             local humanUnitsInProximity = false
 
             for i = 1, #vicinity, 1 do
-                if (GetUnitTeam(vicinity[i]) ~= chickenTeamID) then
+                if (GetUnitTeam(vicinity[i]) ~= self._teamID) then
                     humanUnitsInVicinity = true
                     break
                 end
             end
 
             for i = 1, #proximity, 1 do
-                if (GetUnitTeam(proximity[i]) ~= chickenTeamID) then
+                if (GetUnitTeam(proximity[i]) ~= self._teamID) then
                     humanUnitsInProximity = true
                     break
                 end
@@ -768,58 +700,351 @@ if (gadgetHandler:IsSyncedCode()) then
             if (humanUnitsInProximity or not humanUnitsInVicinity) then
                 blocking = 1
             end
-        until (blocking == 2 or tries > (maxTries * 3))
+        until (blocking == 2 or tries > (MAXTRIES * 3))
 
-        return CreateUnit(queenName, x, y, z, "n", chickenTeamID)
+        return CreateUnit(self._queenName, x, y, z, "n", self._teamID)
     end
 
-    local function Wave()
-        --debug--Echo(t .. "Wave()")
+    function RobotTeam:updateSpawnQueen()
+        if self._queenID or gameOver then
+            return
+        end
+
+        self._queenID = self:_spawnQueen()
+
+        self._idleOrderQueue[self._queenID] = {cmd = CMD.MOVE, params = {GetUnitPosition(ChooseTarget(self._queenID))}, opts = {}}
+        self._burrows[self._queenID] = 0
+        self._spawnQueue = {}
+        self._oldMaxChicken = self._maxChicken
+        self._oldDamageMod = self.damageMod
+        self._maxChicken = 75
+        chickenEvent("queen") -- notify unsynced about queen spawn
+        _, self._queenMaxHP = GetUnitHealth(self._queenID)
+        SetUnitExperience(self._queenID, self._expMod)
+        self._timeOfLastWave = self._gameTimeSeconds
+
+        local chickenUnits = GetTeamUnits(self._teamID)
+
+        if (queenName == "fh_chickenqr") then
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
+        end
+
+        if (modes[highestLevel] == INSANE) then
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "abroadside", team = self._teamID})
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "cdevastator", team = self._teamID})
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
+        end
+
+        for i = 1, 100, 1 do
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "airwolf3g", team = self._teamID})
+        end
+
+        for i = 1, 30, 1 do
+            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
+        end
+
+        for i = 1, 10, 1 do
+            if (mRandom() < spawnChance) then
+                table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corcrw", team = self._teamID})
+                table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "gorg", team = self._teamID})
+            end
+        end
+    end
+
+    function RobotTeam:_killOldChicken()
+        for unitID, defs in pairs(self._chickenBirths) do
+            if (self._gameTimeSeconds > defs.deathDate) then
+                if (unitID ~= self._queenID) then
+                    self._deathQueue[unitID] = {selfd = false, reclaimed = false}
+                    self._chickenCount = self._chickenCount - 1
+                    self._chickenDebtCount = self._chickenDebtCount + 1
+                    local failCount = self._failBurrows[defs.burrowID]
+                    if (self._failBurrows[defs.burrowID] == nil) then
+                        self._failBurrows[defs.burrowID] = 5
+                    else
+                        self._failBurrows[defs.burrowID] = failCount + 5
+                    end
+                end
+            end
+        end
+    end
+
+    function RobotTeam:KillAllRobots()
+        local chickenUnits = GetTeamUnits(self._teamID)
+        for _, unitID in pairs(chickenUnits) do
+            if disabledUnits[unitID] then
+                DestroyUnit(unitID, false, true)
+            else
+                DestroyUnit(unitID, true)
+            end
+        end
+    end
+
+    function RobotTeam:UnitDestroyed(unitID, unitDefID, attackerID)
+        if self._chickenBirths[unitID] then
+            self._chickenBirths[unitID] = nil
+        end
+        if turrets[unitID] then
+            turrets[unitID] = nil
+        end
+        if self._idleOrderQueue[unitID] then
+            self._idleOrderQueue[unitID] = nil
+        end
+        if self._failChickens[unitID] then
+            self._failChickens[unitID] = nil
+        end
+        if self._failBurrows[unitID] then
+            self._failBurrows[unitID] = nil
+            return
+        end
+
+        local name = UnitDefs[unitDefID].name
+        local kills = GetGameRulesParam(name .. "Kills")
+        if kill then
+            SetGameRulesParam(name .. "Kills", kills + 1)
+        end
+        self._chickenCount = self._chickenCount - 1
+
+        if (unitID == self._queenID) then -- queen destroyed
+            self._queenID = nil
+            self._maxChicken = self._oldMaxChicken
+            self.damageMod = self._oldDamageMod
+            self._queenResistance = {}
+            if (self._ascendingQueen == true) then
+                local x, y, z = GetUnitPosition(unitID)
+                self._nextQueenSpawn = {x = x, y = y, z = z}
+                if (self._queenName == "ve_chickenqr") then
+                    self._queenName = "e_chickenqr"
+                elseif (self._queenName == "e_chickenqr") then
+                    self._queenName = "n_chickenqr"
+                elseif (self._queenName == "n_chickenqr") then
+                    self._queenName = "h_chickenqr"
+                elseif (self._queenName == "h_chickenqr") then
+                    self._queenName = "vh_chickenqr"
+                elseif (self._queenName == "vh_chickenqr") then
+                    self._queenName = "fh_chickenqr"
+                    self._ascendingQueen = false
+                    self._nextQueenSpawn = nil
+                end
+                self:updateSpawnQueen()
+            else
+                if modes[highestLevel] == SURVIVAL then
+                    self._queenTime = self._gameTimeSeconds + (((Spring.GetModOptions().mo_queentime or 40) * 60) * self._survivalQueenMod)
+                    self._survivalQueenMod = self._survivalQueenMod * 0.8
+                    self._queenAnger = 0 -- reenable chicken spawning
+                    self._burrowAnger = 0
+                    if self._isBestRobot then
+                        SetGameRulesParam("queenAnger", self._queenAnger)
+                    end
+                    self:SpawnBurrows()
+                    self:SpawnRobots() -- spawn new chickens (because queen could be the last one)
+                else
+                    gameOver = GetGameFrame() + 120
+                    self._spawnQueue = {}
+
+                    self:KillAllRobots()
+                end
+            end
+        end
+
+        if (unitDefID == settingBurrowDef) and (not gameOver) then
+            local kills = GetGameRulesParam(burrowName .. "Kills")
+            SetGameRulesParam(burrowName .. "Kills", kills + 1)
+
+            self._burrows[unitID] = nil
+            if (settingAddQueenAnger == 1) then
+                burrowAnger = (burrowAnger + self.angerBonus)
+                self._expMod = (self._expMod + self.angerBonus)
+            end
+
+            for turretID, v in pairs(turrets) do
+                if (v[1] == unitID) then
+                    local x, y, z = GetUnitPosition(turretID)
+                    if x and y and z then
+                        Spring.SpawnCEG("blood_explode", x, y, z, 0, 0, 0)
+                        local h = Spring.GetUnitHealth(turretID)
+                        if h then
+                            Spring.SetUnitHealth(turretID, h * 0.333)
+                        end
+                    end
+                    self._idleOrderQueue[turretID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                    turrets[turretID] = nil
+                end
+            end
+
+            for burrowID in pairs(self._burrows) do
+                if (self._currentWave >= 5 and self._currentWave <= 6) then
+                    if (mRandom(0, 1) == 1) then
+                        self._bonusTurret = bonusTurret5a
+                    else
+                        self._bonusTurret = bonusTurret5b
+                    end
+                elseif (self._currentWave >= 7) then
+                    local rannum = mRandom(0, 3)
+                    if rannum == 0 then
+                        self._bonusTurret = bonusTurret7a
+                    end
+                    if rannum == 1 then
+                        self._bonusTurret = bonusTurret5b
+                    end
+                    if rannum == 2 then
+                        self._bonusTurret = bonusTurret7b
+                    end
+                    if rannum == 3 then
+                        self._bonusTurret = bonusTurret7c
+                    end
+                end
+                self:SpawnTurret(burrowID, self._bonusTurret)
+            end
+
+            for i, defs in pairs(self._spawnQueue) do
+                if (defs.burrow == unitID) then
+                    self._spawnQueue[i] = nil
+                end
+            end
+
+            SetGameRulesParam("rroostCount", SetCount(burrows))
+        end
+    end
+
+    function RobotTeam:UnitIdle(unitID, unitDefID)
+        local failCount = self._failChickens[unitID]
+        if (failCount == nil) then
+            if (unitID ~= self._queenID) then
+                self._failChickens[unitID] = 1
+            end
+        else
+            self._failChickens[unitID] = failCount + 1
+        end
+
+        local target = ChooseTarget(unitID)
+        local targetPos = {GetUnitPosition(target)}
+        self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
+        if GetUnitNeutral(target) then
+            self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
+        end
+    end
+
+    function RobotTeam:UnitDamaged(
+        unitID,
+        unitDefID,
+        unitTeam,
+        damage,
+        paralyzer,
+        weaponID,
+        projectileID,
+        attackerID,
+        attackerDefID,
+        attackerTeam)
+        if self._chickenBirths[attackerID] then
+            self._chickenBirths[attackerID].deathDate = (self._gameTimeSeconds + self._maxAge)
+        end
+        if self._failChickens[attackerID] then
+            self._failChickens[attackerID] = nil
+        end
+        if self._failChickens[unitID] then
+            self._failChickens[unitID] = nil
+        end
+
+        if (unitID == self._queenID) then
+            if paralyzer then
+                SetUnitHealth(unitID, {paralyze = 0})
+                return
+            end
+            self._qDamage = (self._qDamage + damage)
+            if (self._qDamage > (self._queenMaxHP / 10)) then
+                if self._qMove then
+                    self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                    self._qMove = false
+                    self._qDamage = 0 - mRandom(0, 100000)
+                else
+                    local cC = {GetUnitPosition(ChooseTarget(self._queenID))}
+                    local xQ, _, zQ = GetUnitPosition(self._queenID)
+                    if cC then
+                        local angle = math.atan2((cC[1] - xQ), (cC[3] - zQ))
+                        local dist = math.sqrt(((cC[1] - xQ) * (cC[1] - xQ)) + ((cC[3] - zQ) * (cC[3] - zQ))) * 0.75
+                        t = GetGameSeconds()
+                        if (dist < 1700) then
+                            GiveOrderToUnit(
+                                self._queenID,
+                                CMD.MOVE,
+                                {(xQ + (math.sin(angle) * dist)), cC[2], (zQ + (math.cos(angle) * dist))},
+                                {}
+                            )
+                            GiveOrderToUnit(queenID, CMD.FIGHT, cC, {"shift"})
+                            self._qDamage = 0 - mRandom(50000, 250000)
+                            for _, robotTeam in pairs(computerTeams) do
+                                robotTeam:Wave()
+                            end
+                            qMove = true
+                        else
+                            self._idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                            self._qDamage = 0
+                            for _, robotTeam in pairs(computerTeams) do
+                                robotTeam:Wave()
+                            end
+                        end
+                        for i = 1, 5, 1 do
+                            self:SpawnTurret(self._queenID, bonusTurret)
+                        end
+                    else
+                        self._idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                        self._qDamage = 0
+                    end
+                end
+            end
+        end
+    end
+
+    function RobotTeam:Wave()
 
         if gameOver then
             return
         end
 
-        currentWave = math.min(math.ceil((((t - gracePeriod) / 60) / nextWave)), 10)
+        self._currentWave = math.min(math.ceil((((self._gameTimeSeconds - settingGracePeriod) / 60) / self._nextWave)), #waves)
 
-        if currentWave > #waves then
-            currentWave = #waves
+        if self._currentWave > #waves then
+            self._currentWave = #waves
         end
 
-        if (queenAnger >= 100) then
-            currentWave = #waves
+        if (self._queenAnger >= 100) then
+            self._currentWave = #waves
         end
 
         --Echo(currentWave,#waves)
 
         local cCount = 0
 
-        if queenID then -- spawn units from queen
-            if queenSpawnMult > 0 then
-                for i = 1, queenSpawnMult, 1 do
+        if self._queenID then -- spawn units from queen
+            if self.queenSpawnMult > 0 then
+                for i = 1, self.queenSpawnMult, 1 do
                     local squad = waves[9][mRandom(1, #waves[9])]
                     for i, sString in pairs(squad) do
                         local nEnd, _ = string.find(sString, " ")
-                        local unitNumber = string.sub(sString, 1, (nEnd - 1))
+                        local unitCount = string.sub(sString, 1, (nEnd - 1))
                         local chickenName = string.sub(sString, (nEnd + 1))
-                        for i = 1, unitNumber, 1 do
-                            table.insert(spawnQueue, {burrow = queenID, unitName = chickenName, team = chickenTeamID})
+                        for i = 1, unitCount, 1 do
+                            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = chickenName, team = self._teamID})
                         end
-                        cCount = cCount + unitNumber
+                        cCount = cCount + unitCount
                     end
                 end
             end
             return cCount
         end
 
-        for burrowID in pairs(burrows) do
-            if (t > (queenTime * 0.15)) then
-                SpawnTurret(burrowID, bonusTurret)
+        for burrowID in pairs(self._burrows) do
+            if (self._gameTimeSeconds > (self._queenTime * 0.15)) then
+                self:SpawnTurret(burrowID, bonusTurret)
             end
-            local squad = waves[currentWave][mRandom(1, #waves[currentWave])]
-            if ((lastWave ~= currentWave) and (newWaveSquad[currentWave])) then
-                squad = newWaveSquad[currentWave]
-                lastWave = currentWave
+            local squad = waves[self._currentWave][mRandom(1, #waves[self._currentWave])]
+            if ((self._lastWave ~= self._currentWave) and (newWaveSquad[self._currentWave])) then
+                squad = newWaveSquad[self._currentWave]
+                self._lastWave = self._currentWave
             end
             for i, sString in pairs(squad) do
                 local skipSpawn = false
@@ -832,50 +1057,52 @@ if (gadgetHandler:IsSyncedCode()) then
                 end
                 if not skipSpawn then
                     local nEnd, _ = string.find(sString, " ")
-                    local unitNumber = string.sub(sString, 1, (nEnd - 1))
+                    local unitCount = string.sub(sString, 1, (nEnd - 1))
                     local chickenName = string.sub(sString, (nEnd + 1))
                     --Echo("chickenname is : " ..chickenName)
 
-                    for i = 1, unitNumber, 1 do
-                        table.insert(spawnQueue, {burrow = burrowID, unitName = chickenName, team = chickenTeamID})
+                    for i = 1, unitCount, 1 do
+                        table.insert(self._spawnQueue, {burrow = burrowID, unitName = chickenName, team = self._teamID})
                     end
-                    cCount = cCount + unitNumber
+                    cCount = cCount + unitCount
                 end
             end
         end
         return cCount
     end
 
-    function removeFailChickens()
-        for unitID, failCount in pairs(failBurrows) do
+    function RobotTeam:_removeFailChickens()
+        -- remove burrows which robots never reached the enemy
+        for unitID, failCount in pairs(self._failBurrows) do
             if (failCount > 30) then
-                deathQueue[unitID] = {selfd = false, reclaimed = false}
-                burrows[unitID] = nil
-                failBurrows[unitID] = nil
-                for i, defs in pairs(spawnQueue) do
+                self._deathQueue[unitID] = {selfd = false, reclaimed = false}
+                self._burrows[unitID] = nil
+                self._failBurrows[unitID] = nil
+                for i, defs in pairs(self._spawnQueue) do
                     if (defs.burrow == unitID) then
-                        spawnQueue[i] = nil
+                        self._spawnQueue[i] = nil
                     end
                 end
-                SpawnBurrow()
+                self:SpawnBurrows(1)
             end
         end
-        for unitID, failCount in pairs(failChickens) do
+
+        for unitID, failCount in pairs(self._failChickens) do
             local checkedForDT = false
-            if (unitID ~= queenID) or (GetUnitTeam(unitID) ~= chickenTeamID) then
+            if (unitID ~= self._queenID) or (GetUnitTeam(unitID) ~= self._teamID) then
                 if (failCount > 5) then
                     local x, y, z = GetUnitPosition(unitID)
                     local yh = GetGroundHeight(x, z)
                     if y and yh and (y < (yh + 1)) then
-                        deathQueue[unitID] = {selfd = false, reclaimed = true}
-                        chickenCount = chickenCount - 1
-                        chickenDebtCount = chickenDebtCount + 1
-                        if chickenBirths[unitID] then
-                            local burrowFailCount = failBurrows[chickenBirths[unitID].burrowID]
+                        self._deathQueue[unitID] = {selfd = false, reclaimed = true}
+                        self._chickenCount = self._chickenCount - 1
+                        self._chickenDebtCount = self._chickenDebtCount + 1
+                        if self._chickenBirths[unitID] then
+                            local burrowFailCount = self._failBurrows[self._chickenBirths[unitID].burrowID]
                             if (burrowFailCount == nil) then
-                                failBurrows[chickenBirths[unitID].burrowID] = 1
+                                self._failBurrows[self._chickenBirths[unitID].burrowID] = 1
                             else
-                                failBurrows[chickenBirths[unitID].burrowID] = burrowFailCount + 1
+                                self._failBurrows[self._chickenBirths[unitID].burrowID] = burrowFailCount + 1
                             end
                         end
                     end
@@ -892,7 +1119,7 @@ if (gadgetHandler:IsSyncedCode()) then
                                     (not FeatureDefs[featureDefID].autoReclaimable)
                              then
                                 local fx, fy, fz = Spring.GetFeaturePosition(featureID)
-                                idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = {fx, fy, fz}, opts = {}}
+                                self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = {fx, fy, fz}, opts = {}}
                                 attackingFeature = true
                                 break
                             end
@@ -903,15 +1130,15 @@ if (gadgetHandler:IsSyncedCode()) then
                         local angle = math.atan2(dx, dz)
                         Spring.SpawnCEG("dirt2", x, y, z, 0, 0, 0)
                         if (y < -15) then
-                            deathQueue[unitID] = {selfd = false, reclaimed = false}
-                            chickenCount = chickenCount - 1
-                            chickenDebtCount = chickenDebtCount + 1
-                            if chickenBirths[unitID] then
-                                local burrowFailCount = failBurrows[chickenBirths[unitID].burrowID]
+                            self._deathQueue[unitID] = {selfd = false, reclaimed = false}
+                            self._chickenCount = self._chickenCount - 1
+                            self._chickenDebtCount = self._chickenDebtCount + 1
+                            if self._chickenBirths[unitID] then
+                                local burrowFailCount = self._failBurrows[self._chickenBirths[unitID].burrowID]
                                 if (burrowFailCount == nil) then
-                                    failBurrows[chickenBirths[unitID].burrowID] = 3
+                                    self._failBurrows[self._chickenBirths[unitID].burrowID] = 3
                                 else
-                                    failBurrows[chickenBirths[unitID].burrowID] = burrowFailCount + 3
+                                    self._failBurrows[self._chickenBirths[unitID].burrowID] = burrowFailCount + 3
                                 end
                             end
                         end
@@ -919,9 +1146,324 @@ if (gadgetHandler:IsSyncedCode()) then
                     end
                 end
             end
-            failChickens = {}
+            self._failChickens = {}
         end
     end
+
+    function RobotTeam:GameFrame(n)
+        if ((n % 90) == 0) then
+            self:_removeFailChickens()
+            if (self._queenAnger >= 100) then
+                damageMod = (damageMod + 0.005)
+            end
+        end
+
+        if (self._chickenCount < self._maxChicken) then
+            self:SpawnRobots()
+        end
+
+        for unitID, defs in pairs(self._deathQueue) do
+            if ValidUnitID(unitID) and not GetUnitIsDead(unitID) then
+                DestroyUnit(unitID, defs.selfd or false, defs.reclaimed or false)
+            end
+        end
+
+        if (n >= self._timeCounter) then
+            self._timeCounter = (n + UPDATE)
+            self._gameTimeSeconds = GetGameSeconds()
+            if not self._queenID then
+                if self._gameTimeSeconds < settingGracePeriod then
+                    self._queenAnger = 0
+                else
+                    self._queenAnger =
+                        math.ceil(
+                        math.min((self._gameTimeSeconds - settingGracePeriod) / (self._queenTime - settingGracePeriod) * 100 % 100) + burrowAnger,
+                        100
+                    )
+                end
+                SetGameRulesParam("queenAnger", self._queenAnger)
+            end
+            self:_killOldChicken()
+
+            if (self._gameTimeSeconds < settingGracePeriod) then -- do nothing in the grace period
+                return
+            end
+
+            self._expMod = (self._expMod + self._expIncrement) -- increment expierence
+
+            if next(self._idleOrderQueue) then
+                local processOrderQueue = {}
+                for unitID, order in pairs(self._idleOrderQueue) do
+                    if GetUnitDefID(unitID) then
+                        processOrderQueue[unitID] = order
+                    end
+                end
+                self._idleOrderQueue = {}
+                for unitID, order in pairs(processOrderQueue) do
+                    GiveOrderToUnit(unitID, order.cmd, order.params, order.opts)
+                    GiveOrderToUnit(unitID, CMD.MOVE_STATE, {mRandom(0, 2)}, {"shift"})
+                    if UnitDefs[GetUnitDefID(unitID)].canFly then
+                        GiveOrderToUnit(unitID, CMD.AUTOREPAIRLEVEL, {mRandom(0, 3)}, {"shift"})
+                    end
+                end
+            end
+
+            if self._queenAnger >= 100 then -- check if the queen should be alive
+                self:updateSpawnQueen()
+                self:_updateQueenLife()
+            end
+
+            local quicken = 0
+            local burrowCount = SetCount(self._burrows)
+
+            if (self.burrowSpawnRate < (self._gameTimeSeconds - self._timeOfLastFakeSpawn) and self._burrowTarget < settingMaxBurrows) then
+                -- This block is all about setting the correct burrow target
+                if self._firstSpawn then
+                    self._minBurrows = SetCount(humanTeams)
+                    local hteamID = next(humanTeams)
+                    local ranCount = GetTeamUnitCount(hteamID)
+                    for i = 1, ranCount, 1 do
+                        mRandom()
+                    end
+                    self._burrowTarget = math.max(math.min(math.ceil(self._minBurrows * 1.5), 40), 1)
+                else
+                    self._burrowTarget = self._burrowTarget + 1
+                end
+                self._timeOfLastFakeSpawn = self._gameTimeSeconds
+            end
+
+            if (self._burrowTarget > 0) and (self._burrowTarget ~= burrowCount) then
+                quicken = (self.burrowSpawnRate * (1 - (burrowCount / self._burrowTarget)))
+            end
+
+            if (self._burrowTarget > 0) and ((burrowCount / self._burrowTarget) < 0.40) then
+                -- less than 40% of desired burrows, spawn one right away
+                quicken = self.burrowSpawnRate
+            end
+
+            local burrowSpawnTime = (self.burrowSpawnRate - quicken)
+
+            if (burrowCount < minBurrows) or (burrowSpawnTime < (self._gameTimeSeconds - self._timeOfLastSpawn) and burrowCount < settingMaxBurrows) then
+                if self._firstSpawn then
+                    self._timeOfLastWave = (self._gameTimeSeconds - (self.chickenSpawnRate - 6))
+                    self._firstSpawn = false
+                    if (burrowSpawnType == "initialbox") then
+                        burrowSpawnType = "initialbox_post"
+                    end
+                else
+                    self:SpawnBurrows()
+                end
+                if (burrowCount >= self._minBurrows) then
+                    self._timeOfLastSpawn = self._gameTimeSeconds
+                end
+                chickenEvent("burrowSpawn")
+                SetGameRulesParam("rroostCount", SetCount(self._burrows))
+            end
+
+            if (burrowCount > 0) and (self.chickenSpawnRate < (self._gameTimeSeconds - self._timeOfLastWave)) then
+                local cCount = 0
+                for _, robotTeam in pairs(computerTeams) do
+                    cCount = cCount + robotTeam:Wave()
+                end
+                if cCount and cCount > 0 and (not self._queenID) then
+                    chickenEvent("wave", cCount, self._currentWave)
+                end
+                self._timeOfLastWave = self._gameTimeSeconds
+            end
+            self._chickenCount = self:updateUnitCount()
+        end
+    end
+
+    function RobotTeam:getChickenCount()
+        return self._chickenCount
+    end
+
+    function RobotTeam:KingPreDamaged(
+        unitID,
+        unitDefID,
+        unitTeam,
+        damage,
+        paralyzer,
+        weaponID,
+        projectileID,
+        attackerID,
+        attackerDefID,
+        attackerTeam)
+
+        if (unitID == self._queenID) then -- special case KING
+            -- prevents dguns
+            if (weaponID == -1) and (damage > 25000) then
+                return 25000
+            end
+
+            if attackerDefID then
+                if (attackerDefID == KROW_ID) then
+                    weaponID = KROW_LASER
+                end
+                if not self._queenResistance[weaponID] then
+                    self._queenResistance[weaponID] = {}
+                    self._queenResistance[weaponID].damage = damage
+                    self._queenResistance[weaponID].notify = 0
+                end
+                local resistPercent = (math.min(self._queenResistance[weaponID].damage / self._queenMaxHP, 0.75) + 0.2)
+                if resistPercent > 0.35 then
+                    if self._queenResistance[weaponID].notify == 0 then
+                        local weaponName
+                        if (attackerDefID == KROW_ID) then
+                            weaponName = "HighEnergyLaser"
+                        else
+                            weaponName = WeaponDefs[weaponID].description
+                        end
+                        Echo(
+                            "Queen is becoming resistant to " ..
+                                UnitDefs[attackerDefID].humanName .. "'s attacks (" .. weaponName .. ")"
+                        )
+                        self._queenResistance[weaponID].notify = 1
+                        for i = 1, 20, 1 do
+                            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
+                        end
+                    end
+                    damage = damage - (damage * resistPercent)
+                end
+                self._queenResistance[weaponID].damage = self._queenResistance[weaponID].damage + damage
+                return damage
+            end
+        end
+
+        return damage
+    end
+
+    function RobotTeam:_updateQueenLife()
+        if not self._queenID or not self._isBestRobot then
+            return
+        end
+
+        local curH, maxH = GetUnitHealth(self._queenID)
+        local lifeCheck = math.ceil(((curH / maxH) * 100) - 0.5)
+        if self._queenLifePercent ~= lifeCheck then -- health changed since last update, update it
+            self._queenLifePercent = lifeCheck
+            SetGameRulesParam("queenLife", self._queenLifePercent)
+        end
+    end
+
+    function RobotTeam:updateUnitCount()
+        local teamUnitCounts = GetTeamUnitsCounts(self._teamID)
+        local total = 0
+
+        for shortName in pairs(self._unitCounts) do
+            self._unitCounts[shortName].count = 0
+        end
+
+        for unitDefID, count in pairs(teamUnitCounts) do
+            if UnitDefs[unitDefID] then
+                local shortName
+                shortName = (UnitDefs[unitDefID].name)
+                if self._unitCounts[shortName] then
+                    self._unitCounts[shortName].count = self._unitCounts[shortName].count + count
+                end
+            end
+        end
+
+        for shortName, counts in pairs(self._unitCounts) do
+            if (counts.count ~= counts.lastCount) then
+                if self._isBestRobot then
+                    SetGameRulesParam(shortName .. "Count", counts.count)
+                end
+                counts.lastCount = counts.count
+            end
+            total = total + counts.count
+        end
+
+        return total
+    end
+
+    local modes = {
+        [1] = VERYEASY,
+        [2] = EASY,
+        [3] = NORMAL,
+        [4] = HARD,
+        [5] = VERYHARD,
+        [6] = INSANE,
+        [7] = CUSTOM,
+        [8] = SURVIVAL
+    }
+
+    for i, v in ipairs(modes) do -- make it bi-directional
+        modes[v] = i
+    end
+
+    local teamsRAW = GetTeamList()
+    local highestLevel = 0
+    local highestLevelTeamID = 0
+    for _, teamID in ipairs(teamsRAW) do
+        local teamLuaAI = GetTeamLuaAI(teamID)
+        if (teamLuaAI and teamLuaAI ~= "") then
+            if (modes[teamLuaAI] > highestLevel) then -- get chicken ai with highest level
+                luaAI = teamLuaAI
+                highestLevel = modes[teamLuaAI]
+                highestLevelTeamID = teamID
+            end
+            computerTeams[teamID] = RobotTeam(teamID, teamLuaAI)
+        else
+            humanTeams[teamID] = HumanTeam(teamID)
+        end
+    end
+
+    luaAI = modes[highestLevel]
+
+    local gaiaTeamID = GetGaiaTeamID()
+    if SetCount(computerTeams) < 1 then
+        noBotWarningMessage = true
+    else
+        computerTeams[gaiaTeamID] = nil
+    end
+
+    humanTeams[gaiaTeamID] = nil
+
+    SetGameRulesParam("chickenTeamID", highestLevelTeamID)
+
+    -- Set all robotsteam up, highestlevel team last
+    for teamID, robotTeam in pairs(computerTeams) do
+        if teamID ~= highestLevelTeamID then
+            robotTeam:setUp(false)
+        end
+    end
+    computerTeams[highestLevelTeamID]:setUp(true)
+
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Difficulty
+    --
+
+    local function SetGlobals(difficulty)
+        for key, value in pairs(gadget.difficulties[difficulty]) do
+            gadget[key] = value
+        end
+        gadget.difficulties = nil
+    end
+
+    SetGlobals(luaAI or NORMAL) -- set difficulty
+
+    chickensPerPlayer = (chickensPerPlayer * SetCount(humanTeams))
+
+    chickenDebtCount = math.ceil((math.max((settingGracePeriod - 270), 0) / 3))
+
+    if (modes[highestLevel] == INSANE) then
+        settingMaxBurrows = math.max(settingMaxBurrows * 1.5, 50)
+        chickenDebtCount = math.max(chickenDebtCount, 150)
+    else
+        settingMaxBurrows = settingMaxBurrows * math.floor(SetCount(humanTeams) * 1.334)
+    end
+
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Game Rules
+    --
+    SetGameRulesParam("queenTime", settingQueenTime)
+    SetGameRulesParam("gracePeriod", settingGracePeriod)
+    SetGameRulesParam("difficulty", modes[luaAI] or 3)
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -931,30 +1473,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:UnitIdle(unitID, unitDefID, unitTeam)
         -- filter out non chicken units
-        if (unitTeam ~= chickenTeamID) or (not chickenDefTypes[unitDefID]) then
+        if not computerTeams[unitTeam] then
             return
         end
 
-        local failCount = failChickens[unitID]
-        if (failCount == nil) then
-            if (unitID ~= queenID) then
-                failChickens[unitID] = 1
-            end
-        else
-            failChickens[unitID] = failCount + 1
-        end
-
-        local target = ChooseTarget(unitID)
-        local targetPos = {GetUnitPosition(target)}
-        idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
-        if GetUnitNeutral(target) then
-            idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
-        end
+        computerTeams[unitTeam]:UnitIdle(unitID, unitDefID)
     end
 
     function gadget:UnitCreated(unitID, unitDefID, unitTeam)
         -- filter out chicken units
-        if unitTeam == chickenTeamID then
+        if computerTeams[unitTeam] then
             return
         end
 
@@ -977,52 +1505,24 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-        if disabledUnits[unitID] then
-            return 0, 0
+
+        -- either incrase damage
+        if computerTeams[attackerTeam] then
+            return damage * computerTeams[attackerTeam]:getDamageMod()
         end
 
-        if (attackerTeam == chickenTeamID) then
-            return (damage * damageMod)
-        end
-
-        if (unitID == queenID) then -- special case queen
-            -- prevents dguns
-            if (weaponID == -1) and (damage > 25000) then
-                return 25000
-            end
-
-            if attackerDefID then
-                if (attackerDefID == KROW_ID) then
-                    weaponID = KROW_LASER
-                end
-                if not queenResistance[weaponID] then
-                    queenResistance[weaponID] = {}
-                    queenResistance[weaponID].damage = damage
-                    queenResistance[weaponID].notify = 0
-                end
-                local resistPercent = (math.min(queenResistance[weaponID].damage / queenMaxHP, 0.75) + 0.2)
-                if resistPercent > 0.35 then
-                    if queenResistance[weaponID].notify == 0 then
-                        local weaponName
-                        if (attackerDefID == KROW_ID) then
-                            weaponName = "HighEnergyLaser"
-                        else
-                            weaponName = WeaponDefs[weaponID].description
-                        end
-                        Echo(
-                            "Queen is becoming resistant to " ..
-                                UnitDefs[attackerDefID].humanName .. "'s attacks (" .. weaponName .. ")"
-                        )
-                        queenResistance[weaponID].notify = 1
-                        for i = 1, 20, 1 do
-                            table.insert(spawnQueue, {burrow = queenID, unitName = "corkarg", team = chickenTeamID})
-                        end
-                    end
-                    damage = damage - (damage * resistPercent)
-                end
-                queenResistance[weaponID].damage = queenResistance[weaponID].damage + damage
-                return damage
-            end
+        -- or decrease and store for KING resistance
+        if computerTeams[unitTeam] then
+            return computerTeams[unitTeam]:KingPreDamaged(unitID,
+                                                          unitDefID,
+                                                          unitTeam,
+                                                          damage,
+                                                          paralyzer,
+                                                          weaponID,
+                                                          projectileID,
+                                                          attackerID,
+                                                          attackerDefID,
+                                                          attackerTeam)
         end
         return damage
     end
@@ -1038,99 +1538,18 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-        if chickenBirths[attackerID] then
-            chickenBirths[attackerID].deathDate = (t + maxAge)
-        end
-        if failChickens[attackerID] then
-            failChickens[attackerID] = nil
-        end
-        if failChickens[unitID] then
-            failChickens[unitID] = nil
-        end
 
-        if
-            SKIRMISH[attackerDefID] and (unitTeam ~= chickenTeamID) and attackerID and
-                (mRandom() < SKIRMISH[attackerDefID].chance)
-         then
-            local ux, _, uz = GetUnitPosition(unitID)
-            local x, y, z = GetUnitPosition(attackerID)
-            if x and ux then
-                local angle = math.atan2(ux - x, uz - z)
-                idleOrderQueue[attackerID] = {
-                    cmd = CMD.MOVE,
-                    params = {
-                        x - (math.sin(angle) * SKIRMISH[attackerDefID].distance),
-                        y,
-                        z - (math.cos(angle) * SKIRMISH[attackerDefID].distance)
-                    },
-                    opts = {}
-                }
-            end
-        elseif
-            COWARD[unitDefID] and (not idleOrderQueue[unitID]) and (unitTeam == chickenTeamID) and attackerID and
-                (mRandom() < COWARD[unitDefID].chance)
-         then
-            local curH, maxH = GetUnitHealth(unitID)
-            if curH and maxH and curH < (maxH * 0.8) then
-                local ax, _, az = GetUnitPosition(attackerID)
-                local x, y, z = GetUnitPosition(unitID)
-                if x and ax then
-                    local angle = math.atan2(ax - x, az - z)
-                    idleOrderQueue[unitID] = {
-                        cmd = CMD.MOVE,
-                        params = {
-                            x - (math.sin(angle) * COWARD[unitDefID].distance),
-                            y,
-                            z - (math.cos(angle) * COWARD[unitDefID].distance)
-                        },
-                        opts = {}
-                    }
-                end
-            end
-        end
-
-        if (unitID == queenID) then
-            if paralyzer then
-                SetUnitHealth(unitID, {paralyze = 0})
-                return
-            end
-            qDamage = (qDamage + damage)
-            if (qDamage > (queenMaxHP / 10)) then
-                if qMove then
-                    idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                    qMove = false
-                    qDamage = 0 - mRandom(0, 100000)
-                else
-                    local cC = {GetUnitPosition(ChooseTarget(queenID))}
-                    local xQ, _, zQ = GetUnitPosition(queenID)
-                    if cC then
-                        local angle = math.atan2((cC[1] - xQ), (cC[3] - zQ))
-                        local dist = math.sqrt(((cC[1] - xQ) * (cC[1] - xQ)) + ((cC[3] - zQ) * (cC[3] - zQ))) * 0.75
-                        if (dist < 1700) then
-                            GiveOrderToUnit(
-                                queenID,
-                                CMD.MOVE,
-                                {(xQ + (math.sin(angle) * dist)), cC[2], (zQ + (math.cos(angle) * dist))},
-                                {}
-                            )
-                            GiveOrderToUnit(queenID, CMD.FIGHT, cC, {"shift"})
-                            qDamage = 0 - mRandom(50000, 250000)
-                            Wave()
-                            qMove = true
-                        else
-                            idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                            qDamage = 0
-                            Wave()
-                        end
-                        for i = 1, 5, 1 do
-                            SpawnTurret(queenID, bonusTurret)
-                        end
-                    else
-                        idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                        qDamage = 0
-                    end
-                end
-            end
+        for _, robotTeam in pairs(computerTeams) do
+            robotTeam:UnitDamaged(unitID,
+                                  unitDefID,
+                                  unitTeam,
+                                  damage,
+                                  paralyzer,
+                                  weaponID,
+                                  projectileID,
+                                  attackerID,
+                                  attackerDefID,
+                                  attackerTeam)
         end
     end
 
@@ -1139,161 +1558,21 @@ if (gadgetHandler:IsSyncedCode()) then
             Echo("Warning: No Chicken team available, add a Chicken bot")
             Echo("(Assigning Chicken Team to Gaia - AI: Custom)")
         end
-        if (burrowSpawnType == "initialbox") or (burrowSpawnType == "alwaysbox") then
-            local _, _, _, _, _, luaAllyID = Spring.GetTeamInfo(chickenTeamID)
-            if luaAllyID then
-                lsx1, lsz1, lsx2, lsz2 = Spring.GetAllyTeamStartBox(luaAllyID)
-                if (not lsx1) or (not lsz1) or (not lsx2) or (not lsz2) then
-                    burrowSpawnType = "avoid"
-                    Echo("No Chicken start box available, Burrow Placement set to 'Avoid Players'")
-                elseif (lsx1 == 0) and (lsz1 == 0) and (lsx2 == Game.mapSizeX) and (lsz2 == Game.mapSizeX) then
-                    burrowSpawnType = "avoid"
-                    Echo("No Chicken start box available, Burrow Placement set to 'Avoid Players'")
-                end
-            end
-        end
-    end
 
-    local function SpawnRobots()
-        local i, defs = next(spawnQueue)
-        if not i or not defs then
-            return
-        end
-        local x, y, z
-        if (queenID) then
-            x, y, z = getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
-        else
-            x, y, z = getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
-        end
-        if not x or not y or not z then
-            spawnQueue[i] = nil
-            return
-        end
-        local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
-        if unitID then
-            SetUnitExperience(unitID, mRandom() * expMod)
-            if (mRandom() < 0.1) then
-                local mod = 0.75 - (mRandom() * 0.25)
-                if (mRandom() < 0.1) then
-                    mod = mod - (mRandom() * 0.2)
-                    if (mRandom() < 0.1) then
-                        mod = mod - (mRandom() * 0.2)
-                    end
-                end
-                heroChicken[unitID] = mod
-            end
-
-            if UnitDefs[GetUnitDefID(unitID)].canFly then
-                GiveOrderToUnit(unitID, CMD.IDLEMODE, {0}, {"shift"})
-            end
-
-            if (queenID) then
-                idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
-            else
-                local targetPosition
-                targetPosition = {GetUnitPosition(ChooseTarget(unitID))}
-                idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
-                chickenBirths[unitID] = {deathDate = t + (maxAges[defs.unitName] or maxAge), burrowID = defs.burrow}
-
-                chickenCount = chickenCount + 1
-            end
-        end
-        spawnQueue[i] = nil
-    end
-
-    local function chickenEvent(type, num, tech)
-        --Echo(type ,num, tech)
-        SendToUnsynced("ChickenEvent", type, num, tech)
-    end
-
-    local function getMostDefendedArea()
-        table.sort(
-            defenseMap,
-            function(u1, u2)
-                return u1 < u2
-            end
-        )
-        local k = next(defenseMap)
-        if k then
-            local x, z = string.match(k, "(%d+),(%d+)")
-            x = x * DMAREA
-            z = z * DMAREA
-            local y = GetGroundHeight(x, z)
-            return x, y, z
-        else
-            return nil, nil, nil
-        end
-    end
-
-    local function updateSpawnQueen()
-        if (not queenID) and (not gameOver) then -- spawn queen if not exists
-            queenID = SpawnQueen()
-            local x, y, z = getMostDefendedArea()
-            if x and y and z then
-                idleOrderQueue[queenID] = {cmd = CMD.MOVE, params = {x, y, z}, opts = {}}
-            else
-                idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
-            end
-            burrows[queenID] = 0
-            spawnQueue = {}
-            oldMaxChicken = maxChicken
-            oldDamageMod = damageMod
-            maxChicken = 75
-            chickenEvent("queen") -- notify unsynced about queen spawn
-            _, queenMaxHP = GetUnitHealth(queenID)
-            SetUnitExperience(queenID, expMod)
-            timeOfLastWave = t
-
-            local chickenUnits = GetTeamUnits(chickenTeamID)
-
-            if (modes[highestLevel] == EPIC) then
-                table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "ve_chickenq", team = chickenTeamID})
-            end
-
-            if (queenName == "fh_chickenq") then
-                table.insert(spawnQueue, {burrow = queenID, unitName = "irritator", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "irritator", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "irritator", team = chickenTeamID})
-            end
-
-            if (modes[highestLevel] == INSANE) then
-                table.insert(spawnQueue, {burrow = queenID, unitName = "abroadside", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "cdevastator", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "tllvaliant", team = chickenTeamID})
-                table.insert(spawnQueue, {burrow = queenID, unitName = "tllvaliant", team = chickenTeamID})
-            end
-
-            for i = 1, 100, 1 do
-                table.insert(spawnQueue, {burrow = queenID, unitName = "airwolf3g", team = chickenTeamID})
-            end
-
-            for i = 1, 30, 1 do
-                table.insert(spawnQueue, {burrow = queenID, unitName = "corkarg", team = chickenTeamID})
-            end
-
-            for i = 1, 10, 1 do
-                if (mRandom() < spawnChance) then
-                    table.insert(spawnQueue, {burrow = queenID, unitName = "corcrw", team = chickenTeamID})
-                    table.insert(spawnQueue, {burrow = queenID, unitName = "gorg", team = chickenTeamID})
-                end
-            end
-        else
-            if (mRandom() < (spawnChance / 7.5)) then
-                for i = 1, mRandom(1, 3), 1 do
-                    table.insert(spawnQueue, {burrow = queenID, unitName = "corcrw", team = chickenTeamID})
-                end
-            end
+        for _, robotTeam in pairs(computerTeams) do
+            robotTeam:GameStart()
         end
     end
 
     function gadget:GameFrame(n)
         if gameOver then
-            chickenCount = UpdateUnitCount()
+            for teamID in pairs(computerTeams) do
+                computerTeams[teamID]:updateUnitCount()
+            end
             if (n > gameOver) then
-                Spring.KillTeam(chickenTeamID)
+                for teamID, _ in pairs(computerTeams) do
+                    Spring.KillTeam(teamID)
+                end
             end
             return
         end
@@ -1319,133 +1598,8 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if ((n % 90) == 0) then
-            removeFailChickens()
-            if (queenAnger >= 100) then
-                damageMod = (damageMod + 0.005)
-            end
-        end
-
-        if (chickenCount < maxChicken) then
-            SpawnRobots()
-        end
-
-        for unitID in pairs(stunList) do
-            if (n > stunList[unitID]) then
-                SetUnitHealth(unitID, {paralyze = 0})
-                stunList[unitID] = nil
-            end
-        end
-
-        for unitID, defs in pairs(deathQueue) do
-            if ValidUnitID(unitID) and not GetUnitIsDead(unitID) then
-                DestroyUnit(unitID, defs.selfd or false, defs.reclaimed or false)
-            end
-        end
-
-        if (n >= timeCounter) then
-            timeCounter = (n + UPDATE)
-            t = GetGameSeconds()
-            if not queenID then
-                if t < gracePeriod then
-                    queenAnger = 0
-                else
-                    queenAnger =
-                        math.ceil(
-                        math.min((t - gracePeriod) / (queenTime - gracePeriod) * 100 % 100) + burrowAnger,
-                        100
-                    )
-                end
-                SetGameRulesParam("queenAnger", queenAnger)
-            end
-            KillOldChicken()
-
-            if (t < gracePeriod) then -- do nothing in the grace period
-                return
-            end
-
-            expMod = (expMod + expIncrement) -- increment expierence
-
-            if next(idleOrderQueue) then
-                local processOrderQueue = {}
-                for unitID, order in pairs(idleOrderQueue) do
-                    if GetUnitDefID(unitID) then
-                        processOrderQueue[unitID] = order
-                    end
-                end
-                idleOrderQueue = {}
-                for unitID, order in pairs(processOrderQueue) do
-                    GiveOrderToUnit(unitID, order.cmd, order.params, order.opts)
-                    GiveOrderToUnit(unitID, CMD.MOVE_STATE, {mRandom(0, 2)}, {"shift"})
-                    if UnitDefs[GetUnitDefID(unitID)].canFly then
-                        GiveOrderToUnit(unitID, CMD.AUTOREPAIRLEVEL, {mRandom(0, 3)}, {"shift"})
-                    end
-                end
-            end
-
-            if queenAnger >= 100 then -- check if the queen should be alive
-                updateSpawnQueen()
-                updateQueenLife()
-            end
-
-            local quicken = 0
-            local burrowCount = SetCount(burrows)
-
-            if (burrowSpawnRate < (t - timeOfLastFakeSpawn) and burrowTarget < maxBurrows) then
-                -- This block is all about setting the correct burrow target
-                if firstSpawn then
-                    minBurrows = SetCount(humanTeams)
-                    local hteamID = next(humanTeams)
-                    local ranCount = GetTeamUnitCount(hteamID)
-                    for i = 1, ranCount, 1 do
-                        mRandom()
-                    end
-                    burrowTarget = math.max(math.min(math.ceil(minBurrows * 1.5) + gracePenalty, 40), 1)
-                else
-                    burrowTarget = burrowTarget + 1
-                end
-                timeOfLastFakeSpawn = t
-            end
-
-            if (burrowTarget > 0) and (burrowTarget ~= burrowCount) then
-                quicken = (burrowSpawnRate * (1 - (burrowCount / burrowTarget)))
-            end
-
-            if (burrowTarget > 0) and ((burrowCount / burrowTarget) < 0.40) then
-                -- less than 40% of desired burrows, spawn one right away
-                quicken = burrowSpawnRate
-            end
-
-            local burrowSpawnTime = (burrowSpawnRate - quicken)
-
-            if (burrowCount < minBurrows) or (burrowSpawnTime < (t - timeOfLastSpawn) and burrowCount < maxBurrows) then
-                if firstSpawn then
-                    for i = 1, math.min(math.ceil((SetCount(humanTeams) * 1.5)) + gracePenalty, 40), 1 do
-                        SpawnBurrow()
-                    end
-                    timeOfLastWave = (t - (chickenSpawnRate - 6))
-                    firstSpawn = false
-                    if (burrowSpawnType == "initialbox") then
-                        burrowSpawnType = "initialbox_post"
-                    end
-                else
-                    SpawnBurrow()
-                end
-                if (burrowCount >= minBurrows) then
-                    timeOfLastSpawn = t
-                end
-                chickenEvent("burrowSpawn")
-                SetGameRulesParam("rroostCount", SetCount(burrows))
-            end
-
-            if (burrowCount > 0) and (chickenSpawnRate < (t - timeOfLastWave)) then
-                local cCount = Wave()
-                if cCount and cCount > 0 and (not queenID) then
-                    chickenEvent("wave", cCount, currentWave)
-                end
-                timeOfLastWave = t
-            end
-            chickenCount = UpdateUnitCount()
+        for _, robotTeam in pairs(computerTeams) do
+            robotTeam:GameFrame(n)
         end
     end
 
@@ -1454,35 +1608,13 @@ if (gadgetHandler:IsSyncedCode()) then
             -- Human team
             if not humanTeams[unitTeam] then
                 -- also not human team bogus exit
+                Echo("BOGUS not Robot Team and not Human Team")
                 return
             end
 
             humanTeams[unitTeam]:removeUnit(unitID)
 
             -- no more work for human teams
-            return
-        end
-
-        if heroChicken[unitID] then
-            heroChicken[unitID] = nil
-        end
-        if stunList[unitID] then
-            stunList[unitID] = nil
-        end
-        if chickenBirths[unitID] then
-            chickenBirths[unitID] = nil
-        end
-        if turrets[unitID] then
-            turrets[unitID] = nil
-        end
-        if idleOrderQueue[unitID] then
-            idleOrderQueue[unitID] = nil
-        end
-        if failChickens[unitID] then
-            failChickens[unitID] = nil
-        end
-        if failBurrows[unitID] then
-            failBurrows[unitID] = nil
             return
         end
 
@@ -1493,148 +1625,32 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if (unitTeam == chickenTeamID) and chickenDefTypes[unitDefID] then
-            local name = UnitDefs[unitDefID].name
-            local kills = GetGameRulesParam(name .. "Kills")
-            SetGameRulesParam(name .. "Kills", kills + 1)
-            chickenCount = chickenCount - 1
-            if (attackerID) then
-                local x, _, z = GetUnitPosition(attackerID)
-                if x and z then
-                    local area = math.floor(x / DMAREA) .. "," .. math.floor(z / DMAREA)
-                    if defenseMap[area] == nil then
-                        defenseMap[area] = 1
-                    else
-                        defenseMap[area] = defenseMap[area] + 1
-                    end
-                end
-            end
+        if not computerTeams[unitTeam] then
+            Echo("BOGUS: Not a human team and not a robot team")
+            return
         end
 
-        if (unitID == queenID) then -- queen destroyed
-            queenID = nil
-            maxChicken = oldMaxChicken
-            damageMod = oldDamageMod
-            queenResistance = {}
-            if (ascendingQueen == true) then
-                local x, y, z = GetUnitPosition(unitID)
-                nextQueenSpawn = {x = x, y = y, z = z}
-                if (queenName == "ve_chickenq") then
-                    queenName = "e_chickenq"
-                elseif (queenName == "e_chickenq") then
-                    queenName = "n_chickenq"
-                elseif (queenName == "n_chickenq") then
-                    queenName = "h_chickenq"
-                elseif (queenName == "h_chickenq") then
-                    queenName = "vh_chickenq"
-                elseif (queenName == "vh_chickenq") then
-                    queenName = "epic_chickenq"
-                    ascendingQueen = false
-                    nextQueenSpawn = nil
-                end
-                updateSpawnQueen()
-            else
-                if modes[highestLevel] == SURVIVAL then
-                    queenTime = t + (((Spring.GetModOptions().mo_queentime or 40) * 60) * survivalQueenMod)
-                    survivalQueenMod = survivalQueenMod * 0.8
-                    queenAnger = 0 -- reenable chicken spawning
-                    burrowAnger = 0
-                    SetGameRulesParam("queenAnger", queenAnger)
-                    SpawnBurrow()
-                    SpawnRobots() -- spawn new chickens (because queen could be the last one)
-                else
-                    gameOver = GetGameFrame() + 120
-                    spawnQueue = {}
-                    KillAllComputerUnits()
-                    KillAllChicken()
-                end
-            end
-        end
-
-        if (unitDefID == burrowDef) and (not gameOver) then
-            local kills = GetGameRulesParam(burrowName .. "Kills")
-            SetGameRulesParam(burrowName .. "Kills", kills + 1)
-
-            burrows[unitID] = nil
-            if (addQueenAnger == 1) then
-                burrowAnger = (burrowAnger + angerBonus)
-                expMod = (expMod + angerBonus)
-            end
-
-            for turretID, v in pairs(turrets) do
-                if (v[1] == unitID) then
-                    local x, y, z = GetUnitPosition(turretID)
-                    if x and y and z then
-                        Spring.SpawnCEG("blood_explode", x, y, z, 0, 0, 0)
-                        local h = Spring.GetUnitHealth(turretID)
-                        if h then
-                            Spring.SetUnitHealth(turretID, h * 0.333)
-                        end
-                    end
-                    idleOrderQueue[turretID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                    turrets[turretID] = nil
-                end
-            end
-
-            for burrowID in pairs(burrows) do
-                if (currentWave >= 5 and currentWave <= 6) then
-                    if (mRandom(0, 1) == 1) then
-                        bonusTurret = bonusTurret5a
-                    else
-                        bonusTurret = bonusTurret5b
-                    end
-                elseif (currentWave >= 7) then
-                    local rannum = mRandom(0, 3)
-                    if rannum == 0 then
-                        bonusTurret = bonusTurret7a
-                    end
-                    if rannum == 1 then
-                        bonusTurret = bonusTurret5b
-                    end
-                    if rannum == 2 then
-                        bonusTurret = bonusTurret7b
-                    end
-                    if rannum == 3 then
-                        bonusTurret = bonusTurret7c
-                    end
-                end
-                SpawnTurret(burrowID, bonusTurret)
-            end
-
-            for i, defs in pairs(spawnQueue) do
-                if (defs.burrow == unitID) then
-                    spawnQueue[i] = nil
-                end
-            end
-
-            SetGameRulesParam("rroostCount", SetCount(burrows))
-        end
+        computerTeams[unitTeam]:UnitDestroyed(unitID, unitDefID, attackerID)
     end
 
     function gadget:TeamDied(teamID)
-        if humanTeams[teamID] then
-            if (minBurrows > 1) then
-                minBurrows = (minBurrows - 1)
-            end
-        end
-
         humanTeams[teamID] = nil
 
         computerTeams[teamID] = nil
     end
 
     function gadget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
-        if (oldTeam == chickenTeamID) then
+        if computerTeams[oldTeam] then
             DestroyUnit(unitID, true)
         end
     end
 
     function gadget:AllowUnitTransfer(unitID, unitDefID, oldTeam, newTeam, capture)
-        if (newTeam == chickenTeamID) then
+        if computerTeams[newTeam] then
             return false
-        else
-            return true
         end
+
+        return true
     end
 
     function gadget:GameOver()
