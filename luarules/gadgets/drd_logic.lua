@@ -96,6 +96,32 @@ if (gadgetHandler:IsSyncedCode()) then
     local MEDIUM_UNIT = UnitDefNames["armwin"].id
     local LARGE_UNIT = UnitDefNames["armsolar"].id
 
+    local COMMANDERS_DEFS = {
+        [UnitDefNames["corcom"].id] = true,
+        [UnitDefNames["corcom1"].id] = true,
+        [UnitDefNames["corcom3"].id] = true,
+        [UnitDefNames["corcom_fusion"].id] = true,
+        [UnitDefNames["corcom5"].id] = true,
+        [UnitDefNames["corcom6"].id] = true,
+        [UnitDefNames["corcom7"].id] = true,
+      --Arm
+        [UnitDefNames["armcom"].id] = true,
+        [UnitDefNames["armcom1"].id] = true,
+        [UnitDefNames["armcom4"].id] = true,
+        [UnitDefNames["armcom_fusion"].id] = true,
+        [UnitDefNames["armcom5"].id] = true,
+        [UnitDefNames["armcom6"].id] = true,
+        [UnitDefNames["armcom7"].id] = true,
+      --The lost legacy
+        [UnitDefNames["tllcom"].id] = true,
+        [UnitDefNames["tllcom1"].id] = true,
+        [UnitDefNames["tllcom3"].id] = true,
+        [UnitDefNames["tllcom_fusion"].id] = true,
+        [UnitDefNames["tllcom5"].id] = true,
+        [UnitDefNames["tllcom6"].id] = true,
+        [UnitDefNames["tllcom7"].id] = true,
+      }
+
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
 
@@ -117,6 +143,21 @@ if (gadgetHandler:IsSyncedCode()) then
         local chunk = assert(loadstring(s, file))
         setfenv(chunk, gadget)
         chunk()
+    end
+
+    local modes = {
+        [1] = VERYEASY,
+        [2] = EASY,
+        [3] = NORMAL,
+        [4] = HARD,
+        [5] = VERYHARD,
+        [6] = INSANE,
+        [7] = CUSTOM,
+        [8] = SURVIVAL
+    }
+
+    for i, v in ipairs(modes) do -- make it bi-directional
+        modes[v] = i
     end
 
     local function chickenEvent(type, num, tech)
@@ -269,9 +310,14 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function HumanTeam:addUnit(unitID, unitDefID)
-        if UnitDefs[unitDefID] and (UnitDefs[unitDefID].energyMake and UnitDefs[unitDefID].energyMake >= TARGET_ENERGYMAKE) then
-            self._units[unitID] = true
-            self._unitsCount = self._unitsCount + 1
+        if UnitDefs[unitDefID] then
+            if (UnitDefs[unitDefID].energyMake and UnitDefs[unitDefID].energyMake >= TARGET_ENERGYMAKE) then
+                self._units[unitID] = true
+                self._unitsCount = self._unitsCount + 1
+            elseif COMMANDERS_DEFS[unitDefID] then
+                self._units[unitID] = true
+                self._unitsCount = self._unitsCount + 1
+            end
         end
     end
 
@@ -334,6 +380,9 @@ if (gadgetHandler:IsSyncedCode()) then
         c._burrows = {}
         c._minBurrows = 1
         c._burrowTarget = 0
+        c._burrowAnger = 0
+
+        c._turrets = {}
 
         -- queue's
         c._spawnQueue = {}
@@ -360,7 +409,6 @@ if (gadgetHandler:IsSyncedCode()) then
         c._timeOfLastFakeSpawn = 0
         c._timeOfLastWave = 0
         c._lastWave = 1
-        c._burrowAnger = 0
         c._qDamage = 0
         c._qMove = false
         c._queenMaxHP = 0
@@ -391,7 +439,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         -- Queentime in x waves in 60 seconds
-        self._nextWave = self._queenTime / (#waves + 1)
+        self._nextWave = settingQueenTime / (#waves + 1)
 
         self._isBestRobot = isBestRobot
         if isBestRobot == true then
@@ -589,7 +637,7 @@ if (gadgetHandler:IsSyncedCode()) then
             self._idleOrderQueue[unitID] = {cmd = CMD.PATROL, params = {bx, by, bz}, opts = {"meta"}}
             SetUnitBlocking(unitID, false, false)
             SetUnitExperience(unitID, mRandom() * self._expMod)
-            turrets[unitID] = {burrowID, t}
+            self._turrets[unitID] = {burrowID, t}
             self._burrows[burrowID] = self._burrows[burrowID] + 1
         end
     end
@@ -611,7 +659,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
         if unitID then
-            SetUnitExperience(unitID, mRandom() * expMod)
+            SetUnitExperience(unitID, mRandom() * self._expMod)
             if (mRandom() < 0.1) then
                 local mod = 0.75 - (mRandom() * 0.25)
                 if (mRandom() < 0.1) then
@@ -787,8 +835,8 @@ if (gadgetHandler:IsSyncedCode()) then
         if self._chickenBirths[unitID] then
             self._chickenBirths[unitID] = nil
         end
-        if turrets[unitID] then
-            turrets[unitID] = nil
+        if self._turrets[unitID] then
+            self._turrets[unitID] = nil
         end
         if self._idleOrderQueue[unitID] then
             self._idleOrderQueue[unitID] = nil
@@ -856,11 +904,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
             self._burrows[unitID] = nil
             if (settingAddQueenAnger == 1) then
-                burrowAnger = (burrowAnger + self.angerBonus)
+                self._burrowAnger = (self._burrowAnger + self.angerBonus)
                 self._expMod = (self._expMod + self.angerBonus)
             end
 
-            for turretID, v in pairs(turrets) do
+            for turretID, v in pairs(self._turrets) do
                 if (v[1] == unitID) then
                     local x, y, z = GetUnitPosition(turretID)
                     if x and y and z then
@@ -871,7 +919,7 @@ if (gadgetHandler:IsSyncedCode()) then
                         end
                     end
                     self._idleOrderQueue[turretID] = {cmd = CMD.STOP, params = {}, opts = {}}
-                    turrets[turretID] = nil
+                    self._turrets[turretID] = nil
                 end
             end
 
@@ -906,7 +954,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 end
             end
 
-            SetGameRulesParam("rroostCount", SetCount(burrows))
+            SetGameRulesParam("rroostCount", SetCount(self._burrows))
         end
     end
 
@@ -976,16 +1024,12 @@ if (gadgetHandler:IsSyncedCode()) then
                             )
                             GiveOrderToUnit(queenID, CMD.FIGHT, cC, {"shift"})
                             self._qDamage = 0 - mRandom(50000, 250000)
-                            for _, robotTeam in pairs(computerTeams) do
-                                robotTeam:Wave()
-                            end
+                            self:Wave()
                             qMove = true
                         else
                             self._idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
                             self._qDamage = 0
-                            for _, robotTeam in pairs(computerTeams) do
-                                robotTeam:Wave()
-                            end
+                            self:Wave()
                         end
                         for i = 1, 5, 1 do
                             self:SpawnTurret(self._queenID, bonusTurret)
@@ -1005,13 +1049,13 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        self._currentWave = math.min(Round((((self._gameTimeSeconds - settingGracePeriod) / 60) / self._nextWave)), #waves)
+        self._currentWave = math.min(math.ceil((self._gameTimeSeconds - settingGracePeriod) / self._nextWave), #waves)
 
         if (self._queenAnger >= 100) then
             self._currentWave = #waves
         end
 
-        -- Echo("CurrentWave: ", currentWave, "#Waves: ", #waves)
+        Echo("CurrentWave: ", self._currentWave, "#Waves: ", #waves, "NextWave: ", self._nextWave, "TimeSecs: ", self._gameTimeSeconds - settingGracePeriod)
 
         local cCount = 0
 
@@ -1257,10 +1301,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
 
             if (burrowCount > 0) and (self.chickenSpawnRate < (self._gameTimeSeconds - self._timeOfLastWave)) then
-                local cCount = 0
-                for _, robotTeam in pairs(computerTeams) do
-                    cCount = cCount + robotTeam:Wave()
-                end
+                local cCount = self:Wave()
                 if cCount and cCount > 0 and (not self._queenID) then
                     chickenEvent("wave", cCount, self._currentWave)
                 end
@@ -1371,21 +1412,6 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         return total
-    end
-
-    local modes = {
-        [1] = VERYEASY,
-        [2] = EASY,
-        [3] = NORMAL,
-        [4] = HARD,
-        [5] = VERYHARD,
-        [6] = INSANE,
-        [7] = CUSTOM,
-        [8] = SURVIVAL
-    }
-
-    for i, v in ipairs(modes) do -- make it bi-directional
-        modes[v] = i
     end
 
     local teamsRAW = GetTeamList()
@@ -1650,7 +1676,8 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:GameOver()
-        if modes[highestLevel] ~= SURVIVAL then -- don't end game in survival mode
+        -- don't end game in survival mode
+        if modes[highestLevel] ~= SURVIVAL then
             gameOver = GetGameFrame()
         end
     end

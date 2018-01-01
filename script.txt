@@ -58,7 +58,7 @@
 		mo_graceperiod=30;
 		mo_maxage=300;
 		mo_maxchicken=380;
-		mo_queentime=40;
+		mo_queentime=10;
 		startenergy=1000;
 		startmetal=1059;
 		wall_size=45;
