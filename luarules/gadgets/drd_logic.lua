@@ -390,8 +390,8 @@ if (gadgetHandler:IsSyncedCode()) then
            self._expIncrement = ((self.expStep * -1) / settingQueenTime)
         end
 
-        -- Queentime in 10 waves in 60 seconds
-        self._nextWave = (self._queenTime - settingGracePeriod) / 10 / 60
+        -- Queentime in x waves in 60 seconds
+        self._nextWave = self._queenTime / (#waves + 1)
 
         self._isBestRobot = isBestRobot
         if isBestRobot == true then
@@ -1005,17 +1005,13 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        self._currentWave = math.min(math.ceil((((self._gameTimeSeconds - settingGracePeriod) / 60) / self._nextWave)), #waves)
-
-        if self._currentWave > #waves then
-            self._currentWave = #waves
-        end
+        self._currentWave = math.min(Round((((self._gameTimeSeconds - settingGracePeriod) / 60) / self._nextWave)), #waves)
 
         if (self._queenAnger >= 100) then
             self._currentWave = #waves
         end
 
-        --Echo(currentWave,#waves)
+        -- Echo("CurrentWave: ", currentWave, "#Waves: ", #waves)
 
         local cCount = 0
 
