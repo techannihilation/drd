@@ -1173,7 +1173,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 else
                     self._queenAnger =
                         math.ceil(
-                        math.min((self._gameTimeSeconds - settingGracePeriod) / (self._queenTime - settingGracePeriod) * 100 % 100) + burrowAnger,
+                        math.min((self._gameTimeSeconds - settingGracePeriod) / (self._queenTime - settingGracePeriod) * 100 % 100) + self._burrowAnger,
                         100
                     )
                 end
