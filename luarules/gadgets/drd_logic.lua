@@ -1055,7 +1055,7 @@ if (gadgetHandler:IsSyncedCode()) then
             self._currentWave = #waves
         end
 
-        Echo("CurrentWave: ", self._currentWave, "#Waves: ", #waves, "NextWave: ", self._nextWave, "TimeSecs: ", self._gameTimeSeconds - settingGracePeriod)
+        -- Echo("CurrentWave: ", self._currentWave, "#Waves: ", #waves, "NextWave: ", self._nextWave, "TimeSecs: ", self._gameTimeSeconds - settingGracePeriod)
 
         local cCount = 0
 
