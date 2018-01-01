@@ -9,6 +9,10 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ## Changes
 
+### v0.1.4
+
+- 01.01.2018: Lots of smaller Bugfixes.
+
 ### v0.1.3
 
 - 31.Dec.2017: Make multiple bots fully working, means by adding 2 bots you get two times the harder game.
