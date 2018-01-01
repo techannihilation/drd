@@ -1239,7 +1239,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
             local burrowSpawnTime = (self.burrowSpawnRate - quicken)
 
-            if (burrowCount < minBurrows) or (burrowSpawnTime < (self._gameTimeSeconds - self._timeOfLastSpawn) and burrowCount < settingMaxBurrows) then
+            if (burrowCount < self._minBurrows) or (burrowSpawnTime < (self._gameTimeSeconds - self._timeOfLastSpawn) and burrowCount < settingMaxBurrows) then
                 if self._firstSpawn then
                     self._timeOfLastWave = (self._gameTimeSeconds - (self.chickenSpawnRate - 6))
                     self._firstSpawn = false
