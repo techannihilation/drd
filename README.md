@@ -9,6 +9,10 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ## Changes
 
+### v0.1.6
+
+- 03.Jan.2018: Fix exceptions when a team dies.
+
 ### v0.1.5
 
 - 01.Jan.2018: Fix Game over with multiple KING's (all need to die).
