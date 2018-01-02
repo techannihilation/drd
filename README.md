@@ -11,8 +11,8 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ### v0.1.5
 
-- Fix Game over with multiple KING's (all need to die).
-- Fixes a bug where the KING doesn't fight anymore.
+- 01.Jan.2018: Fix Game over with multiple KING's (all need to die).
+- 01.Jan.2018: Fixes a bug where the KING doesn't fight anymore.
 
 ### v0.1.4
 

@@ -199,8 +199,10 @@ if (gadgetHandler:IsSyncedCode()) then
         local eincome = 0
         for teamID, team in pairs(humanTeams) do
             eincome = team:getEIncome()
-            perPlayerEIncome[teamID] = eincome
-            totalIncome = totalIncome + eincome
+            if eincome > 0 then
+                perPlayerEIncome[teamID] = eincome
+                totalIncome = totalIncome + eincome
+            end
         end
 
         for teamID, eincome in pairs(perPlayerEIncome) do
@@ -285,9 +287,19 @@ if (gadgetHandler:IsSyncedCode()) then
 
         c._unitsCount = 0
         c._units = {}
+
+        c._isDead = false
     end)
 
+    function HumanTeam:setDead()
+        self._isDead = true
+    end
+
     function HumanTeam:getEIncome()
+        if self._isDead then
+            return 0
+        end
+
         _, _, _, eincome = GetTeamResources(self._teamID, "energy")
         return eincome
     end
@@ -1681,6 +1693,10 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:TeamDied(teamID)
+        if humanTeams[teamID] then
+            humanTeams[teamID]:setDead()
+        end
+
         humanTeams[teamID] = nil
 
         computerTeams[teamID] = nil
