@@ -1022,12 +1022,12 @@ if (gadgetHandler:IsSyncedCode()) then
                                 {(xQ + (math.sin(angle) * dist)), cC[2], (zQ + (math.cos(angle) * dist))},
                                 {}
                             )
-                            GiveOrderToUnit(queenID, CMD.FIGHT, cC, {"shift"})
+                            GiveOrderToUnit(self._queenID, CMD.FIGHT, cC, {"shift"})
                             self._qDamage = 0 - mRandom(50000, 250000)
                             self:Wave()
                             qMove = true
                         else
-                            self._idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                            self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
                             self._qDamage = 0
                             self:Wave()
                         end
@@ -1035,7 +1035,7 @@ if (gadgetHandler:IsSyncedCode()) then
                             self:SpawnTurret(self._queenID, bonusTurret)
                         end
                     else
-                        self._idleOrderQueue[queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
+                        self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
                         self._qDamage = 0
                     end
                 end
