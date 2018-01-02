@@ -296,7 +296,8 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function HumanTeam:getEIncome()
-        if self._isDead then
+        -- Don't select this team if it has no units or is dead
+        if self._isDead or self._unitsCount < 1 then
             return 0
         end
 
