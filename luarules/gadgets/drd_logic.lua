@@ -198,8 +198,9 @@ if (gadgetHandler:IsSyncedCode()) then
         local totalIncome = 0
         local eincome = 0
         for teamID, team in pairs(humanTeams) do
-            eincome = team:getEIncome()
-            if eincome > 0 then
+            -- only Select teams which aren't dead and have units
+            if not team:isDead() and team:UnitsCount() > 0 then
+                eincome = team:getEIncome()
                 perPlayerEIncome[teamID] = eincome
                 totalIncome = totalIncome + eincome
             end
@@ -235,18 +236,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- Random team if all teams are full
         local teamList = {}
-        for teamID, _ in pairs(humanTeams) do
-            table.insert(teamList, teamID)
+        for teamID, team in pairs(humanTeams) do
+            if not team:isDead() and team:UnitsCount() > 0 then
+                table.insert(teamList, teamID)
+            end
         end
         return teamList[mRandom(#teamList)]
     end
 
     -- selects a enemy target
     local function ChooseTarget(unitID)
-        if SetCount(humanTeams) == 0 or gameOver then
-            return getRandomMapPos()
-        end
-
         -- Select team
         local teamID = chooseTeamToAttack()
 
@@ -295,12 +294,15 @@ if (gadgetHandler:IsSyncedCode()) then
         self._isDead = true
     end
 
-    function HumanTeam:getEIncome()
-        -- Don't select this team if it has no units or is dead
-        if self._isDead or self._unitsCount < 1 then
-            return 0
-        end
+    function HumanTeam:isDead()
+        return self._isDead
+    end
 
+    function HumanTeam:UnitsCount()
+        return self._unitsCount
+    end
+
+    function HumanTeam:getEIncome()
         _, _, _, eincome = GetTeamResources(self._teamID, "energy")
         return eincome
     end
