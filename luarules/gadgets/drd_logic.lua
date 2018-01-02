@@ -125,6 +125,7 @@ if (gadgetHandler:IsSyncedCode()) then
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
 
+    -- global gameOver - when set the game is over
     local gameOver = nil
     local noBotWarningMessage = false
     local disabledUnits = {}
@@ -372,6 +373,9 @@ if (gadgetHandler:IsSyncedCode()) then
         c.spawnChance       = 0.25
         c.damageMod         = 0.6
 
+        -- gameOver
+        c._gameOver = nil
+
         -- failing stuff
         c._failBurrows = {}
         c._failChickens = {}
@@ -453,6 +457,14 @@ if (gadgetHandler:IsSyncedCode()) then
             self._queenName = "ve_chickenqr"
             self._ascendingQueen = true
         end
+    end
+
+    function RobotTeam:getGameOver()
+        if self._gameOver then
+            return true
+        end
+
+        return false
     end
 
     function RobotTeam:_getDefTypes()
@@ -754,7 +766,7 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function RobotTeam:updateSpawnQueen()
-        if self._queenID or gameOver then
+        if self._queenID or self._gameOver then
             return
         end
 
@@ -890,7 +902,20 @@ if (gadgetHandler:IsSyncedCode()) then
                     self:SpawnBurrows()
                     self:SpawnRobots() -- spawn new chickens (because queen could be the last one)
                 else
-                    gameOver = GetGameFrame() + 120
+                    self._gameOver = GetGameFrame() + 120
+
+                    -- gameOver handling
+                    local globalGameOver = true
+                    for _, robotTeam in pairs(computerTeams) do
+                        if not robotTeam:getGameOver() then
+                            globalGameOver = false
+                        end
+                    end
+
+                    if globalGameOver then
+                        gameOver = self._gameOver
+                    end
+
                     self._spawnQueue = {}
 
                     self:KillAllRobots()
@@ -898,7 +923,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if (unitDefID == settingBurrowDef) and (not gameOver) then
+        if (unitDefID == settingBurrowDef) and (not self._gameOver) then
             local kills = GetGameRulesParam(burrowName .. "Kills")
             SetGameRulesParam(burrowName .. "Kills", kills + 1)
 
@@ -1032,7 +1057,7 @@ if (gadgetHandler:IsSyncedCode()) then
                             self:Wave()
                         end
                         for i = 1, 5, 1 do
-                            self:SpawnTurret(self._queenID, bonusTurret)
+                            self:SpawnTurret(self._queenID, self._bonusTurret)
                         end
                     else
                         self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
@@ -1045,7 +1070,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function RobotTeam:Wave()
 
-        if gameOver then
+        if self._gameOver then
             return
         end
 
