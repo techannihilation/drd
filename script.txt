@@ -42,7 +42,7 @@
 		mo_terraforming=0;
 		mo_wall=0;
 		shareddynamicalliancevictory=0;
-		maxspeed=3;
+		maxspeed=20;
 		maxunits=1000;
 		minspeed=0.3;
 		mo_comtranslock=0;
