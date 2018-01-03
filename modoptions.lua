@@ -1,5 +1,5 @@
 local options={
- 
+
 	{
 		key    = "StartingResources",
 		name   = "Starting Resources",
@@ -242,7 +242,7 @@ local options={
 			{key="team", name="Team", desc="Starting resource storage belongs to the team, cannot be lost"},
 		}
 	},
-	{ 
+	{
 		key="deathmode",
 		name="Game End Mode",
 		desc="What it takes to eliminate a team\nAutoHost Usage :- deathmode",
@@ -314,7 +314,7 @@ local options={
 		step    = 1,
 		def     = 10,
 	},
-	
+
 	{
 		key     = 'wall_size',
 		name    = 'Wall Size',
@@ -326,14 +326,14 @@ local options={
 		step    = 1,
 		def     = 45,
 	},
-	
+
 	{
 		key     = 'wall_los',
 		name    = 'Line of Sight',
 		desc    = 'Can you see past the wall?\nAutoHost Usage :- wall_los',
 		section = 'ta_wall_options',	type    = 'list',
 		def     = '1',
-		items   = 
+		items   =
 		{
 			{
 				key  = '0',
@@ -360,7 +360,7 @@ local options={
 		section = 'ta_wall_options',
 		type    = 'list',
 		def     = '1',
-		items   = 
+		items   =
 		{
 			{
 				key  = '1',
@@ -427,7 +427,7 @@ local options={
 		step   = 10,
 		section= "chicken",
 	},
-	
+
 	{
 		key    = "mo_maxage",
 		name   = "Chicken max age",
@@ -439,7 +439,7 @@ local options={
 		step   = 10,
 		section= "chicken",
 	},
-	
+
 	{
 		key    = "mo_graceperiod",
 		name   = "Grace Period (Seconds)",
@@ -459,13 +459,13 @@ local options={
 		def    = true,
 		section= "chicken",
     },
-    
+
 	{
 		key    = "mo_robot_alt",
 		name   = "Alternative robots",
 		desc   = "Switch to new robots",
 		type   = "bool",
-		def    = false,
+		def    = true,
 		section= "cust",
 	},
 	{
@@ -563,6 +563,6 @@ local options={
 		max    = 250,
 		step   = 1,
 		section= "cust",
-	},		
+	},
 }
 return options
