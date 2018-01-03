@@ -9,6 +9,10 @@ This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Def
 
 ## Changes
 
+### master
+
+- 03.Jan.2018: Make mo_robot_alt (silvers improved waves) the default.
+
 ### v0.1.6
 
 - 03.Jan.2018: Fix exceptions when a team dies.

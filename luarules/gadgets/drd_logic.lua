@@ -166,26 +166,6 @@ if (gadgetHandler:IsSyncedCode()) then
         SendToUnsynced("ChickenEvent", type, num, tech)
     end
 
-
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --
-    -- Game End Stuff
-    --
-
-    local function KillAllComputerUnits()
-        for teamID in pairs(computerTeams) do
-            local teamUnits = GetTeamUnits(teamID)
-            for _, unitID in pairs(teamUnits) do
-                if disabledUnits[unitID] then
-                    DestroyUnit(unitID, false, true)
-                else
-                    DestroyUnit(unitID, true)
-                end
-            end
-        end
-    end
-
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --
@@ -224,7 +204,7 @@ if (gadgetHandler:IsSyncedCode()) then
     local function chooseTeamToAttack()
         local numChickens = 0
         for _, robotTeam in pairs(computerTeams) do
-            numChickens = numChickens + robotTeam:getChickenCount()
+            numChickens = numChickens + robotTeam:GetChickenCount()
         end
         local perTeamEIncome = getPerTeamEIncome()
 
@@ -245,19 +225,13 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     -- selects a enemy target
-    local function ChooseTarget(unitID)
+    local function chooseTarget(unitID)
         -- Select team
         local teamID = chooseTeamToAttack()
 
         -- Add attacking robot to the team and get best target from it
         local team = humanTeams[teamID]
         return team:addAttackingRobotAndGetTarget(unitID)
-    end
-
-    local function SpawnBurrow(count)
-        for _, robotTeam in pairs(computerTeams) do
-            robotTeam:SpawnBurrows(count)
-        end
     end
 
     --------------------------------------------------------------------------------
@@ -442,7 +416,7 @@ if (gadgetHandler:IsSyncedCode()) then
         c._queenTime = settingQueenTime + settingGracePeriod
     end)
 
-    function RobotTeam:setUp(isBestRobot)
+    function RobotTeam:SetUp(isBestRobot)
         -- load/set difficulty
         for key, value in pairs(gadget.difficulties[self._luaAI]) do
             self[key] = value
@@ -474,7 +448,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:getGameOver()
+    function RobotTeam:GetGameOver()
         if self._gameOver then
             return true
         end
@@ -526,11 +500,11 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:getDamageMod()
+    function RobotTeam:GetDamageMod()
         return self.damageMod
     end
 
-    function RobotTeam:getChickenSpawnLoc(burrowID, size)
+    function RobotTeam:_getChickenSpawnLoc(burrowID, size)
         local x, y, z
         local bx, by, bz = GetUnitPosition(burrowID)
         if (not bx or not bz) then
@@ -561,7 +535,7 @@ if (gadgetHandler:IsSyncedCode()) then
         return x, y, z
     end
 
-    function RobotTeam:SpawnBurrows(count)
+    function RobotTeam:_spawnBurrows(count)
         -- don't spawn new burrows when queen is there
         if self._queenID then
             return
@@ -628,7 +602,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:SpawnTurret(burrowID, turret)
+    function RobotTeam:_spawnTurret(burrowID, turret)
         if (mRandom() > defenderChance) or (not turret) or (self._burrows[burrowID] >= maxTurrets) then
             return
         end
@@ -669,16 +643,16 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:SpawnRobots()
+    function RobotTeam:_spawnRobots()
         local i, defs = next(self._spawnQueue)
         if not i or not defs then
             return
         end
         local x, y, z
         if (self._queenID) then
-            x, y, z = self:getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
+            x, y, z = self:_getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
         else
-            x, y, z = self:getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
+            x, y, z = self:_getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
         end
         if not x or not y or not z then
             self._spawnQueue[i] = nil
@@ -704,7 +678,7 @@ if (gadgetHandler:IsSyncedCode()) then
             if (self._queenID) then
                 self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
             else
-                local targetPosition = {GetUnitPosition(ChooseTarget(unitID))}
+                local targetPosition = {GetUnitPosition(chooseTarget(unitID))}
                 self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
                 self._chickenBirths[unitID] = {deathDate = self._gameTimeSeconds + self._maxAge, burrowID = defs.burrow}
 
@@ -780,14 +754,14 @@ if (gadgetHandler:IsSyncedCode()) then
         return CreateUnit(self._queenName, x, y, z, "n", self._teamID)
     end
 
-    function RobotTeam:updateSpawnQueen()
+    function RobotTeam:_updateSpawnQueen()
         if self._queenID or self._gameOver then
             return
         end
 
         self._queenID = self:_spawnQueen()
 
-        self._idleOrderQueue[self._queenID] = {cmd = CMD.MOVE, params = {GetUnitPosition(ChooseTarget(self._queenID))}, opts = {}}
+        self._idleOrderQueue[self._queenID] = {cmd = CMD.MOVE, params = {GetUnitPosition(chooseTarget(self._queenID))}, opts = {}}
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
         self._oldMaxChicken = self._maxChicken
@@ -847,7 +821,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:KillAllRobots()
+    function RobotTeam:_killAllRobots()
         local chickenUnits = GetTeamUnits(self._teamID)
         for _, unitID in pairs(chickenUnits) do
             if disabledUnits[unitID] then
@@ -904,7 +878,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     self._ascendingQueen = false
                     self._nextQueenSpawn = nil
                 end
-                self:updateSpawnQueen()
+                self:_updateSpawnQueen()
             else
                 if modes[highestLevel] == SURVIVAL then
                     self._queenTime = self._gameTimeSeconds + (((Spring.GetModOptions().mo_queentime or 40) * 60) * self._survivalQueenMod)
@@ -914,15 +888,15 @@ if (gadgetHandler:IsSyncedCode()) then
                     if self._isBestRobot then
                         SetGameRulesParam("queenAnger", self._queenAnger)
                     end
-                    self:SpawnBurrows()
-                    self:SpawnRobots() -- spawn new chickens (because queen could be the last one)
+                    self:_spawnBurrows()
+                    self:_spawnRobots() -- spawn new chickens (because queen could be the last one)
                 else
                     self._gameOver = GetGameFrame() + 120
 
                     -- gameOver handling
                     local globalGameOver = true
                     for _, robotTeam in pairs(computerTeams) do
-                        if not robotTeam:getGameOver() then
+                        if not robotTeam:GetGameOver() then
                             globalGameOver = false
                         end
                     end
@@ -933,7 +907,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
                     self._spawnQueue = {}
 
-                    self:KillAllRobots()
+                    self:_killAllRobots()
                 end
             end
         end
@@ -985,7 +959,7 @@ if (gadgetHandler:IsSyncedCode()) then
                         self._bonusTurret = bonusTurret7c
                     end
                 end
-                self:SpawnTurret(burrowID, self._bonusTurret)
+                self:_spawnTurret(burrowID, self._bonusTurret)
             end
 
             for i, defs in pairs(self._spawnQueue) do
@@ -1008,7 +982,7 @@ if (gadgetHandler:IsSyncedCode()) then
             self._failChickens[unitID] = failCount + 1
         end
 
-        local target = ChooseTarget(unitID)
+        local target = chooseTarget(unitID)
         local targetPos = {GetUnitPosition(target)}
         self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
         if GetUnitNeutral(target) then
@@ -1049,7 +1023,7 @@ if (gadgetHandler:IsSyncedCode()) then
                     self._qMove = false
                     self._qDamage = 0 - mRandom(0, 100000)
                 else
-                    local cC = {GetUnitPosition(ChooseTarget(self._queenID))}
+                    local cC = {GetUnitPosition(chooseTarget(self._queenID))}
                     local xQ, _, zQ = GetUnitPosition(self._queenID)
                     if cC then
                         local angle = math.atan2((cC[1] - xQ), (cC[3] - zQ))
@@ -1064,15 +1038,15 @@ if (gadgetHandler:IsSyncedCode()) then
                             )
                             GiveOrderToUnit(self._queenID, CMD.FIGHT, cC, {"shift"})
                             self._qDamage = 0 - mRandom(50000, 250000)
-                            self:Wave()
+                            self:_wave()
                             qMove = true
                         else
                             self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
                             self._qDamage = 0
-                            self:Wave()
+                            self:_wave()
                         end
                         for i = 1, 5, 1 do
-                            self:SpawnTurret(self._queenID, self._bonusTurret)
+                            self:_spawnTurret(self._queenID, self._bonusTurret)
                         end
                     else
                         self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
@@ -1083,7 +1057,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:Wave()
+    function RobotTeam:_wave()
 
         if self._gameOver then
             return
@@ -1119,7 +1093,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         for burrowID in pairs(self._burrows) do
             if (self._gameTimeSeconds > (self._queenTime * 0.15)) then
-                self:SpawnTurret(burrowID, bonusTurret)
+                self:_spawnTurret(burrowID, bonusTurret)
             end
             local squad = waves[self._currentWave][mRandom(1, #waves[self._currentWave])]
             if ((self._lastWave ~= self._currentWave) and (newWaveSquad[self._currentWave])) then
@@ -1163,7 +1137,7 @@ if (gadgetHandler:IsSyncedCode()) then
                         self._spawnQueue[i] = nil
                     end
                 end
-                self:SpawnBurrows(1)
+                self:_spawnBurrows(1)
             end
         end
 
@@ -1239,7 +1213,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         if (self._chickenCount < self._maxChicken) then
-            self:SpawnRobots()
+            self:_spawnRobots()
         end
 
         for unitID, defs in pairs(self._deathQueue) do
@@ -1289,7 +1263,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
 
             if self._queenAnger >= 100 then -- check if the queen should be alive
-                self:updateSpawnQueen()
+                self:_updateSpawnQueen()
                 self:_updateQueenLife()
             end
 
@@ -1331,7 +1305,7 @@ if (gadgetHandler:IsSyncedCode()) then
                         burrowSpawnType = "initialbox_post"
                     end
                 else
-                    self:SpawnBurrows()
+                    self:_spawnBurrows()
                 end
                 if (burrowCount >= self._minBurrows) then
                     self._timeOfLastSpawn = self._gameTimeSeconds
@@ -1341,21 +1315,21 @@ if (gadgetHandler:IsSyncedCode()) then
             end
 
             if (burrowCount > 0) and (self.chickenSpawnRate < (self._gameTimeSeconds - self._timeOfLastWave)) then
-                local cCount = self:Wave()
+                local cCount = self:_wave()
                 if cCount and cCount > 0 and (not self._queenID) then
                     chickenEvent("wave", cCount, self._currentWave)
                 end
                 self._timeOfLastWave = self._gameTimeSeconds
             end
-            self._chickenCount = self:updateUnitCount()
+            self._chickenCount = self:UpdateUnitCount()
         end
     end
 
-    function RobotTeam:getChickenCount()
+    function RobotTeam:GetChickenCount()
         return self._chickenCount
     end
 
-    function RobotTeam:KingPreDamaged(
+    function RobotTeam:UnitPreDamaged(
         unitID,
         unitDefID,
         unitTeam,
@@ -1423,7 +1397,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    function RobotTeam:updateUnitCount()
+    function RobotTeam:UpdateUnitCount()
         local teamUnitCounts = GetTeamUnitsCounts(self._teamID)
         local total = 0
 
@@ -1487,10 +1461,10 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Set all robotsteam up, highestlevel team last
     for teamID, robotTeam in pairs(computerTeams) do
         if teamID ~= highestLevelTeamID then
-            robotTeam:setUp(false)
+            robotTeam:SetUp(false)
         end
     end
-    computerTeams[highestLevelTeamID]:setUp(true)
+    computerTeams[highestLevelTeamID]:SetUp(true)
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -1570,12 +1544,12 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- either incrase damage
         if computerTeams[attackerTeam] then
-            return damage * computerTeams[attackerTeam]:getDamageMod()
+            return damage * computerTeams[attackerTeam]:GetDamageMod()
         end
 
         -- or decrease and store for KING resistance
         if computerTeams[unitTeam] then
-            return computerTeams[unitTeam]:KingPreDamaged(unitID,
+            return computerTeams[unitTeam]:UnitPreDamaged(unitID,
                                                           unitDefID,
                                                           unitTeam,
                                                           damage,
@@ -1629,7 +1603,7 @@ if (gadgetHandler:IsSyncedCode()) then
     function gadget:GameFrame(n)
         if gameOver then
             for teamID in pairs(computerTeams) do
-                computerTeams[teamID]:updateUnitCount()
+                computerTeams[teamID]:UpdateUnitCount()
             end
             if (n > gameOver) then
                 for teamID, _ in pairs(computerTeams) do
