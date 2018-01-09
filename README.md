@@ -2,11 +2,6 @@
 
 This is a clone of [Robot Defense](https://github.com/techannihilation/Robot-Defense) where we work on complete dynamic spawning of robots.
 
-## TODO
-
-- Add Bosses (strong units that spawn at stages).
-- Bonus for killing stuff in robot base - robot makes base.
-
 ## Changes
 
 ### master
