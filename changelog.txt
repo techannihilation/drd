@@ -1,36 +1,36 @@
-0.1.6 -> master
-2018-01-09
+0.1.6 -> 0.1.7
+ 2018-01-09
 
-Improvements:
-- Make mo_robot_alt (silvers improved waves) the default.
+ Improvements:
+ - Make mo_robot_alt (silvers improved waves) the default.
 
 0.1.5 -> 0.1.6
-2018-01-03
+ 2018-01-03
 
-Bugs Fix Release:
-- Fix exceptions when a team dies.
+ Bugs Fix Release:
+ - Fix exceptions when a team dies.
 
 0.1.4 -> 0.1.5
-2018-01-01
+ 2018-01-01
 
-Bugs Fix Release:
-- Fix Game over with multiple KING's (all need to die).
-- Fixes a bug where the KING doesn't fight anymore.
+ Bugs Fix Release:
+ - Fix Game over with multiple KING's (all need to die).
+ - Fixes a bug where the KING doesn't fight anymore.
 
 0.1.3 -> 0.1.4
-2018-01-01
+ 2018-01-01
 
-Bugs Fix Release:
-- Lots of smaller Bugfixes.
+ Bugs Fix Release:
+ - Lots of smaller Bugfixes.
 
 0.0.3 -> 0.1.3
-2017-12-31
+ 2017-12-31
 
-Improvements:
-- Make multiple bots fully working, means by adding 2 bots you get two times the harder game.
+ Improvements:
+ - Make multiple bots fully working, means by adding 2 bots you get two times the harder game.
 
 0.0.0 -> 0.0.3
-2017-12-28
+ 2017-12-28
 
-Improvements:
-- Add logic so Robots attack big eco spots first.
+ Improvements:
+ - Add logic so Robots attack big eco spots first.
