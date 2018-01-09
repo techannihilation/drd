@@ -340,7 +340,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     local RobotTeam = class(Team, function(c, teamID, luaAI)
         Team.init(c, teamID)
-        c._luaAI = luaAI or NORMAL
+        c._luaAI = luaAI or settingDefaultDifficulty
 
         c._queenID = false
 
@@ -1479,7 +1479,7 @@ if (gadgetHandler:IsSyncedCode()) then
         gadget.difficulties = nil
     end
 
-    SetGlobals(luaAI or NORMAL) -- set difficulty
+    SetGlobals(luaAI or settingDefaultDifficulty) -- set difficulty
 
     chickensPerPlayer = (chickensPerPlayer * SetCount(humanTeams))
 
