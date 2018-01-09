@@ -487,13 +487,13 @@ local options = {
         section = "cust"
     },
     {
-        key = "mo_custom_chickenspawn",
-        name = "Wave Spawn Rate (Seconds)",
-        desc = "Time between chicken waves.",
+        key = "mo_custom_numwaves",
+        name = "Number of waves to spawn",
+        desc = "Robots will spawn then in queentime / numwaves",
         type = "number",
-        def = 90,
-        min = 10,
-        max = 600,
+        def = 11,
+        min = 2,
+        max = 200,
         step = 1,
         section = "cust"
     },

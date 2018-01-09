@@ -22,7 +22,6 @@ defenderChance       = 0.5       -- probability of spawning a single turret
 maxTurrets           = 3   		 -- Max Turrets per burrow
 queenSpawnMult       = 1         -- how many times bigger is a queen hatch than a normal burrow hatch
 burrowSpawnRate      = 60
-chickenSpawnRate     = 59
 minBaseDistance      = 600
 maxBaseDistance      = 7200
 chickensPerPlayer    = 8
@@ -543,7 +542,7 @@ SURVIVAL = "Robot: Survival"
 
 difficulties = {
   [VERYEASY] = {
-    chickenSpawnRate  = 100,
+    numWaves          = 24,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.05,
@@ -555,7 +554,7 @@ difficulties = {
     damageMod         = 0.6,
   },
   [EASY] = {
-    chickenSpawnRate  = 100,
+    numWaves          = 24,
     burrowSpawnRate   = 120,
     queenSpawnMult    = 0,
     angerBonus        = 0.075,
@@ -568,7 +567,7 @@ difficulties = {
   },
 
   [NORMAL] = {
-    chickenSpawnRate  = 80,
+    numWaves          = 30,
     burrowSpawnRate   = 105,
     queenSpawnMult    = 1,
     angerBonus        = 0.10,
@@ -581,7 +580,7 @@ difficulties = {
   },
 
   [HARD] = {
-    chickenSpawnRate  = 70,
+    numWaves          = 34,
     burrowSpawnRate   = 60,
     queenSpawnMult    = 1,
     angerBonus        = 0.125,
@@ -595,7 +594,7 @@ difficulties = {
 
 
   [VERYHARD] = {
-    chickenSpawnRate  = 45,
+    numWaves          = 53,
     burrowSpawnRate   = 40,
     queenSpawnMult    = 3,
     angerBonus        = 0.15,
@@ -608,7 +607,7 @@ difficulties = {
   },
 
   [INSANE] = {
-    chickenSpawnRate  = 30,
+    numWaves          = 80,
     burrowSpawnRate   = 28,
     queenSpawnMult    = 4,
     angerBonus        = 0.20,
@@ -622,7 +621,7 @@ difficulties = {
 
 
   [CUSTOM] = {
-    chickenSpawnRate  = tonumber(GetModOptions().mo_custom_chickenspawn),
+    numWaves          = tonumber(GetModOptions().mo_custom_numwaves),
     burrowSpawnRate   = tonumber(GetModOptions().mo_custom_burrowspawn),
     queenSpawnMult    = tonumber(GetModOptions().mo_custom_queenspawnmult),
     angerBonus        = tonumber(GetModOptions().mo_custom_angerbonus),
@@ -635,7 +634,7 @@ difficulties = {
   },
 
   [SURVIVAL] = {
-    chickenSpawnRate    = 80,
+    numWaves            = 80,
     burrowSpawnRate     = 105,
     queenSpawnMult      = 1,
     angerBonus          = 25,

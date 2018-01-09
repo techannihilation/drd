@@ -351,7 +351,7 @@ if (gadgetHandler:IsSyncedCode()) then
         c.lsz2 = 0
 
         -- difficulty: by default VERYEASY
-        c.chickenSpawnRate  = 100
+        c.numWaves          = 24
         c.burrowSpawnRate   = 120
         c.queenSpawnMult    = 0
         c.angerBonus        = 0.05
@@ -431,8 +431,9 @@ if (gadgetHandler:IsSyncedCode()) then
            self._expIncrement = ((self.expStep * -1) / settingQueenTime)
         end
 
-        -- Queentime in x waves in 60 seconds
-        self._nextWave = settingQueenTime / (#waves + 1)
+        -- Queentime in x waves in seconds
+        self._nextWave = settingQueenTime / (self.numWaves + 1)
+        self.chickenSpawnRate = settingQueenTime / self.numWaves
 
         self._isBestRobot = isBestRobot
         if isBestRobot == true then
@@ -1065,6 +1066,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         self._currentWave = math.min(math.ceil((self._gameTimeSeconds - settingGracePeriod) / self._nextWave), #waves)
 
+        -- not sure what this line is for
         if (self._queenAnger >= 100) then
             self._currentWave = #waves
         end
