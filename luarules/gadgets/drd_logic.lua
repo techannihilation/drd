@@ -360,7 +360,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         if waveSettings.air_fighter.maxcost > 0 and havePercent < 100 then
             if self._airFighterPercent == 0 then
-                self._airFighterPercent = math.min(mRandom(0, 20), 100 - havePercent)
+                self._airFighterPercent = math.min(mRandom(0, 60), 100 - havePercent)
                 havePercent = havePercent + self._airFighterPercent
             end
         end
