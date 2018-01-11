@@ -531,13 +531,24 @@ local options = {
         section = "cust"
     },
     {
-        key = "mo_custom_queenspawnmult",
-        name = "Queen Wave Size Mod",
-        desc = "Number of squads spawned by the queen at once.",
+        key = "mo_custom_cost_multiplier",
+        name = "Cost multiplier for cost of units",
+        desc = "The higher the number the faster you get stronger units",
         type = "number",
         def = 1,
         min = 0,
-        max = 5,
+        max = 100,
+        step = 0.01,
+        section = "cust"
+    },
+    {
+        key = "mo_custom_kingmaxunits",
+        name = "Max units spawned by the king (* num of teams)",
+        desc = "Number of units spawned by the king at once. (* num of teams)",
+        type = "number",
+        def = 8,
+        min = 0,
+        max = 250,
         step = 1,
         section = "cust"
     },

@@ -234,6 +234,170 @@ if (gadgetHandler:IsSyncedCode()) then
         return team:addAttackingRobotAndGetTarget(unitID)
     end
 
+	--------------------------------------------------------------------------------
+	--------------------------------------------------------------------------------
+    -- New Waves Logic
+
+
+	local possibleUnitsAir = {}
+	local possibleUnitsAirFighter = {}
+	local possibleUnitsGround = {}
+    for _, ud in pairs(UnitDefs) do
+        if not settingBlackList[ud.name] and ud.isBuilder == false then
+            if ud.moveDef.name and ud.minWaterDepth < 0 then
+                -- ground unit
+                table.insert(possibleUnitsGround, ud)
+            elseif ud.canFly then
+                if ud.name == "abroadside" or ud.name == "cdevastator" then
+                    -- take heros as ground units
+                    table.insert(possibleUnitsGround, ud)
+                else
+                    if ud.isFighterAirUnit then
+                        -- fighters
+                        table.insert(possibleUnitsAirFighter, ud)
+                    else
+                        -- bombers/copters and co
+                        table.insert(possibleUnitsAir, ud)
+                    end
+                end
+            end
+        end
+    end
+
+	--------------------------------------------------------------------------------
+	--------------------------------------------------------------------------------
+	--
+	-- Waves class
+	--
+
+	Wave = Spring.Utilities.Class(function(c, airPercent, airFighterPercent,
+		                                   groundPercent)
+
+	  c._airPercent = 0
+	  if airPercent ~= nil then
+		c._airPercent = airPercent
+	  end
+
+	  c._airFighterPercent = 0
+	  if airFighterPercent ~= nil then
+		c._airFighterPercent = airFighterPercent
+	  end
+
+	  c._groundPercent = 0
+	  if groundPercent ~= nil then
+		c._groundPercent = groundPercent
+	  end
+
+	  c._units = {}
+	end)
+
+    function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier)
+        if maxcost <= 0 then
+            return false
+        end
+
+        local units = {}
+        local uCount = 0
+
+        for _, ud in pairs(possibleUnits) do
+            if ud.cost >= mincost and ud.cost <= maxcost then
+                -- Echo("possible: " .. ud.name)
+                table.insert(units, {name = ud.name, cost = ud.cost})
+                uCount = uCount + 1
+            end
+        end
+
+        if uCount < 1 then
+            return false
+        end
+
+        local maxUnitsCost = maxUnitsClass * maxcost * costMultiplier
+        local currentUnitsCost = 0
+        repeat
+            id = mRandom(1, uCount)
+            for i = 1, 3 do
+                if maxUnitsClass <= 0 or currentUnitsCost >= maxUnitsCost then
+                    break
+                end
+                -- Echo("have: " .. units[id].name)
+                table.insert(self._units, units[id].name)
+                maxUnitsClass = maxUnitsClass - 1
+                currentUnitsCost = currentUnitsCost + units[id].cost
+            end
+        until maxUnitsClass <= 0 or currentUnitsCost >= maxUnitsCost
+
+        if uCount < 1 then
+            return false
+        end
+
+        return true
+	end
+
+	function Wave:GetWave(kingAnger, maxUnits, costMultiplier)
+	  -- Get Settings
+	  local waveSettings = {}
+      for _, swave in ipairs(settingWaves) do
+		if swave.anger > kingAnger then
+		  break
+		end
+
+		waveSettings = swave
+      end
+
+	  -- Calculate percentages
+	  local havePercent = self._groundPercent
+	  if waveSettings.air.maxcost > 0 then
+		havePercent = havePercent + self._airPercent
+	  end
+	  if waveSettings.air_fighter.maxcost > 0 then
+		havePercent = havePercent + self._airFighterPercent
+	  end
+
+	  if self._groundPercent == 0 then
+		self._groundPercent = math.min(mRandom(30, 100), 100 - havePercent)
+		havePercent = havePercent + self._groundPercent
+	  end
+
+	  if waveSettings.air_fighter.maxcost > 0 and havePercent < 100 then
+		if self._airFighterPercent == 0 then
+		  self._airFighterPercent = math.min(mRandom(0, 20), 100 - havePercent)
+		  havePercent = havePercent + self._airFighterPercent
+		end
+	  end
+
+	  if waveSettings.air.maxcost > 0  and havePercent < 100 then
+		if self._airPercent == 0 then
+		  self._airPercent = math.min(mRandom(0, 70), 100 - havePercent)
+		  havePercent = havePercent + self._airPercent
+		end
+	  end
+
+	  -- Fill up to 100%
+	  if havePercent < 100 then
+        self._groundPercent = self._groundPercent + (100 - havePercent)
+	  end
+
+      local maxGroundUnits = math.ceil(maxUnits * (self._groundPercent / 100))
+      local maxAirFighters = math.ceil(maxUnits * (self._airFighterPercent / 100))
+      local maxAirUnits = math.ceil(maxUnits * (self._airPercent / 100))
+      -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
+
+      -- Add units
+      -- Echo("ground")
+      self:_addUnits(waveSettings.ground.maxcost * costMultiplier, waveSettings.ground.mincost, possibleUnitsGround, maxGroundUnits, costMultiplier)
+      -- Echo()
+      -- Echo("air fighs")
+      self:_addUnits(waveSettings.air_fighter.maxcost * costMultiplier, waveSettings.air_fighter.mincost, possibleUnitsAirFighter, maxAirFighters, costMultiplier)
+      -- Echo()
+      -- Echo("air")
+      self:_addUnits(waveSettings.air.maxcost * costMultiplier, waveSettings.air.mincost, possibleUnitsAir, maxAirUnits, costMultiplier)
+      -- Echo()
+
+      -- Echo("unitCount: " .. Dump(#self._units))
+
+	  return self._units
+	end
+
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --
@@ -352,8 +516,9 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- difficulty: by default VERYEASY
         c.numWaves          = 24
+        c.costMultiplier    = 0.9
         c.burrowSpawnRate   = 120
-        c.queenSpawnMult    = 0
+        c.kingMaxUnits      = 0
         c.angerBonus        = 0.05
         c.expStep           = 0
         c.chickenTypes      = {}
@@ -486,6 +651,10 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function RobotTeam:GameStart()
+        -- for _, ud in pairs(UnitDefs) do
+        --     Echo(ud.name, ud.techLevel, ud.humanName, ud.customParams.faction, ud.buildTime, ud.cost, ud.canFly, ud.isFighterAirUnit)
+        -- end
+
         if (burrowSpawnType == "initialbox") or (burrowSpawnType == "alwaysbox") then
             local _, _, _, _, _, luaAllyID = Spring.GetTeamInfo(self._teamID)
             if luaAllyID then
@@ -1064,45 +1233,43 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        self._currentWave = math.min(math.ceil((self._gameTimeSeconds - settingGracePeriod) / self._nextWave), #waves)
+        local cCount = self._chickenCount
+        local cAdded = 0
 
-        -- not sure what this line is for
-        if (self._queenAnger >= 100) then
-            self._currentWave = #waves
+        local burrows = self._burrows
+        if self._queenID then
+            burrows = {self._queenID}
         end
 
-        -- Echo("CurrentWave: ", self._currentWave, "#Waves: ", #waves, "NextWave: ", self._nextWave, "TimeSecs: ", self._gameTimeSeconds - settingGracePeriod)
-
-        local cCount = 0
-
-        if self._queenID then -- spawn units from queen
-            if self.queenSpawnMult > 0 then
-                for i = 1, self.queenSpawnMult, 1 do
-                    local squad = waves[9][mRandom(1, #waves[9])]
-                    for i, sString in pairs(squad) do
-                        local nEnd, _ = string.find(sString, " ")
-                        local unitCount = string.sub(sString, 1, (nEnd - 1))
-                        local chickenName = string.sub(sString, (nEnd + 1))
-                        for i = 1, unitCount, 1 do
-                            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = chickenName, team = self._teamID})
-                        end
-                        cCount = cCount + unitCount
-                    end
-                end
-            end
-            return cCount
+        local w = Wave()
+        local waveUnits
+        if self._queenID then
+            waveUnits = w:GetWave(self._queenAnger, self.kingMaxUnits, self.costMultiplier)
+        else
+            waveUnits = w:GetWave(self._queenAnger, self._maxChicken * SetCount(humanTeams), self.costMultiplier)
         end
+        local waveCount = #waveUnits
+        w = nil
 
-        for burrowID in pairs(self._burrows) do
+        local firstBurrow = true
+        local perBurrow = waveCount / (SetCount(burrows) or 1)
+        local unitNum = 1
+
+        for burrowID in pairs(burrows) do
             if (self._gameTimeSeconds > (self._queenTime * 0.15)) then
                 self:_spawnTurret(burrowID, bonusTurret)
             end
-            local squad = waves[self._currentWave][mRandom(1, #waves[self._currentWave])]
-            if ((self._lastWave ~= self._currentWave) and (newWaveSquad[self._currentWave])) then
-                squad = newWaveSquad[self._currentWave]
-                self._lastWave = self._currentWave
+
+            local perBurrowCount = perBurrow
+            if firstBurrow then
+                perBurrowCount = perBurrowCount + (waveCount - perBurrow * SetCount(burrows))
+                firstBurrow = false
             end
-            for i, sString in pairs(squad) do
+
+            for i = 1, perBurrowCount do
+                local unitName = waveUnits[unitNum]
+                unitNum = unitNum + 1
+
                 local skipSpawn = false
                 if (cCount > chickensPerPlayer) and (mRandom() > spawnChance) then
                     skipSpawn = true
@@ -1112,19 +1279,14 @@ if (gadgetHandler:IsSyncedCode()) then
                     skipSpawn = false
                 end
                 if not skipSpawn then
-                    local nEnd, _ = string.find(sString, " ")
-                    local unitCount = string.sub(sString, 1, (nEnd - 1))
-                    local chickenName = string.sub(sString, (nEnd + 1))
-                    --Echo("chickenname is : " ..chickenName)
-
-                    for i = 1, unitCount, 1 do
-                        table.insert(self._spawnQueue, {burrow = burrowID, unitName = chickenName, team = self._teamID})
-                    end
-                    cCount = cCount + unitCount
+                    table.insert(self._spawnQueue, {burrow = burrowID, unitName = unitName, team = self._teamID})
+                    cCount = cCount + 1
+                    cAdded = cAdded + 1
                 end
             end
         end
-        return cCount
+
+        return cAdded
     end
 
     function RobotTeam:_removeFailChickens()

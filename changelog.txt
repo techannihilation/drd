@@ -1,8 +1,8 @@
-0.1.6 -> 0.1.7
- 2018-01-09
+0.1.6 -> 0.2.0
+ 2018-01-11
 
  Improvements:
- - Make mo_robot_alt (silvers improved waves) the default.
+ - New waves logic, robot should spawn now more dynamicaly.
 
 0.1.5 -> 0.1.6
  2018-01-03
