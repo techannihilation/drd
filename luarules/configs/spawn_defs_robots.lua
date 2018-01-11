@@ -20,7 +20,6 @@ settingQueenName     = mo_queendifficulty .."r"
 settingBurrowDef     = UnitDefNames[burrowName].id
 defenderChance       = 0.5       -- probability of spawning a single turret
 maxTurrets           = 3   		 -- Max Turrets per burrow
-queenSpawnMult       = 1         -- how many times bigger is a queen hatch than a normal burrow hatch
 burrowSpawnRate      = 60
 minBaseDistance      = 600
 maxBaseDistance      = 7200
@@ -432,61 +431,63 @@ table.insert(settingWaves, {
   anger = 10,
   air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
+  ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
 })
 
-  -- WIP
+-- WIP START
 table.insert(settingWaves, {
   anger = 20,
-  air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
+  air = { mincost = 80, maxcost = 275 }, -- TLL WASP
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
 })
 table.insert(settingWaves, {
   anger = 30,
-  air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
+  air = { mincost = 80, maxcost = 275 }, -- TLL WASP
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
 })
 table.insert(settingWaves, {
   anger = 40,
-  air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
+  air = { mincost = 80, maxcost = 275 }, -- TLL WASP
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
 })
+-- WIP END
+
 table.insert(settingWaves, {
   anger = 50,
   air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 1481, maxcost = 7399 }, -- CORE KrogTaar
 })
 table.insert(settingWaves, {
   anger = 60,
   air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 75, maxcost = 1480 }, -- ARM Century
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 7398, maxcost = 10121 }, -- ARM Vengence
 })
 table.insert(settingWaves, {
   anger = 70,
   air = { mincost = 0, maxcost = 3942 }, -- ARM LICHE
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 0, maxcost = 46000 }, -- ARM Furie
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 10121, maxcost = 21001 }, -- ARM CAV
 })
 table.insert(settingWaves, {
   anger = 80,
-  air = { mincost = 3942, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { mincost = 0, maxcost = 1754 }, -- TLL Shrike
-  ground = { mincost = 0, maxcost = 1480 }, -- ARM Century
+  air = { mincost = 3942, maxcost = 7600 }, -- CORE KROW
+  air_fighter = { mincost = 477, maxcost = 1754 }, -- TLL Shrike
+  ground = { mincost = 10121, maxcost = 46000 }, -- ARM Furie
 })
 table.insert(settingWaves, {
   anger = 90,
   air = { mincost = 3942, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 0, maxcost = 1754 }, -- TLL Shrike
-  ground = { mincost = 0, maxcost = 1480 }, -- ARM Century
+  ground = { mincost = 46000, maxcost = 256171 }, -- CORE Super Krogoth
 })
 table.insert(settingWaves, {
   anger = 95,
   air = { mincost = 3942, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 0, maxcost = 1754 }, -- TLL Shrike
-  ground = { mincost = 0, maxcost = 332667 }, -- CORE DEVASTATOR
+  ground = { mincost = 46000, maxcost = 332667 }, -- CORE DEVASTATOR
 })
