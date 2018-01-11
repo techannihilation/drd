@@ -104,7 +104,7 @@ if (gadgetHandler:IsSyncedCode()) then
         [UnitDefNames["corcom5"].id] = true,
         [UnitDefNames["corcom6"].id] = true,
         [UnitDefNames["corcom7"].id] = true,
-      --Arm
+        --Arm
         [UnitDefNames["armcom"].id] = true,
         [UnitDefNames["armcom1"].id] = true,
         [UnitDefNames["armcom4"].id] = true,
@@ -112,15 +112,15 @@ if (gadgetHandler:IsSyncedCode()) then
         [UnitDefNames["armcom5"].id] = true,
         [UnitDefNames["armcom6"].id] = true,
         [UnitDefNames["armcom7"].id] = true,
-      --The lost legacy
+        --The lost legacy
         [UnitDefNames["tllcom"].id] = true,
         [UnitDefNames["tllcom1"].id] = true,
         [UnitDefNames["tllcom3"].id] = true,
         [UnitDefNames["tllcom_fusion"].id] = true,
         [UnitDefNames["tllcom5"].id] = true,
         [UnitDefNames["tllcom6"].id] = true,
-        [UnitDefNames["tllcom7"].id] = true,
-      }
+        [UnitDefNames["tllcom7"].id] = true
+    }
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -234,14 +234,13 @@ if (gadgetHandler:IsSyncedCode()) then
         return team:addAttackingRobotAndGetTarget(unitID)
     end
 
-	--------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
     -- New Waves Logic
 
-
-	local possibleUnitsAir = {}
-	local possibleUnitsAirFighter = {}
-	local possibleUnitsGround = {}
+    local possibleUnitsAir = {}
+    local possibleUnitsAirFighter = {}
+    local possibleUnitsGround = {}
     for _, ud in pairs(UnitDefs) do
         if not settingBlackList[ud.name] and ud.isBuilder == false then
             if ud.moveDef.name and ud.minWaterDepth < 0 then
@@ -264,32 +263,33 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-	--------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------
-	--
-	-- Waves class
-	--
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --
+    -- Waves class
+    --
 
-	Wave = Spring.Utilities.Class(function(c, airPercent, airFighterPercent,
-		                                   groundPercent)
+    Wave =
+        Spring.Utilities.Class(
+        function(c, airPercent, airFighterPercent, groundPercent)
+            c._airPercent = 0
+            if airPercent ~= nil then
+                c._airPercent = airPercent
+            end
 
-	  c._airPercent = 0
-	  if airPercent ~= nil then
-		c._airPercent = airPercent
-	  end
+            c._airFighterPercent = 0
+            if airFighterPercent ~= nil then
+                c._airFighterPercent = airFighterPercent
+            end
 
-	  c._airFighterPercent = 0
-	  if airFighterPercent ~= nil then
-		c._airFighterPercent = airFighterPercent
-	  end
+            c._groundPercent = 0
+            if groundPercent ~= nil then
+                c._groundPercent = groundPercent
+            end
 
-	  c._groundPercent = 0
-	  if groundPercent ~= nil then
-		c._groundPercent = groundPercent
-	  end
-
-	  c._units = {}
-	end)
+            c._units = {}
+        end
+    )
 
     function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier)
         if maxcost <= 0 then
@@ -331,72 +331,90 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         return true
-	end
+    end
 
-	function Wave:GetWave(kingAnger, maxUnits, costMultiplier)
-	  -- Get Settings
-	  local waveSettings = {}
-      for _, swave in ipairs(settingWaves) do
-		if swave.anger > kingAnger then
-		  break
-		end
+    function Wave:GetWave(kingAnger, maxUnits, costMultiplier)
+        -- Get Settings
+        local waveSettings = {}
+        for _, swave in ipairs(settingWaves) do
+            if swave.anger > kingAnger then
+                break
+            end
 
-		waveSettings = swave
-      end
+            waveSettings = swave
+        end
 
-	  -- Calculate percentages
-	  local havePercent = self._groundPercent
-	  if waveSettings.air.maxcost > 0 then
-		havePercent = havePercent + self._airPercent
-	  end
-	  if waveSettings.air_fighter.maxcost > 0 then
-		havePercent = havePercent + self._airFighterPercent
-	  end
+        -- Calculate percentages
+        local havePercent = self._groundPercent
+        if waveSettings.air.maxcost > 0 then
+            havePercent = havePercent + self._airPercent
+        end
+        if waveSettings.air_fighter.maxcost > 0 then
+            havePercent = havePercent + self._airFighterPercent
+        end
 
-	  if self._groundPercent == 0 then
-		self._groundPercent = math.min(mRandom(30, 100), 100 - havePercent)
-		havePercent = havePercent + self._groundPercent
-	  end
+        if self._groundPercent == 0 then
+            self._groundPercent = math.min(mRandom(30, 100), 100 - havePercent)
+            havePercent = havePercent + self._groundPercent
+        end
 
-	  if waveSettings.air_fighter.maxcost > 0 and havePercent < 100 then
-		if self._airFighterPercent == 0 then
-		  self._airFighterPercent = math.min(mRandom(0, 20), 100 - havePercent)
-		  havePercent = havePercent + self._airFighterPercent
-		end
-	  end
+        if waveSettings.air_fighter.maxcost > 0 and havePercent < 100 then
+            if self._airFighterPercent == 0 then
+                self._airFighterPercent = math.min(mRandom(0, 20), 100 - havePercent)
+                havePercent = havePercent + self._airFighterPercent
+            end
+        end
 
-	  if waveSettings.air.maxcost > 0  and havePercent < 100 then
-		if self._airPercent == 0 then
-		  self._airPercent = math.min(mRandom(0, 70), 100 - havePercent)
-		  havePercent = havePercent + self._airPercent
-		end
-	  end
+        if waveSettings.air.maxcost > 0 and havePercent < 100 then
+            if self._airPercent == 0 then
+                self._airPercent = math.min(mRandom(0, 70), 100 - havePercent)
+                havePercent = havePercent + self._airPercent
+            end
+        end
 
-	  -- Fill up to 100%
-	  if havePercent < 100 then
-        self._groundPercent = self._groundPercent + (100 - havePercent)
-	  end
+        -- Fill up to 100%
+        if havePercent < 100 then
+            self._groundPercent = self._groundPercent + (100 - havePercent)
+        end
 
-      local maxGroundUnits = math.ceil(maxUnits * (self._groundPercent / 100))
-      local maxAirFighters = math.ceil(maxUnits * (self._airFighterPercent / 100))
-      local maxAirUnits = math.ceil(maxUnits * (self._airPercent / 100))
-      -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
+        local maxGroundUnits = math.ceil(maxUnits * (self._groundPercent / 100))
+        local maxAirFighters = math.ceil(maxUnits * (self._airFighterPercent / 100))
+        local maxAirUnits = math.ceil(maxUnits * (self._airPercent / 100))
+        -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
 
-      -- Add units
-      -- Echo("ground")
-      self:_addUnits(waveSettings.ground.maxcost * costMultiplier, waveSettings.ground.mincost, possibleUnitsGround, maxGroundUnits, costMultiplier)
-      -- Echo()
-      -- Echo("air fighs")
-      self:_addUnits(waveSettings.air_fighter.maxcost * costMultiplier, waveSettings.air_fighter.mincost, possibleUnitsAirFighter, maxAirFighters, costMultiplier)
-      -- Echo()
-      -- Echo("air")
-      self:_addUnits(waveSettings.air.maxcost * costMultiplier, waveSettings.air.mincost, possibleUnitsAir, maxAirUnits, costMultiplier)
-      -- Echo()
+        -- Add units
+        -- Echo("ground")
+        self:_addUnits(
+            waveSettings.ground.maxcost * costMultiplier,
+            waveSettings.ground.mincost,
+            possibleUnitsGround,
+            maxGroundUnits,
+            costMultiplier
+        )
+        -- Echo()
+        -- Echo("air fighs")
+        self:_addUnits(
+            waveSettings.air_fighter.maxcost * costMultiplier,
+            waveSettings.air_fighter.mincost,
+            possibleUnitsAirFighter,
+            maxAirFighters,
+            costMultiplier
+        )
+        -- Echo()
+        -- Echo("air")
+        self:_addUnits(
+            waveSettings.air.maxcost * costMultiplier,
+            waveSettings.air.mincost,
+            possibleUnitsAir,
+            maxAirUnits,
+            costMultiplier
+        )
+        -- Echo()
 
-      -- Echo("unitCount: " .. Dump(#self._units))
+        -- Echo("unitCount: " .. Dump(#self._units))
 
-	  return self._units
-	end
+        return self._units
+    end
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -404,9 +422,12 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Teams
     --
 
-    local Team = class(function(c, teamID)
-        c._teamID = teamID
-    end)
+    local Team =
+        class(
+        function(c, teamID)
+            c._teamID = teamID
+        end
+    )
 
     function Team:getTeamID()
         return self._teamID
@@ -417,16 +438,20 @@ if (gadgetHandler:IsSyncedCode()) then
     --
     -- HumanTeam class
     --
-    local HumanTeam = class(Team, function(c, teamID)
-        Team.init(c, teamID)
-        c._attackingRobotsCount = 0
-        c._attackingRobots = {}
+    local HumanTeam =
+        class(
+        Team,
+        function(c, teamID)
+            Team.init(c, teamID)
+            c._attackingRobotsCount = 0
+            c._attackingRobots = {}
 
-        c._unitsCount = 0
-        c._units = {}
+            c._unitsCount = 0
+            c._units = {}
 
-        c._isDead = false
-    end)
+            c._isDead = false
+        end
+    )
 
     function HumanTeam:setDead()
         self._isDead = true
@@ -501,85 +526,88 @@ if (gadgetHandler:IsSyncedCode()) then
         return unitsSet[mRandom(#unitsSet)]
     end
 
+    local RobotTeam =
+        class(
+        Team,
+        function(c, teamID, luaAI)
+            Team.init(c, teamID)
+            c._luaAI = luaAI or settingDefaultDifficulty
 
-    local RobotTeam = class(Team, function(c, teamID, luaAI)
-        Team.init(c, teamID)
-        c._luaAI = luaAI or settingDefaultDifficulty
+            c._queenID = false
 
-        c._queenID = false
+            -- box vars
+            c.lsx1 = 0
+            c.lsz1 = 0
+            c.lsx2 = 0
+            c.lsz2 = 0
 
-        -- box vars
-        c.lsx1 = 0
-        c.lsz1 = 0
-        c.lsx2 = 0
-        c.lsz2 = 0
+            -- difficulty: by default VERYEASY
+            c.numWaves = 24
+            c.costMultiplier = 0.9
+            c.burrowSpawnRate = 120
+            c.kingMaxUnits = 0
+            c.angerBonus = 0.05
+            c.expStep = 0
+            c.chickenTypes = {}
+            c.defenders = {}
+            c.chickensPerPlayer = 3
+            c.spawnChance = 0.25
+            c.damageMod = 0.6
 
-        -- difficulty: by default VERYEASY
-        c.numWaves          = 24
-        c.costMultiplier    = 0.9
-        c.burrowSpawnRate   = 120
-        c.kingMaxUnits      = 0
-        c.angerBonus        = 0.05
-        c.expStep           = 0
-        c.chickenTypes      = {}
-        c.defenders         = {}
-        c.chickensPerPlayer = 3
-        c.spawnChance       = 0.25
-        c.damageMod         = 0.6
+            -- gameOver
+            c._gameOver = nil
 
-        -- gameOver
-        c._gameOver = nil
+            -- failing stuff
+            c._failBurrows = {}
+            c._failChickens = {}
 
-        -- failing stuff
-        c._failBurrows = {}
-        c._failChickens = {}
+            -- burrows
+            c._burrows = {}
+            c._minBurrows = 1
+            c._burrowTarget = 0
+            c._burrowAnger = 0
 
-        -- burrows
-        c._burrows = {}
-        c._minBurrows = 1
-        c._burrowTarget = 0
-        c._burrowAnger = 0
+            c._turrets = {}
 
-        c._turrets = {}
+            -- queue's
+            c._spawnQueue = {}
+            c._deathQueue = {}
+            c._idleOrderQueue = {}
 
-        -- queue's
-        c._spawnQueue = {}
-        c._deathQueue = {}
-        c._idleOrderQueue = {}
+            -- Other variables
+            c._currentWave = 1
+            c._gameTimeSeconds = 0
+            c._ascendingQueen = false
+            c._queenResistance = {}
+            c._timeCounter = 0
+            c._queenAnger = 0
+            c._isBestRobot = false
+            c._chickenCount = 0
+            c._chickenDebtCount = 0
+            c._chickenBirths = {}
+            c._queenLifePercent = 100
+            c._nextQueenSpawn = nil
+            c._survivalQueenMod = 0.8
+            c._oldDamageMod = 1
+            c._firstSpawn = true
+            c._timeOfLastSpawn = 0
+            c._timeOfLastFakeSpawn = 0
+            c._timeOfLastWave = 0
+            c._lastWave = 1
+            c._qDamage = 0
+            c._qMove = false
+            c._queenMaxHP = 0
 
-        -- Other variables
-        c._currentWave = 1
-        c._gameTimeSeconds = 0
-        c._ascendingQueen = false
-        c._queenResistance = {}
-        c._timeCounter = 0
-        c._queenAnger = 0
-        c._isBestRobot = false
-        c._chickenCount = 0
-        c._chickenDebtCount = 0
-        c._chickenBirths = {}
-        c._queenLifePercent = 100
-        c._nextQueenSpawn = nil
-        c._survivalQueenMod = 0.8
-        c._oldDamageMod = 1
-        c._firstSpawn = true
-        c._timeOfLastSpawn = 0
-        c._timeOfLastFakeSpawn = 0
-        c._timeOfLastWave = 0
-        c._lastWave = 1
-        c._qDamage = 0
-        c._qMove = false
-        c._queenMaxHP = 0
-
-        -- Settings
-        c._maxChicken = settingMaxChicken
-        -- to save maxChicken in SURVIVAL mod
-        c._oldMaxChicken = 0
-        c._queenName = settingQueenName
-        c._maxAge = settingMaxAge
-        c._bonusTurret = settingBonusTurret
-        c._queenTime = settingQueenTime + settingGracePeriod
-    end)
+            -- Settings
+            c._maxChicken = settingMaxChicken
+            -- to save maxChicken in SURVIVAL mod
+            c._oldMaxChicken = 0
+            c._queenName = settingQueenName
+            c._maxAge = settingMaxAge
+            c._bonusTurret = settingBonusTurret
+            c._queenTime = settingQueenTime + settingGracePeriod
+        end
+    )
 
     function RobotTeam:SetUp(isBestRobot)
         -- load/set difficulty
@@ -593,7 +621,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if self.expStep > 0 then
             self._expIncrement = ((SetCount(humanTeams) * self.expStep) / settingQueenTime)
         else
-           self._expIncrement = ((self.expStep * -1) / settingQueenTime)
+            self._expIncrement = ((self.expStep * -1) / settingQueenTime)
         end
 
         -- Queentime in x waves in seconds
@@ -860,7 +888,14 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function RobotTeam:_spawnQueen()
         if (self._nextQueenSpawn ~= nil) then
-            return CreateUnit(self._queenName, self._nextQueenSpawn.x, self._nextQueenSpawn.y, self._nextQueenSpawn.z, "n", self._teamID)
+            return CreateUnit(
+                self._queenName,
+                self._nextQueenSpawn.x,
+                self._nextQueenSpawn.y,
+                self._nextQueenSpawn.z,
+                "n",
+                self._teamID
+            )
         end
 
         local bestScore = 0
@@ -931,7 +966,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
         self._queenID = self:_spawnQueen()
 
-        self._idleOrderQueue[self._queenID] = {cmd = CMD.MOVE, params = {GetUnitPosition(chooseTarget(self._queenID))}, opts = {}}
+        self._idleOrderQueue[self._queenID] = {
+            cmd = CMD.MOVE,
+            params = {GetUnitPosition(chooseTarget(self._queenID))},
+            opts = {}
+        }
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
         self._oldMaxChicken = self._maxChicken
@@ -1051,7 +1090,9 @@ if (gadgetHandler:IsSyncedCode()) then
                 self:_updateSpawnQueen()
             else
                 if modes[highestLevel] == SURVIVAL then
-                    self._queenTime = self._gameTimeSeconds + (((Spring.GetModOptions().mo_queentime or 40) * 60) * self._survivalQueenMod)
+                    self._queenTime =
+                        self._gameTimeSeconds +
+                        (((Spring.GetModOptions().mo_queentime or 40) * 60) * self._survivalQueenMod)
                     self._survivalQueenMod = self._survivalQueenMod * 0.8
                     self._queenAnger = 0 -- reenable chicken spawning
                     self._burrowAnger = 0
@@ -1228,7 +1269,6 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function RobotTeam:_wave()
-
         if self._gameOver then
             return
         end
@@ -1395,7 +1435,10 @@ if (gadgetHandler:IsSyncedCode()) then
                 else
                     self._queenAnger =
                         math.ceil(
-                        math.min((self._gameTimeSeconds - settingGracePeriod) / (self._queenTime - settingGracePeriod) * 100 % 100) + self._burrowAnger,
+                        math.min(
+                            (self._gameTimeSeconds - settingGracePeriod) / (self._queenTime - settingGracePeriod) * 100 %
+                                100
+                        ) + self._burrowAnger,
                         100
                     )
                 end
@@ -1434,7 +1477,10 @@ if (gadgetHandler:IsSyncedCode()) then
             local quicken = 0
             local burrowCount = SetCount(self._burrows)
 
-            if (self.burrowSpawnRate < (self._gameTimeSeconds - self._timeOfLastFakeSpawn) and self._burrowTarget < settingMaxBurrows) then
+            if
+                (self.burrowSpawnRate < (self._gameTimeSeconds - self._timeOfLastFakeSpawn) and
+                    self._burrowTarget < settingMaxBurrows)
+             then
                 -- This block is all about setting the correct burrow target
                 if self._firstSpawn then
                     self._minBurrows = SetCount(humanTeams)
@@ -1461,7 +1507,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
             local burrowSpawnTime = (self.burrowSpawnRate - quicken)
 
-            if (burrowCount < self._minBurrows) or (burrowSpawnTime < (self._gameTimeSeconds - self._timeOfLastSpawn) and burrowCount < settingMaxBurrows) then
+            if
+                (burrowCount < self._minBurrows) or
+                    (burrowSpawnTime < (self._gameTimeSeconds - self._timeOfLastSpawn) and
+                        burrowCount < settingMaxBurrows)
+             then
                 if self._firstSpawn then
                     self._timeOfLastWave = (self._gameTimeSeconds - (self.chickenSpawnRate - 6))
                     self._firstSpawn = false
@@ -1504,7 +1554,6 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-
         if (unitID == self._queenID) then -- special case KING
             -- prevents dguns
             if (weaponID == -1) and (damage > 25000) then
@@ -1535,7 +1584,10 @@ if (gadgetHandler:IsSyncedCode()) then
                         )
                         self._queenResistance[weaponID].notify = 1
                         for i = 1, 20, 1 do
-                            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
+                            table.insert(
+                                self._spawnQueue,
+                                {burrow = self._queenID, unitName = "corkarg", team = self._teamID}
+                            )
                         end
                     end
                     damage = damage - (damage * resistPercent)
@@ -1705,7 +1757,6 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-
         -- either incrase damage
         if computerTeams[attackerTeam] then
             return damage * computerTeams[attackerTeam]:GetDamageMod()
@@ -1713,16 +1764,18 @@ if (gadgetHandler:IsSyncedCode()) then
 
         -- or decrease and store for KING resistance
         if computerTeams[unitTeam] then
-            return computerTeams[unitTeam]:UnitPreDamaged(unitID,
-                                                          unitDefID,
-                                                          unitTeam,
-                                                          damage,
-                                                          paralyzer,
-                                                          weaponID,
-                                                          projectileID,
-                                                          attackerID,
-                                                          attackerDefID,
-                                                          attackerTeam)
+            return computerTeams[unitTeam]:UnitPreDamaged(
+                unitID,
+                unitDefID,
+                unitTeam,
+                damage,
+                paralyzer,
+                weaponID,
+                projectileID,
+                attackerID,
+                attackerDefID,
+                attackerTeam
+            )
         end
         return damage
     end
@@ -1738,18 +1791,19 @@ if (gadgetHandler:IsSyncedCode()) then
         attackerID,
         attackerDefID,
         attackerTeam)
-
         for _, robotTeam in pairs(computerTeams) do
-            robotTeam:UnitDamaged(unitID,
-                                  unitDefID,
-                                  unitTeam,
-                                  damage,
-                                  paralyzer,
-                                  weaponID,
-                                  projectileID,
-                                  attackerID,
-                                  attackerDefID,
-                                  attackerTeam)
+            robotTeam:UnitDamaged(
+                unitID,
+                unitDefID,
+                unitTeam,
+                damage,
+                paralyzer,
+                weaponID,
+                projectileID,
+                attackerID,
+                attackerDefID,
+                attackerTeam
+            )
         end
     end
 
