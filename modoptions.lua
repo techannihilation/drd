@@ -460,14 +460,6 @@ local options = {
         section = "chicken"
     },
     {
-        key = "mo_robot_alt",
-        name = "Alternative robots",
-        desc = "Switch to new robots",
-        type = "bool",
-        def = true,
-        section = "cust"
-    },
-    {
         key = "mo_gracepenalty",
         name = "Grace Penalty",
         desc = "Grace Penalty add more robots if grace time is bigger than 270sec",
@@ -487,13 +479,13 @@ local options = {
         section = "cust"
     },
     {
-        key = "mo_custom_chickenspawn",
-        name = "Wave Spawn Rate (Seconds)",
-        desc = "Time between chicken waves.",
+        key = "mo_custom_numwaves",
+        name = "Number of waves to spawn",
+        desc = "Robots will spawn then in queentime / numwaves",
         type = "number",
-        def = 90,
-        min = 10,
-        max = 600,
+        def = 11,
+        min = 2,
+        max = 200,
         step = 1,
         section = "cust"
     },
@@ -531,13 +523,24 @@ local options = {
         section = "cust"
     },
     {
-        key = "mo_custom_queenspawnmult",
-        name = "Queen Wave Size Mod",
-        desc = "Number of squads spawned by the queen at once.",
+        key = "mo_custom_cost_multiplier",
+        name = "Cost multiplier for cost of units",
+        desc = "The higher the number the faster you get stronger units",
         type = "number",
         def = 1,
         min = 0,
-        max = 5,
+        max = 100,
+        step = 0.01,
+        section = "cust"
+    },
+    {
+        key = "mo_custom_kingmaxunits",
+        name = "Max units spawned by the king (* num of teams)",
+        desc = "Number of units spawned by the king at once. (* num of teams)",
+        type = "number",
+        def = 8,
+        min = 0,
+        max = 250,
         step = 1,
         section = "cust"
     },
