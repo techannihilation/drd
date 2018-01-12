@@ -1,11 +1,9 @@
-0.1.6 -> 0.2.0
+0.2.0 -> 0.2.1
  2018-01-12
 
  Improvements:
  - Increase default mo_graceperiod to 280->600.
-
  - Rename mo_maxchicken -> mo_custom_maxchicken and scale it per player.
-
  - Get the real count of human Teams (no dead or taken teams) for minRobots/maxRobots.
 
 0.1.6 -> 0.2.0
