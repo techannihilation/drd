@@ -4,7 +4,6 @@
 
 local GetModOptions = Spring.GetModOptions
 
-settingMaxChicken    = tonumber(GetModOptions().mo_maxchicken) or 400
 settingMaxBurrows    = 20
 settingBurrowhp      = tonumber(GetModOptions().mo_custom_burrowshp) or 8600
 settingGracePeriod   = tonumber(GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
@@ -302,6 +301,7 @@ difficulties = {
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
     chickensPerPlayer = 3,
+    maxRobotsPPlayer  = 30,
     spawnChance       = 0.25,
     damageMod         = 0.6,
   },
@@ -315,6 +315,7 @@ difficulties = {
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
     chickensPerPlayer = 5,
+    maxRobotsPPlayer  = 45,
     spawnChance       = 0.33,
     damageMod         = 0.75,
   },
@@ -328,7 +329,8 @@ difficulties = {
     expStep           = 0.125,
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
-    chickensPerPlayer = 7,
+    chickensPerPlayer = 8,
+    maxRobotsPPlayer  = 60,
     spawnChance       = 0.4,
     damageMod         = 1,
   },
@@ -343,6 +345,7 @@ difficulties = {
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
     chickensPerPlayer = 12,
+    maxRobotsPPlayer  = 60,
     spawnChance       = 0.5,
     damageMod         = 1.1,
   },
@@ -358,6 +361,7 @@ difficulties = {
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
     chickensPerPlayer = 18,
+    maxRobotsPPlayer  = 75,
     spawnChance       = 0.6,
     damageMod         = 1.25,
   },
@@ -372,6 +376,7 @@ difficulties = {
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
     chickensPerPlayer = 26,
+    maxRobotsPPlayer  = 90,
     spawnChance       = 0.8,
     damageMod         = 1.5,
   },
@@ -386,7 +391,8 @@ difficulties = {
     expStep           = (tonumber(GetModOptions().mo_custom_expstep) or 0.6) * -1,
     chickenTypes      = Copy(chickenTypes),
     defenders         = Copy(defenders),
-    chickensPerPlayer = tonumber(GetModOptions().mo_custom_minchicken),
+    chickensPerPlayer = tonumber(GetModOptions().mo_custom_minchicken or 8),
+    maxRobotsPPlayer  = tonumber(GetModOptions().mo_custom_maxchicken or 60),
     spawnChance       = (tonumber(GetModOptions().mo_custom_spawnchance) or 50) / 100,
     damageMod         = (tonumber(GetModOptions().mo_custom_damagemod) or 100) / 100,
   },
@@ -401,6 +407,7 @@ difficulties = {
     chickenTypes        = Copy(chickenTypes),
     defenders           = Copy(defenders),
     chickensPerPlayer   = 9,
+    maxRobotsPPlayer    = 60,
     spawnChance         = 0.4,
     damageMod           = 1,
   },

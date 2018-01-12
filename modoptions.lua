@@ -419,17 +419,6 @@ local options = {
         section = "chicken"
     },
     {
-        key = "mo_maxchicken",
-        name = "Chicken Limit",
-        desc = "Maximum number of chickens on map.",
-        type = "number",
-        def = 400,
-        min = 10,
-        max = 5000,
-        step = 10,
-        section = "chicken"
-    },
-    {
         key = "mo_maxage",
         name = "Chicken max age",
         desc = "Maximum chicken age in seconds.",
@@ -490,9 +479,20 @@ local options = {
         section = "cust"
     },
     {
+        key = "mo_custom_maxchicken",
+        name = "Robot limit per Team",
+        desc = "Maximum number of robots on map per Team.",
+        type = "number",
+        def = 60,
+        min = 1,
+        max = 1000,
+        step = 10,
+        section = "cust"
+    },
+    {
         key = "mo_custom_minchicken",
-        name = "Min Chickens Per Player",
-        desc = "Minimum Number of chickens before spawn chance kicks in",
+        name = "Min Robots per Team",
+        desc = "Minimum Number of robots before spawn chance kicks in",
         type = "number",
         def = 8,
         min = 1,

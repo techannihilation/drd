@@ -551,6 +551,7 @@ if (gadgetHandler:IsSyncedCode()) then
             c.chickenTypes = {}
             c.defenders = {}
             c.chickensPerPlayer = 3
+            c.maxRobotsPPlayer = 30
             c.spawnChance = 0.25
             c.damageMod = 0.6
 
@@ -599,9 +600,8 @@ if (gadgetHandler:IsSyncedCode()) then
             c._queenMaxHP = 0
 
             -- Settings
-            c._maxChicken = settingMaxChicken
-            -- to save maxChicken in SURVIVAL mod
-            c._oldMaxChicken = 0
+            -- to save maxRobots in SURVIVAL mod
+            c._oldMaxRobots = 0
             c._queenName = settingQueenName
             c._maxAge = settingMaxAge
             c._bonusTurret = settingBonusTurret
@@ -614,6 +614,9 @@ if (gadgetHandler:IsSyncedCode()) then
         for key, value in pairs(gadget.difficulties[self._luaAI]) do
             self[key] = value
         end
+
+        -- Settings
+        c._maxRobots = c.maxRobotsPPlayer * SetCount(humanTeams)
 
         self:_getDefTypes()
 
@@ -973,9 +976,9 @@ if (gadgetHandler:IsSyncedCode()) then
         }
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
-        self._oldMaxChicken = self._maxChicken
+        self._oldMaxRobots = self._maxRobots
         self._oldDamageMod = self.damageMod
-        self._maxChicken = 75
+        self._maxRobots = 75
         chickenEvent("queen") -- notify unsynced about queen spawn
         _, self._queenMaxHP = GetUnitHealth(self._queenID)
         SetUnitExperience(self._queenID, self._expMod)
@@ -1068,7 +1071,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         if (unitID == self._queenID) then -- queen destroyed
             self._queenID = nil
-            self._maxChicken = self._oldMaxChicken
+            self._maxRobots = self._oldMaxRobots
             self.damageMod = self._oldDamageMod
             self._queenResistance = {}
             if (self._ascendingQueen == true) then
@@ -1286,7 +1289,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if self._queenID then
             waveUnits = w:GetWave(self._queenAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
         else
-            waveUnits = w:GetWave(self._queenAnger, self._maxChicken, self.costMultiplier)
+            waveUnits = w:GetWave(self._queenAnger, self._maxRobots, self.costMultiplier)
         end
         local waveCount = #waveUnits
         w = nil
@@ -1416,7 +1419,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if (self._chickenCount < self._maxChicken) then
+        if (self._chickenCount < self._maxRobots) then
             self:_spawnRobots()
         end
 
