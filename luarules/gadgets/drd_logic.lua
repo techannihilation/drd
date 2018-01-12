@@ -628,9 +628,9 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         -- Settings
-        c._humanTeamCount = SetCount(humanTeams)
-        c._minRobots = c.minRobotsPPlayer * c._humanTeamCount
-        c._maxRobots = c.maxRobotsPPlayer * c._humanTeamCount
+        self._humanTeamCount = SetCount(humanTeams)
+        self._minRobots = self.minRobotsPPlayer * self._humanTeamCount
+        self._maxRobots = self.maxRobotsPPlayer * self._humanTeamCount
 
         self:_getDefTypes()
 
