@@ -460,14 +460,6 @@ local options = {
         section = "chicken"
     },
     {
-        key = "mo_robot_alt",
-        name = "Alternative robots",
-        desc = "Switch to new robots",
-        type = "bool",
-        def = true,
-        section = "cust"
-    },
-    {
         key = "mo_gracepenalty",
         name = "Grace Penalty",
         desc = "Grace Penalty add more robots if grace time is bigger than 270sec",
