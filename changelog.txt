@@ -1,8 +1,15 @@
 0.1.6 -> 0.2.0
  2018-01-11
 
+ Bug Fix Release:
+ - Fix the changelog format for the ingame viewer.
+ - Fix not moving units and debug output when a team has been taken.
+
  Improvements:
  - New waves logic, robot should spawn now more dynamicaly.
+
+ - Replace mo_custom_chickenspawn with mo_custom_numwaves
+   Now you can define how many waves you wanna see until KING comes.
 
 0.1.5 -> 0.1.6
  2018-01-03
