@@ -1932,6 +1932,10 @@ if (gadgetHandler:IsSyncedCode()) then
             humanTeams[oldTeam]:removeUnit(unitID)
         end
 
+        if humanTeams[newTeam] then
+            humanTeams[newTeam]:addUnit(unitID, unitDefID)
+        end
+
         if computerTeams[oldTeam] then
             DestroyUnit(unitID, true)
         end
