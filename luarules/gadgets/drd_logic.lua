@@ -172,6 +172,17 @@ if (gadgetHandler:IsSyncedCode()) then
     -- Spawn Dynamics
     --
 
+    local function GetRealHumanTeamsCount()
+        count = 0
+        for _, team in pairs(humanTeams) do
+            if team and not team:isDead() and team:UnitsCount() > 0 then
+                count = count + 1
+            end
+        end
+
+        return count
+    end
+
     local function getPerTeamEIncome()
         local perPlayerEIncome = {}
         local perPlayerPercentage = {}
@@ -598,6 +609,7 @@ if (gadgetHandler:IsSyncedCode()) then
             c._qDamage = 0
             c._qMove = false
             c._queenMaxHP = 0
+            c._humanTeamCount = 0
 
             -- Settings
             -- to save maxRobots in SURVIVAL mod
@@ -616,8 +628,9 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         -- Settings
-        c._minRobots = c.minRobotsPPlayer * SetCount(humanTeams)
-        c._maxRobots = c.maxRobotsPPlayer * SetCount(humanTeams)
+        c._humanTeamCount = SetCount(humanTeams)
+        c._minRobots = c.minRobotsPPlayer * c._humanTeamCount
+        c._maxRobots = c.maxRobotsPPlayer * c._humanTeamCount
 
         self:_getDefTypes()
 
@@ -1452,6 +1465,14 @@ if (gadgetHandler:IsSyncedCode()) then
 
             if (self._gameTimeSeconds < settingGracePeriod) then -- do nothing in the grace period
                 return
+            end
+
+            -- Update minRobots/maxRobots
+            local count = GetRealHumanTeamsCount()
+            if self._humanTeamCount ~= count then
+                self._humanTeamCount = count
+                self._minRobots = self.minRobotsPPlayer * self._humanTeamCount
+                self._maxRobots = self.maxRobotsPPlayer * self._humanTeamCount
             end
 
             self._expMod = (self._expMod + self._expIncrement) -- increment expierence
