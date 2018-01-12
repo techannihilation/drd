@@ -10,13 +10,13 @@
 	Mapname=EgoGreenFields v666;
 	GameType=Dynamic Robot Defense $VERSION;
 
-	startpostype=3;
+	startpostype=2;
 	[mapoptions]
 	{
 	}
 	[modoptions]
 	{
-		relayhoststartpostype=3;
+		relayhoststartpostype=2;
 		disablemapdamage=1;
 		fixedallies=0;
 		ghostedbuildings=1;
@@ -49,18 +49,19 @@
 		mo_custom_angerbonus=0.15;
 		mo_custom_burrowshp=8600;
 		mo_custom_burrowspawn=120;
-		mo_custom_chickenspawn=93;
+		mo_custom_numwaves=80;
+		mo_custom_cost_multiplier=1;
 		mo_custom_damagemod=100;
 		mo_custom_expstep=1.5;
 		mo_custom_minchicken=8;
-		mo_custom_queenspawnmult=1;
+		mo_custom_kingmaxunits=15;
 		mo_custom_spawnchance=100;
-		mo_graceperiod=30;
+		mo_graceperiod=600;
 		mo_maxage=300;
-		mo_maxchicken=380;
-		mo_queentime=10;
-		startenergy=1000;
-		startmetal=1059;
+		mo_maxchicken=60;
+		mo_queentime=40;
+		startenergy=500000;
+		startmetal=5000;
 		wall_size=45;
 		wall_time=10;
 		deathmode=neverend;
@@ -86,14 +87,14 @@
 		Name=Player;
 		CountryCode=;
 		Spectator=0;
-		Rank=0;
+		Rank=7;
 		IsFromDemo=0;
 		Team=2;
 	}
 	[AI0]
 	{
 		Name=Bot1;
-		ShortName=Robot: Custom;
+		ShortName=Robot: Normal;
 		Version=<not-versioned>;
 		Team=0;
 		IsFromDemo=0;
@@ -151,12 +152,20 @@
 		Handicap=0;
 	}
 
-	[ALLYTEAM1]
-	{
-		NumAllies=0;
-	}
 	[ALLYTEAM0]
 	{
 		NumAllies=0;
+		StartRectLeft=0.000;
+		StartRectTop=0.000;
+		StartRectRight=1.000;
+		StartRectBottom=0.195;
+	}
+	[ALLYTEAM1]
+	{
+		NumAllies=0;
+		StartRectLeft=0.000;
+		StartRectTop=0.835;
+		StartRectRight=1.000;
+		StartRectBottom=1.000;
 	}
 }
