@@ -550,7 +550,7 @@ if (gadgetHandler:IsSyncedCode()) then
             c.expStep = 0
             c.chickenTypes = {}
             c.defenders = {}
-            c.chickensPerPlayer = 3
+            c.minRobotsPPlayer = 3
             c.maxRobotsPPlayer = 30
             c.spawnChance = 0.25
             c.damageMod = 0.6
@@ -616,6 +616,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         -- Settings
+        c._minRobots = c.minRobotsPPlayer * SetCount(humanTeams)
         c._maxRobots = c.maxRobotsPPlayer * SetCount(humanTeams)
 
         self:_getDefTypes()
@@ -1314,7 +1315,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 unitNum = unitNum + 1
 
                 local skipSpawn = false
-                if (cCount > chickensPerPlayer) and (mRandom() > spawnChance) then
+                if (cCount > self._minRobots) and (mRandom() > spawnChance) then
                     skipSpawn = true
                 end
                 if skipSpawn and (chickenDebtCount > 0) and (mRandom() > spawnChance) then
@@ -1699,8 +1700,6 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     SetGlobals(luaAI or settingDefaultDifficulty) -- set difficulty
-
-    chickensPerPlayer = (chickensPerPlayer * SetCount(humanTeams))
 
     chickenDebtCount = math.ceil((math.max((settingGracePeriod - 270), 0) / 3))
 
