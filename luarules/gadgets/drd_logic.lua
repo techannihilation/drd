@@ -1284,9 +1284,9 @@ if (gadgetHandler:IsSyncedCode()) then
         local w = Wave()
         local waveUnits
         if self._queenID then
-            waveUnits = w:GetWave(self._queenAnger, self.kingMaxUnits, self.costMultiplier)
+            waveUnits = w:GetWave(self._queenAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
         else
-            waveUnits = w:GetWave(self._queenAnger, self._maxChicken * SetCount(humanTeams), self.costMultiplier)
+            waveUnits = w:GetWave(self._queenAnger, self._maxChicken, self.costMultiplier)
         end
         local waveCount = #waveUnits
         w = nil
