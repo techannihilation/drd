@@ -179,7 +179,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local eincome = 0
         for teamID, team in pairs(humanTeams) do
             -- only Select teams which aren't dead and have units
-            if not team:isDead() and team:UnitsCount() > 0 then
+            if team and not team:isDead() and team:UnitsCount() > 0 then
                 eincome = team:getEIncome()
                 perPlayerEIncome[teamID] = eincome
                 totalIncome = totalIncome + eincome
@@ -1680,6 +1680,10 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function gadget:UnitTaken(unitID, unitDefID, oldTeam, newTeam)
+        if humanTeams[oldTeam] then
+            humanTeams[oldTeam]:removeUnit(unitID)
+        end
+
         if computerTeams[oldTeam] then
             DestroyUnit(unitID, true)
         end
