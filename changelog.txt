@@ -1,3 +1,9 @@
+0.2.0 -> 0.2.3
+ 2018-01-12
+
+ Bug Fix Release:
+ - Improve new wave settings add max tech level to wave settings.
+
 0.2.0 -> 0.2.2
  2018-01-12
 

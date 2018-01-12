@@ -302,7 +302,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     )
 
-    function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier)
+    function Wave:_addUnits(maxcost, mincost, maxtl, possibleUnits, maxUnitsClass, costMultiplier)
         if maxcost <= 0 then
             return false
         end
@@ -311,7 +311,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local uCount = 0
 
         for _, ud in pairs(possibleUnits) do
-            if ud.cost >= mincost and ud.cost <= maxcost then
+            if ud.techLevel <= maxtl and ud.cost >= mincost and ud.cost <= maxcost then
                 -- Echo("possible: " .. ud.name)
                 table.insert(units, {name = ud.name, cost = ud.cost})
                 uCount = uCount + 1
@@ -371,14 +371,14 @@ if (gadgetHandler:IsSyncedCode()) then
 
         if waveSettings.air_fighter.maxcost > 0 and havePercent < 100 then
             if self._airFighterPercent == 0 then
-                self._airFighterPercent = math.min(mRandom(0, 60), 100 - havePercent)
+                self._airFighterPercent = math.min(mRandom(15, 60), 100 - havePercent)
                 havePercent = havePercent + self._airFighterPercent
             end
         end
 
         if waveSettings.air.maxcost > 0 and havePercent < 100 then
             if self._airPercent == 0 then
-                self._airPercent = math.min(mRandom(0, 70), 100 - havePercent)
+                self._airPercent = math.min(mRandom(30, 70), 100 - havePercent)
                 havePercent = havePercent + self._airPercent
             end
         end
@@ -393,11 +393,16 @@ if (gadgetHandler:IsSyncedCode()) then
         local maxAirUnits = math.ceil(maxUnits * (self._airPercent / 100))
         -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
 
+        local addTechLevel = 0
+        if costMultiplier > 1 then
+            addTechLevel = 2
+        end
         -- Add units
         -- Echo("ground")
         self:_addUnits(
             waveSettings.ground.maxcost * costMultiplier,
             waveSettings.ground.mincost,
+            waveSettings.ground.maxtl + addTechLevel,
             possibleUnitsGround,
             maxGroundUnits,
             costMultiplier
@@ -407,6 +412,7 @@ if (gadgetHandler:IsSyncedCode()) then
         self:_addUnits(
             waveSettings.air_fighter.maxcost * costMultiplier,
             waveSettings.air_fighter.mincost,
+            waveSettings.air_fighter.maxtl + addTechLevel,
             possibleUnitsAirFighter,
             maxAirFighters,
             costMultiplier
@@ -416,6 +422,7 @@ if (gadgetHandler:IsSyncedCode()) then
         self:_addUnits(
             waveSettings.air.maxcost * costMultiplier,
             waveSettings.air.mincost,
+            waveSettings.air.maxtl + addTechLevel,
             possibleUnitsAir,
             maxAirUnits,
             costMultiplier
