@@ -297,7 +297,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 3,
     maxRobotsPPlayer  = 30,
-    spawnChance       = 0.25,
+    spawnChance       = 25,
     damageMod         = 0.6,
   },
   [EASY] = {
@@ -311,7 +311,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 5,
     maxRobotsPPlayer  = 45,
-    spawnChance       = 0.33,
+    spawnChance       = 33,
     damageMod         = 0.75,
   },
 
@@ -326,7 +326,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 8,
     maxRobotsPPlayer  = 60,
-    spawnChance       = 0.4,
+    spawnChance       = 40,
     damageMod         = 1,
   },
 
@@ -341,7 +341,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 12,
     maxRobotsPPlayer  = 60,
-    spawnChance       = 0.5,
+    spawnChance       = 50,
     damageMod         = 1.1,
   },
 
@@ -357,7 +357,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 18,
     maxRobotsPPlayer  = 75,
-    spawnChance       = 0.6,
+    spawnChance       = 60,
     damageMod         = 1.25,
   },
 
@@ -372,7 +372,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 26,
     maxRobotsPPlayer  = 90,
-    spawnChance       = 0.8,
+    spawnChance       = 80,
     damageMod         = 1.5,
   },
 
@@ -388,7 +388,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = tonumber(GetModOptions().mo_custom_minchicken or 8),
     maxRobotsPPlayer  = tonumber(GetModOptions().mo_custom_maxchicken or 60),
-    spawnChance       = (tonumber(GetModOptions().mo_custom_spawnchance) or 50) / 100,
+    spawnChance       = (tonumber(GetModOptions().mo_custom_spawnchance) or 40),
     damageMod         = (tonumber(GetModOptions().mo_custom_damagemod) or 100) / 100,
   },
 
@@ -403,7 +403,7 @@ difficulties = {
     defenders           = Copy(defenders),
     minRobotsPPlayer    = 9,
     maxRobotsPPlayer    = 60,
-    spawnChance         = 0.4,
+    spawnChance         = 40,
     damageMod           = 1,
   },
 }

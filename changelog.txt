@@ -2,6 +2,7 @@
  2018-01-14
 
  Improvements:
+ - Fix count of robots on map, use percentage for spawnChance.
  - Improve new waves settings.
 
 0.3 -> 0.4

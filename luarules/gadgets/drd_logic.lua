@@ -1337,10 +1337,10 @@ if (gadgetHandler:IsSyncedCode()) then
                 unitNum = unitNum + 1
 
                 local skipSpawn = false
-                if (cCount > self._minRobots) and (mRandom() > spawnChance) then
+                if (cCount > self._minRobots) and (mRandom(1, 100) > self.spawnChance) then
                     skipSpawn = true
                 end
-                if skipSpawn and (chickenDebtCount > 0) and (mRandom() > spawnChance) then
+                if skipSpawn and (chickenDebtCount > 0) and (mRandom(1, 100) > self.spawnChance) then
                     chickenDebtCount = (chickenDebtCount - 1)
                     skipSpawn = false
                 end
@@ -1352,7 +1352,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        return cAdded
+        return cCount
     end
 
     function RobotTeam:_removeFailChickens()
