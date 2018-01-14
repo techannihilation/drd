@@ -420,7 +420,7 @@ settingDefaultDifficulty = 'Robot: Normal'
 -- [<% kingAnger>] = {
 --   anger = <% of kinganger>
 --   <class> = {
---      maxtl   = <max tech level of unit - if cost multiplier > 1 then its +2>
+--      maxtl   = <max tech level of unit - if cost multiplier > 1.4 then its +2>
 --      mincost = <min cost of unit>
 --      maxcost = <max cost of unit * mo_custom_cost_multiplier>
 --                <max cost of wave (num of wave units * this * mo_custom_cost_multiplier)>

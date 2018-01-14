@@ -364,6 +364,13 @@ if (gadgetHandler:IsSyncedCode()) then
             havePercent = havePercent + self._airFighterPercent
         end
 
+        if waveSettings.air.maxcost > 0 and havePercent < 100 then
+            if self._airPercent == 0 then
+                self._airPercent = math.min(mRandom(30, 70), 100 - havePercent)
+                havePercent = havePercent + self._airPercent
+            end
+        end
+
         if self._groundPercent == 0 then
             self._groundPercent = math.min(mRandom(30, 100), 100 - havePercent)
             havePercent = havePercent + self._groundPercent
@@ -376,12 +383,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if waveSettings.air.maxcost > 0 and havePercent < 100 then
-            if self._airPercent == 0 then
-                self._airPercent = math.min(mRandom(30, 70), 100 - havePercent)
-                havePercent = havePercent + self._airPercent
-            end
-        end
+
 
         -- Fill up to 100%
         if havePercent < 100 then
@@ -394,7 +396,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
 
         local addTechLevel = 0
-        if costMultiplier > 1 then
+        if costMultiplier > 1.4 then
             addTechLevel = 2
         end
         -- Add units
