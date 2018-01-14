@@ -450,43 +450,43 @@ table.insert(settingWaves, {
   anger = 20,
   air = { maxtl = 2, mincost = 80, maxcost = 275 }, -- TLL WASP
   air_fighter = { maxtl = 2, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 2, mincost = 75, maxcost = 1480 }, -- ARM Century
+  ground = { maxtl = 2, mincost = 370, maxcost = 1963 }, -- ARM Fatboy -- T2
 })
 table.insert(settingWaves, {
   anger = 30,
   air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { maxtl = 4, mincost = 0, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 75, maxcost = 22397 }, -- ARM Fatboy -- T2
+  ground = { maxtl = 4, mincost = 370, maxcost = 3175 }, -- TLL Binder -- T2
 })
 table.insert(settingWaves, {
   anger = 40,
   air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { maxtl = 4, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 4, mincost = 75, maxcost = 1480 }, -- ARM Century -- Better T3
+  ground = { maxtl = 4, mincost = 1480, maxcost = 3371 }, -- CORE Demon T2.5
 })
 table.insert(settingWaves, {
   anger = 50,
   air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 1481, maxcost = 7399 }, -- CORE KrogTaar - T3.5
+  ground = { maxtl = 4, mincost = 1481, maxcost = 7399 }, -- CORE KrogTaar - T2.5
 })
 table.insert(settingWaves, {
   anger = 60,
   air = { maxtl = 4, mincost = 276, maxcost = 3942 }, -- ARM LICHE
   air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 1481, maxcost = 10120 }, -- ARM Vengence - T3.5
+  ground = { maxtl = 4, mincost = 7398, maxcost = 10120 }, -- ARM Vengence - T2.5
 })
 table.insert(settingWaves, {
   anger = 70,
   air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 6, mincost = 4266, maxcost = 21334 }, -- TLL Bubmlebee, T4
+  ground = { maxtl = 6, mincost = 10120, maxcost = 21334 }, -- TLL Bubmlebee, T3
 })
 table.insert(settingWaves, {
   anger = 80,
   air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { maxtl = 6, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 6, mincost = 21334, maxcost = 46000 }, -- ARM Furie, T4.5
+  ground = { maxtl = 6, mincost = 21334, maxcost = 46000 }, -- ARM Furie, T3.5
 })
 table.insert(settingWaves, {
   anger = 90,
