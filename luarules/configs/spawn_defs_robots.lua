@@ -474,19 +474,19 @@ table.insert(settingWaves, {
   anger = 60,
   air = { maxtl = 4, mincost = 276, maxcost = 3942 }, -- ARM LICHE
   air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 7400, maxcost = 21001 }, -- ARM Cavalier - T3.5
+  ground = { maxtl = 4, mincost = 1481, maxcost = 10120 }, -- ARM Vengence - T3.5
 })
 table.insert(settingWaves, {
   anger = 70,
   air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 6, mincost = 21002, maxcost = 4284 }, -- ARM Vanguard, T4
+  ground = { maxtl = 6, mincost = 4266, maxcost = 21334 }, -- TLL Bubmlebee, T4
 })
 table.insert(settingWaves, {
   anger = 80,
   air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { maxtl = 6, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 6, mincost = 21002, maxcost = 46000 }, -- ARM Furie, T4.5
+  ground = { maxtl = 6, mincost = 21334, maxcost = 46000 }, -- ARM Furie, T4.5
 })
 table.insert(settingWaves, {
   anger = 90,
