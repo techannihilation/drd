@@ -943,18 +943,16 @@ if (gadgetHandler:IsSyncedCode()) then
             return CreateUnit(self._queenName, sx, sy, sz, "n", self._teamID)
         end
 
-        local burrowKeys = SetToList(self._burrows)
+        local burrowIDs = SetToList(self._burrows)
 
         local x, y, z
 
 
-        -- no best burrow try all
-        if #burrowKeys > 0 then
-            for k in ipairs(burrowKeys) do
-                x, y, z = GetUnitPosition(self._burrows[burrowKeys[k]])
-                if x and y and z then
-                    return CreateUnit(self._queenName, x, y, z, "n", self._teamID)
-                end
+        -- no best burrow try random one
+        if #burrowIDs > 0 then
+            x, y, z = GetUnitPosition(burrowIDs[mRandom(#burrowIDs)])
+            if x and y and z then
+                return CreateUnit(self._queenName, x, y, z, "n", self._teamID)
             end
         end
 

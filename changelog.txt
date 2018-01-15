@@ -5,7 +5,7 @@
  - Try to stop the KING from rushing into eco.
 
  Improvements:
- - Try spawn the king at any burrow before using random position.
+ - Try spawn the king at a random burrow before using random position.
  - Fix count of robots on map, use percentage for spawnChance.
  - Improve new waves settings.
 
