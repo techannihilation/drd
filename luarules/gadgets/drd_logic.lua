@@ -37,13 +37,10 @@ if (gadgetHandler:IsSyncedCode()) then
     local GetTeamUnitsCounts = Spring.GetTeamUnitsCounts
     local GetTeamUnitCount = Spring.GetTeamUnitCount
     local GetGameFrame = Spring.GetGameFrame
-    local GetPlayerList = Spring.GetPlayerList
-    local GetPlayerInfo = Spring.GetPlayerInfo
     local GetGameSeconds = Spring.GetGameSeconds
     local DestroyUnit = Spring.DestroyUnit
     local GetTeamUnits = Spring.GetTeamUnits
     local GetUnitsInCylinder = Spring.GetUnitsInCylinder
-    local GetUnitNearestEnemy = Spring.GetUnitNearestEnemy
     local GetUnitPosition = Spring.GetUnitPosition
     local GiveOrderToUnit = Spring.GiveOrderToUnit
     local TestBuildOrder = Spring.TestBuildOrder
@@ -53,12 +50,10 @@ if (gadgetHandler:IsSyncedCode()) then
     local GetGroundHeight = Spring.GetGroundHeight
     local GetUnitTeam = Spring.GetUnitTeam
     local GetUnitHealth = Spring.GetUnitHealth
-    local GetUnitCommands = Spring.GetUnitCommands
     local SetUnitExperience = Spring.SetUnitExperience
     local GetUnitDefID = Spring.GetUnitDefID
     local SetUnitHealth = Spring.SetUnitHealth
     local GetUnitIsDead = Spring.GetUnitIsDead
-    local GetCommandQueue = Spring.GetCommandQueue
     local GetUnitDirection = Spring.GetUnitDirection
     local Echo = Spring.Echo
 
