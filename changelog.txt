@@ -1,9 +1,10 @@
 0.4 -> 0.5
  2018-01-14
 
- Bug Fix Release:
+ Balance:
  - Try to stop the KING from rushing into eco.
  - Increase the KING's collision size so its not able to rush through defs.
+ - Slow down the KING's movement speed.
 
  Improvements:
  - Try spawn the king at a random burrow before using random position.
