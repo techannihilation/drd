@@ -943,9 +943,23 @@ if (gadgetHandler:IsSyncedCode()) then
             return CreateUnit(self._queenName, sx, sy, sz, "n", self._teamID)
         end
 
-        local x, y, z
-        local tries = 0
+        local burrowKeys = SetToList(self._burrows)
 
+        local x, y, z
+
+
+        -- no best burrow try all
+        if #burrowKeys > 0 then
+            for k in ipairs(burrowKeys) do
+                x, y, z = GetUnitPosition(self._burrows[burrowKeys[k]])
+                if x and y and z then
+                    return CreateUnit(self._queenName, x, y, z, "n", self._teamID)
+                end
+            end
+        end
+
+        -- random position - BAD
+        local tries = 0
         repeat
             x = mRandom(1, (MAPSIZEX - 1))
             z = mRandom(1, (MAPSIZEZ - 1))
@@ -1217,10 +1231,10 @@ if (gadgetHandler:IsSyncedCode()) then
         local target = chooseTarget(unitID)
         local targetPos = {GetUnitPosition(target)}
         if unitID ~= self._queenID then
-            self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
-            if GetUnitNeutral(target) then
-               self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
-            end
+            self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
+            -- if GetUnitNeutral(target) then
+            --    self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
+            -- end
         else
             self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
         end
