@@ -297,7 +297,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 3,
     maxRobotsPPlayer  = 30,
-    spawnChance       = 25,
+    spawnChance       = 45,
     damageMod         = 0.6,
   },
   [EASY] = {
@@ -311,7 +311,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 5,
     maxRobotsPPlayer  = 45,
-    spawnChance       = 33,
+    spawnChance       = 55,
     damageMod         = 0.75,
   },
 
@@ -326,7 +326,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 8,
     maxRobotsPPlayer  = 60,
-    spawnChance       = 40,
+    spawnChance       = 65,
     damageMod         = 1,
   },
 
@@ -341,7 +341,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 12,
     maxRobotsPPlayer  = 60,
-    spawnChance       = 50,
+    spawnChance       = 75,
     damageMod         = 1.1,
   },
 
@@ -357,7 +357,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 18,
     maxRobotsPPlayer  = 75,
-    spawnChance       = 60,
+    spawnChance       = 85,
     damageMod         = 1.25,
   },
 
@@ -372,7 +372,7 @@ difficulties = {
     defenders         = Copy(defenders),
     minRobotsPPlayer  = 26,
     maxRobotsPPlayer  = 90,
-    spawnChance       = 80,
+    spawnChance       = 95,
     damageMod         = 1.5,
   },
 

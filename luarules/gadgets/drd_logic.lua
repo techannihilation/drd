@@ -1219,7 +1219,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if unitID ~= self._queenID then
             self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
             if GetUnitNeutral(target) then
-                self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
+               self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
             end
         else
             self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
@@ -1306,12 +1306,24 @@ if (gadgetHandler:IsSyncedCode()) then
             burrows = {self._queenID}
         end
 
+        local kingAnger = self._queenAnger
+        -- NO T5 for Very Easy and Easy players
+        if kingAnger > 80 and (self._luaAI == VERYEASY or self._luaAI == EASY) then
+            kingAnger = 80
+        end
+
+        -- NO HEROS For NORMAL Players
+        if kingAnger > 90 and self._luaAI == NORMAL then
+            kingAnger = 90
+        end
+
+
         local w = Wave()
         local waveUnits
         if self._queenID then
-            waveUnits = w:GetWave(self._queenAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
+            waveUnits = w:GetWave(kingAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
         else
-            waveUnits = w:GetWave(self._queenAnger, self._maxRobots, self.costMultiplier)
+            waveUnits = w:GetWave(kingAnger, self._maxRobots, self.costMultiplier)
         end
         local waveCount = #waveUnits
         w = nil
