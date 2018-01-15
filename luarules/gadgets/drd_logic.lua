@@ -1216,7 +1216,11 @@ if (gadgetHandler:IsSyncedCode()) then
 
         local target = chooseTarget(unitID)
         local targetPos = {GetUnitPosition(target)}
-        self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
+        if unitID ~= self._queenID then
+            self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPos, opts = {}}
+        else
+            self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
+        end
         if GetUnitNeutral(target) then
             self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
         end
