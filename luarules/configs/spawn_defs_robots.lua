@@ -36,6 +36,33 @@ bonusTurret7a = "corpre"
 bonusTurret7b = "armamd1"
 bonusTurret7c = "cordoom"
 
+settingCommanders = {
+  --Core
+  "corcom",
+  "corcom1",
+  "corcom3",
+  "corcom_fusion",
+  "corcom5",
+  "corcom6",
+  "corcom7",
+  --Arm
+  "armcom",
+  "armcom1",
+  "armcom4",
+  "armcom_fusion",
+  "armcom5",
+  "armcom6",
+  "armcom7",
+  --The lost legacy
+  "tllcom",
+  "tllcom1",
+  "tllcom3",
+  "tllcom_fusion",
+  "tllcom5",
+  "tllcom6",
+  "tllcom7"
+}
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
