@@ -1,11 +1,8 @@
-0.5 -> 0.6
- 2018-01-15
+0.4 -> 0.5
+ 2018-01-14
 
  Bug Fix Release:
  - Try to stop the KING from rushing into eco.
-
-0.4 -> 0.5
- 2018-01-14
 
  Improvements:
  - Fix count of robots on map, use percentage for spawnChance.
