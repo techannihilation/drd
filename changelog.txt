@@ -5,6 +5,7 @@
  - Try to stop the KING from rushing into eco.
  - Increase the KING's collision size so its not able to rush through defs.
  - Slow down the KING's movement speed.
+ - Ignore Fleas by setting them to neutral - no more spam stopper.
 
  Improvements:
  - Try spawn the king at a random burrow before using random position.

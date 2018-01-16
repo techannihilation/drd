@@ -27,6 +27,7 @@ if (gadgetHandler:IsSyncedCode()) then
     --
 
     local ValidUnitID = Spring.ValidUnitID
+    local SetUnitNeutral = Spring.SetUnitNeutral
     local GetUnitNeutral = Spring.GetUnitNeutral
     local GetTeamList = Spring.GetTeamList
     local GetTeamLuaAI = Spring.GetTeamLuaAI
@@ -93,6 +94,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
     local COMMANDERS_DEFS = {}
 
+    local NEUTRAL_UNITS = {}
+
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
 
@@ -119,6 +122,10 @@ if (gadgetHandler:IsSyncedCode()) then
 
     for _, uname in pairs(settingCommanders) do
         COMMANDERS_DEFS[UnitDefNames[uname].id] = true
+    end
+
+    for _, uname in pairs(settingNeutralUnits) do
+        NEUTRAL_UNITS[UnitDefNames[uname].id] = true
     end
 
     local modes = {
@@ -1779,6 +1786,11 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         humanTeams[unitTeam]:addUnit(unitID, unitDefID)
+
+        -- Set neutral units
+        if NEUTRAL_UNITS[unitDefID] then
+            SetUnitNeutral(unitID, true)
+        end
     end
 
     function gadget:UnitPreDamaged(
