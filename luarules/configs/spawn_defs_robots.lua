@@ -191,112 +191,11 @@ settingBlackList =
   watcher = true,
 }
 
-local chickenTypes = {
-  ve_chickenqr  =  true,
-  e_chickenqr   =  true,
-  n_chickenqr   =  true,
-  h_chickenqr   =  true,
-  vh_chickenqr  =  true,
-  fh_chickenqr  =  true,
-  corcrash      =  true,
-  armflea       =  true,
-  armflash      =  true,
-  armflash1     =  true,
-  armsam        =  true,
-  armsam1       =  true,
-  cormist       =  true,
-  cormist1      =  true,
-  corthud       =  true,
-  corthud1      =  true,
-  ahermes       =  true,
-  armstump      =  true,
-  armthund      =  true,
-  armblz        =  true,
-  corhurc       =  true,
-  armjanus1     =  true,
-  tllloggerhead =  true,
-  corgol        =  true,
-  armraven1     =  true, --piece count 16
-  armshock1     =  true,
-  armsnipe      =  true,
-  taipan        =  true,
-  armmerl       =  true,
-  tankanotor    =  true,
-  airwolf3g     =  true,
-  armcybr       =  true,
-  corpyro       =  true, --piece count 17
-  krogtaar      =  true, --piece count 13
-  corprot       =  true, --piece count 26
-  cortotal      =  true, --piece count 6
-  armraven      =  true, --piece count 16
-  corkrog       =  true, --piece count 21
-  arm_furie     =  true, --piece count 18
-  corkarg       =  true, --piece count 33
-  corkarg1      =  true, --piece count 33
-  corgala       =  true, --piece count 20
-  armcrabe      =  true, --piece count 10
-  trem          =  true,
-  clb           =  true,
-  armzeus       =  true,
-  armzeus1      =  true,
-  armhdpw       =  true,
-  armbull       =  true,
-  cordem        =  true, --piece count 23
-  tllgrim       =  true, --piece count 24
-  aexxec        =  true, --piece count 8
-  corsumo       =  true, --piece count 16
-  corsumo1      =  true, --piece count 16
-  corhrk        =  true, --piece count 9
-  armfboy       =  true, --piece count 10
-  cormort       =  true,
-  corcrw        =  true,
-  armcyclone    =  true,
-  armfast       =  true,
-  gorg          =  true, --piece count 23
-  armtigre2     =  true, --piece count 18
-  armtarantula  =  true,
-  armsonic      =  true,
-  cormonsta     =  true, --piece count 12
-  armpraet      =  true, --piece count 17
-  armjag        =  true, --piece count 27
-  corspec       =  true,
-  tllmatamata   =  true,
-  anvil         =  true, --piece count 4
-  hyperion      =  true, --piece count 28
-  armorion      =  true, --piece count 3
-  corrag        =  true,
-  armmart       =  true,
-  shiva         =  true,
-  --new
-  marauder      =  true, --piece count 15
-  heavyimpact   =  true, --piece count 17
-  tllblind      =  true, --piece count 13
-  tllvaliant    =  true, --piece count 22
-  abroadside    =  true, --piece count 25
-  tlllongshot   =  true, --piece count 5
-  tllcrawlb     =  true,
-  airwolf3g     =  true,
-
-  --new by skymyj
-  tllamphibot   = true, -- piece count 5
-  coramph       = true, -- piece count 5
-  cormddm       = true, -- piece count 10
-  tlldemon      = true, -- piece count 15
-  tllhailstorm  = true, -- piece count 20
-  tllcopter     = true, -- piece count 5
-  tllaether     = true, -- piece count 10
-  armtem        = true, -- piece count 10 --T2.5 Hover
-  coradon       = true, -- piece count 10 --T2.5 Hover
-  cortotal      = true, -- piece count 10
-  krogtaar      = true, -- piece count 15
-  akmech        = true, -- piece count 15
-
-  --added only for insane king spawn
-  abroadside    =  true,
-  cdevastator   =  true,
-  monkeylord    =  true,
-  irritator     =  true,
-}
+-- We have random all units, so make chickenType for all of them
+local chickenTypes = {}
+for _, ud in ipairs(UnitDefs) do
+  chickenTypes[ud.name] = true
+end
 
 VERYEASY = "Robot: Very Easy"
 EASY = "Robot: Easy"
