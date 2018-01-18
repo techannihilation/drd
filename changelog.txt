@@ -11,6 +11,7 @@
  - Try spawn the king at a random burrow before using random position.
  - Fix count of robots on map, use percentage for spawnChance.
  - Improve new waves settings.
+ - Update TA to 3.06.
 
 0.3 -> 0.4
  2018-01-14
