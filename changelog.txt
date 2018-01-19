@@ -4,6 +4,7 @@
  Balance:
  - Also ignore AK's and similar units and cheap T2 units as spam stopper.
  - Make the spawn of AA units optional - "mo_aa_units".
+ - No more Heros on Very Hard, no T5 Units for Normal and easy and very easy go to max 70%.
 
 0.4 -> 0.5
  2018-01-14

@@ -88,6 +88,21 @@ settingNeutralUnits = {
   "tllcoyote"
 }
 
+local settingModes = {
+  [1] = VERYEASY,
+  [2] = EASY,
+  [3] = NORMAL,
+  [4] = CUSTOM,
+  [5] = SURVIVAL,
+  [6] = HARD,
+  [7] = VERYHARD,
+  [8] = INSANE
+}
+
+for i, v in ipairs(settingModes) do -- make it bi-directional
+  settingModes[v] = i
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 

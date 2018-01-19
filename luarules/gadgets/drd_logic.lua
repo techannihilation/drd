@@ -128,21 +128,6 @@ if (gadgetHandler:IsSyncedCode()) then
         NEUTRAL_UNITS[UnitDefNames[uname].id] = true
     end
 
-    local modes = {
-        [1] = VERYEASY,
-        [2] = EASY,
-        [3] = NORMAL,
-        [4] = HARD,
-        [5] = VERYHARD,
-        [6] = INSANE,
-        [7] = CUSTOM,
-        [8] = SURVIVAL
-    }
-
-    for i, v in ipairs(modes) do -- make it bi-directional
-        modes[v] = i
-    end
-
     local function chickenEvent(type, num, tech)
         --Echo(type ,num, tech)
         SendToUnsynced("ChickenEvent", type, num, tech)
@@ -534,6 +519,7 @@ if (gadgetHandler:IsSyncedCode()) then
         function(c, teamID, luaAI)
             Team.init(c, teamID)
             c._luaAI = luaAI or settingDefaultDifficulty
+            c._luaAINumber = settingModes[c._luaAI]
 
             c._queenID = false
 
@@ -1009,7 +995,7 @@ if (gadgetHandler:IsSyncedCode()) then
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
         end
 
-        if (modes[highestLevel] == INSANE) then
+        if (settingModes[highestLevel] == INSANE) then
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "abroadside", team = self._teamID})
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "cdevastator", team = self._teamID})
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
@@ -1109,7 +1095,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 end
                 self:_updateSpawnQueen()
             else
-                if modes[highestLevel] == SURVIVAL then
+                if settingModes[highestLevel] == SURVIVAL then
                     self._queenTime =
                         self._gameTimeSeconds +
                         (((Spring.GetModOptions().mo_queentime or 40) * 60) * self._survivalQueenMod)
@@ -1306,14 +1292,19 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         local kingAnger = self._queenAnger
-        -- NO T5 for Very Easy and Easy players
-        if kingAnger > 80 and (self._luaAI == VERYEASY or self._luaAI == EASY) then
+        -- Heros only for INSANE
+        if kingAnger > 90 and self._luaAINumber < 8 then
+            kingAnger = 90
+        end
+
+        -- NORMAL max 80%
+        if kingAnger > 80 and self._luaAINumber < 4 then
             kingAnger = 80
         end
 
-        -- NO HEROS For NORMAL Players
-        if kingAnger > 90 and self._luaAI == NORMAL then
-            kingAnger = 90
+        -- EASY AND VERYEASY go to max 70%
+        if kingAnger > 70 and self._luaAINumber < 3 then
+            kingAnger = 70
         end
 
 
@@ -1694,9 +1685,9 @@ if (gadgetHandler:IsSyncedCode()) then
     for _, teamID in ipairs(teamsRAW) do
         local teamLuaAI = GetTeamLuaAI(teamID)
         if (teamLuaAI and teamLuaAI ~= "") then
-            if (modes[teamLuaAI] > highestLevel) then -- get chicken ai with highest level
+            if (settingModes[teamLuaAI] > highestLevel) then -- get chicken ai with highest level
                 luaAI = teamLuaAI
-                highestLevel = modes[teamLuaAI]
+                highestLevel = settingModes[teamLuaAI]
                 highestLevelTeamID = teamID
             end
             computerTeams[teamID] = RobotTeam(teamID, teamLuaAI)
@@ -1705,7 +1696,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     end
 
-    luaAI = modes[highestLevel]
+    luaAI = settingModes[highestLevel]
 
     local gaiaTeamID = GetGaiaTeamID()
     if SetCount(computerTeams) < 1 then
@@ -1743,7 +1734,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     chickenDebtCount = math.ceil((math.max((settingGracePeriod - 270), 0) / 3))
 
-    if (modes[highestLevel] == INSANE) then
+    if (settingModes[highestLevel] == INSANE) then
         settingMaxBurrows = math.max(settingMaxBurrows * 1.5, 50)
         chickenDebtCount = math.max(chickenDebtCount, 150)
     else
@@ -1757,7 +1748,7 @@ if (gadgetHandler:IsSyncedCode()) then
     --
     SetGameRulesParam("queenTime", settingQueenTime)
     SetGameRulesParam("gracePeriod", settingGracePeriod)
-    SetGameRulesParam("difficulty", modes[luaAI] or 3)
+    SetGameRulesParam("difficulty", settingModes[luaAI] or 3)
 
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -1968,7 +1959,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
     function gadget:GameOver()
         -- don't end game in survival mode
-        if modes[highestLevel] ~= SURVIVAL then
+        if settingModes[highestLevel] ~= SURVIVAL then
             gameOver = GetGameFrame()
         end
     end
