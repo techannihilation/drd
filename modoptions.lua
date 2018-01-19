@@ -441,6 +441,14 @@ local options = {
         section = "chicken"
     },
     {
+        key = "mo_aa_units",
+        name = "Robot AA Units",
+        desc = "Allows or disallows the robot(s) to spawn AA Units",
+        type = "bool",
+        def = true,
+        section = "chicken"
+    },
+    {
         key = "mo_queenanger",
         name = "Add Queen Anger",
         desc = "Killing burrows adds to queen anger.",

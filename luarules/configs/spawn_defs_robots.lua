@@ -10,6 +10,7 @@ settingGracePeriod   = tonumber(GetModOptions().mo_graceperiod) or 160  -- no ch
 settingQueenTime     = (GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
 settingAddQueenAnger = tonumber(GetModOptions().mo_queenanger) or 1
 burrowSpawnType      = GetModOptions().mo_chickenstart or "avoid"
+settingAAUnits       = GetModOptions().mo_aa_units or 1
 spawnSquare          = 90       -- size of the chicken spawn square centered on the burrow
 spawnSquareIncrement = 2         -- square size increase for each unit spawned
 burrowName           = "rroost"   -- burrow unit name
@@ -66,10 +67,25 @@ settingCommanders = {
 settingNeutralUnits = {
   -- CORE
   "corpunk",
+  "corak",
+  "corak1",
+  "corfav",
+  "correap",
+  "corpyro",
   -- ARM
   "armflea",
+  "armpw",
+  "armpw1",
+  "armfav",
+  "armflash",
+  "armlatnk",
+  "armfast",
   -- TLL
-  "tllbug"
+  "tllbug",
+  "tllprivate",
+  "tllburner",
+  "tllares",
+  "tllcoyote"
 }
 
 --------------------------------------------------------------------------------
@@ -86,22 +102,14 @@ local defenders = {
 
 settingBlackList =
 {
-  ahermes = true,
-  armaak = true,
   armabad = true,
-  armah = true,
   armaser = true,
   armatlas = true,
   armawac = true,
   armclaw = true,
   armdfly = true,
-  armeak = true,
-  armfig = true,
-  armfig = true,
-  armhuntsman = true,
   armiguana = true,
   armjam = true,
-  armjeth = true,
   armlance = true,
   armmark = true,
   armorbweaver = true,
@@ -115,36 +123,25 @@ settingBlackList =
   armsh175 = true,
   armsl = true,
   armspy = true,
-  armyork = true,
   blotter = true,
   concealer = true,
-  coraak = true,
-  corah = true,
   corawac = true,
   corbtrans = true,
-  corcrash = true,
-  coreak = true,
-  coreslingshot = true,
   coreter = true,
   corfalc = true,
   corfink = true,
-  corfrog = true,
   corhelo = true,
   corhunt = true,
-  corjeag = true,
   cormabm = true,
   cormabm1 = true,
   cormaw = true,
   corseap = true,
-  corsent = true,
   corsfig = true,
   corshieldgen = true,
   corspec = true,
   corspy = true,
   cortitan = true,
   corvalk = true,
-  corvamp = true,
-  corveng = true,
   corvoyr = true,
   corvrad = true,
   e_chickenqr = true,
@@ -152,34 +149,22 @@ settingBlackList =
   h_chickenqr = true,
   intruder = true,
   n_chickenqr = true,
-  nsaagriz = true,
   nsacanglr = true,
   r75v = true,
   requ1 = true,
-  roost = true,
   rroost = true,
-  tllaak = true,
-  tllacid = true,
   tllconfuser = true,
   tlldivine = true,
   tllfflak = true,
-  tllfight = true,
-  tllfirestarter = true,
   tllhickatee = true,
-  tllhoplit = true,
-  tllhovermissile = true,
   tllleatherback = true,
-  tllloggerhead = true,
   tllobscurer = true,
   tllobserver = true,
   tllprob = true,
-  tllpuncher = true,
   tllrobber = true,
   tllrsplane = true,
   tllseab = true,
   tllseaf = true,
-  tllshu = true,
-  tllsideneck = true,
   tllsoftshell = true,
   tllsonpl = true,
   tllspy = true,
@@ -190,6 +175,43 @@ settingBlackList =
   vh_chickenqr = true,
   watcher = true,
 }
+
+local aaUnits = {
+  -- ARM AA Units
+  ahermes = true,
+  armjeth = true,
+  armyork = true,
+  armaak = true,
+  armeak = true,
+  armah = true,
+  armhuntsman = true,
+
+  -- CORE AA Units
+  corcrash = true,
+  corjeag = true,
+  coraak = true,
+  corsent = true,
+  coreak = true,
+  corah = true,
+  coreslingshot = true,
+  corfrog = true,
+
+  -- TLL AA Units
+  tllhoplit = true,
+  tllfirestarter = true,
+  tllaak = true,
+  tllpuncher = true,
+  tllhovermissile = true,
+  tllloggerhead = true,
+  tllsideneck = true
+}
+
+-- implemention of mo_aa_units
+if not settingAAUnits then
+  for k in pairs(aaUnits) do
+    settingBlackList[k] = true
+  end
+end
 
 -- We have random all units, so make chickenType for all of them
 local chickenTypes = {}
