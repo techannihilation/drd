@@ -88,6 +88,15 @@ settingNeutralUnits = {
   "tllcoyote"
 }
 
+VERYEASY = "Robot: Very Easy"
+EASY = "Robot: Easy"
+NORMAL = "Robot: Normal"
+HARD = "Robot: Hard"
+VERYHARD = "Robot: Very Hard"
+INSANE = "Robot: Insane"
+CUSTOM = "Robot: Custom"
+SURVIVAL = "Robot: Survival"
+
 settingModes = {
   [1] = VERYEASY,
   [2] = EASY,
@@ -233,16 +242,6 @@ local chickenTypes = {}
 for _, ud in ipairs(UnitDefs) do
   chickenTypes[ud.name] = true
 end
-
-VERYEASY = "Robot: Very Easy"
-EASY = "Robot: Easy"
-NORMAL = "Robot: Normal"
-HARD = "Robot: Hard"
-VERYHARD = "Robot: Very Hard"
-INSANE = "Robot: Insane"
-CUSTOM = "Robot: Custom"
-SURVIVAL = "Robot: Survival"
-
 
 local function Copy(original)
   local copy = {}
