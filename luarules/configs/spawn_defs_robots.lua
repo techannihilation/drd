@@ -88,7 +88,7 @@ settingNeutralUnits = {
   "tllcoyote"
 }
 
-local settingModes = {
+settingModes = {
   [1] = VERYEASY,
   [2] = EASY,
   [3] = NORMAL,
