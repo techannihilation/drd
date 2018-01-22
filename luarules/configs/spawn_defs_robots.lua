@@ -39,53 +39,53 @@ bonusTurret7c = "cordoom"
 
 settingCommanders = {
   --Core
-  "corcom",
-  "corcom1",
-  "corcom3",
-  "corcom_fusion",
-  "corcom5",
-  "corcom6",
-  "corcom7",
+  corcom = true,
+  corcom1 = true,
+  corcom3 = true,
+  corcom_fusion = true,
+  corcom5 = true,
+  corcom6 = true,
+  corcom7 = true,
   --Arm
-  "armcom",
-  "armcom1",
-  "armcom4",
-  "armcom_fusion",
-  "armcom5",
-  "armcom6",
-  "armcom7",
+  armcom = true,
+  armcom1 = true,
+  armcom4 = true,
+  armcom_fusion = true,
+  armcom5 = true,
+  armcom6 = true,
+  armcom7 = true,
   --The lost legacy
-  "tllcom",
-  "tllcom1",
-  "tllcom3",
-  "tllcom_fusion",
-  "tllcom5",
-  "tllcom6",
-  "tllcom7"
+  tllcom = true,
+  tllcom1 = true,
+  tllcom3 = true,
+  tllcom_fusion = true,
+  tllcom5 = true,
+  tllcom6 = true,
+  tllcom7
 }
 
 settingNeutralUnits = {
   -- CORE
-  "corpunk",
-  "corak",
-  "corak1",
-  "corfav",
-  "correap",
-  "corpyro",
+  corpunk = true,
+  corak = true,
+  corak1 = true,
+  corfav = true,
+  correap = true,
+  corpyro = true,
   -- ARM
-  "armflea",
-  "armpw",
-  "armpw1",
-  "armfav",
-  "armflash",
-  "armlatnk",
-  "armfast",
+  armflea = true,
+  armpw = true,
+  armpw1 = true,
+  armfav = true,
+  armflash = true,
+  armlatnk = true,
+  armfast = true,
   -- TLL
-  "tllbug",
-  "tllprivate",
-  "tllburner",
-  "tllares",
-  "tllcoyote"
+  tllbug = true,
+  tllprivate = true,
+  tllburner = true,
+  tllares = true,
+  tllcoyote
 }
 
 VERYEASY = "Robot: Very Easy"
@@ -240,7 +240,9 @@ end
 -- We have random all units, so make chickenType for all of them
 local chickenTypes = {}
 for _, ud in ipairs(UnitDefs) do
-  chickenTypes[ud.name] = true
+  if not settingBlackList[ud.name] and ud.isBuilder == false and not settingCommanders[ud.name] then
+    chickenTypes[ud.name] = true
+  end
 end
 
 local function Copy(original)

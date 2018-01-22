@@ -120,11 +120,11 @@ if (gadgetHandler:IsSyncedCode()) then
         chunk()
     end
 
-    for _, uname in pairs(settingCommanders) do
+    for uname in pairs(settingCommanders) do
         COMMANDERS_DEFS[UnitDefNames[uname].id] = true
     end
 
-    for _, uname in pairs(settingNeutralUnits) do
+    for uname in pairs(settingNeutralUnits) do
         NEUTRAL_UNITS[UnitDefNames[uname].id] = true
     end
 
