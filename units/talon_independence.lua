@@ -50,7 +50,7 @@ return {
 		turnrate = 86.45,
 		unitname = "talon_independence",
 		customparams = {
-			faction = "ARM",
+			faction = "TALON",
 		},
 		featuredefs = {
 		
