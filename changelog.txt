@@ -1,3 +1,9 @@
+0.7 -> 1.01
+ 2020-04-05
+
+ Improvements:
+ - Test Update to TechA v3.38
+
 0.6 -> 0.7
  2018-01-22
 
