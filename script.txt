@@ -7,7 +7,7 @@
 
 	ModHash=1010351247;
 	MapHash=4027815563;
-	Mapname=EgoGreenFields v666;
+	Mapname=geo_green_v20;
 	GameType=Dynamic Robot Defense $VERSION;
 
 	startpostype=2;

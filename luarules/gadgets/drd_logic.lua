@@ -199,6 +199,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 table.insert(teamList, teamID)
             end
         end
+
         return teamList[mRandom(#teamList)]
     end
 

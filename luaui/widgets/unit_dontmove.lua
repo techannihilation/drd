@@ -25,6 +25,8 @@ local unitArray = {
   --comms
   "armcom",
   "corcom",
+  "tllcom",
+  "talon_com",
 
   --aa units
   "armjeth",

@@ -61,7 +61,15 @@ settingCommanders = {
   tllcom_fusion = true,
   tllcom5 = true,
   tllcom6 = true,
-  tllcom7
+  tllcom7 = true,
+  --TALON
+  talon_com = true,
+  talon_com1 = true,
+  talon_com3 = true,
+  talon_com_fusion = true,
+  talon_com5 = true,
+  talon_com6 = true,
+  talon_com7 = true
 }
 
 settingNeutralUnits = {

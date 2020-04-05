@@ -395,7 +395,13 @@ return {
         "tllcom_fusion",
         "tllcom5",
         "tllcom6",
-        "tllcom7"
+        "tllcom7",
+        "talon_com",
+        "talon_com1",
+        "talon_com3",
+        "talon_com5",
+        "talon_com6",
+        "talon_com7"
     },
     tinychicken = {
         "chickenh1",
