@@ -101,11 +101,12 @@ settingModes = {
   [1] = VERYEASY,
   [2] = EASY,
   [3] = NORMAL,
-  [4] = CUSTOM,
-  [5] = SURVIVAL,
-  [6] = HARD,
-  [7] = VERYHARD,
-  [8] = INSANE
+  [4] = HARD,
+  [5] = VERYHARD,
+  [6] = INSANE,
+  [7] = CUSTOM,
+  [8] = SURVIVAL,
+
 }
 
 for i, v in ipairs(settingModes) do -- make it bi-directional
@@ -198,6 +199,9 @@ settingBlackList =
   ve_chickenqr = true,
   vh_chickenqr = true,
   watcher = true,
+
+  -- not working
+  nsaagriz,
 }
 
 local aaUnits = {
