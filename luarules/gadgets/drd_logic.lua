@@ -269,7 +269,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     )
 
-    function Wave:_addUnits(maxcost, mincost, maxtl, possibleUnits, maxUnitsClass, costMultiplier)
+    function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier)
         if maxcost <= 0 then
             return false
         end
@@ -278,7 +278,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local uCount = 0
 
         for _, ud in pairs(possibleUnits) do
-            if ud.techLevel <= maxtl and ud.cost >= mincost and ud.cost <= maxcost then
+            if ud.cost >= mincost and ud.cost <= maxcost then
                 -- Echo("possible: " .. ud.name)
                 table.insert(units, {name = ud.name, cost = ud.cost})
                 uCount = uCount + 1
@@ -371,7 +371,6 @@ if (gadgetHandler:IsSyncedCode()) then
         self:_addUnits(
             waveSettings.ground.maxcost * costMultiplier,
             waveSettings.ground.mincost,
-            waveSettings.ground.maxtl + addTechLevel,
             possibleUnitsGround,
             maxGroundUnits,
             costMultiplier
@@ -381,7 +380,6 @@ if (gadgetHandler:IsSyncedCode()) then
         self:_addUnits(
             waveSettings.air_fighter.maxcost * costMultiplier,
             waveSettings.air_fighter.mincost,
-            waveSettings.air_fighter.maxtl + addTechLevel,
             possibleUnitsAirFighter,
             maxAirFighters,
             costMultiplier
@@ -391,7 +389,6 @@ if (gadgetHandler:IsSyncedCode()) then
         self:_addUnits(
             waveSettings.air.maxcost * costMultiplier,
             waveSettings.air.mincost,
-            waveSettings.air.maxtl + addTechLevel,
             possibleUnitsAir,
             maxAirUnits,
             costMultiplier
