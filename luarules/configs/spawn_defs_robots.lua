@@ -505,5 +505,5 @@ table.insert(settingWaves, {
   anger = 95,
   air = { maxtl = 8, mincost = 3942, maxcost = 17244 }, -- TLL Aether
   air_fighter = { maxtl = 8, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 8, mincost = 46000, maxcost = 332667 }, -- CORE DEVASTATOR, T5
+  ground = { maxtl = 8, mincost = 46000, maxcost = 2000000 }, -- CORE DEVASTATOR, T5
 })
