@@ -78,22 +78,15 @@ settingNeutralUnits = {
   corak = true,
   corak1 = true,
   corfav = true,
-  correap = true,
-  corpyro = true,
   -- ARM
   armflea = true,
   armpw = true,
   armpw1 = true,
   armfav = true,
   armflash = true,
-  armlatnk = true,
-  armfast = true,
   -- TLL
   tllbug = true,
-  tllprivate = true,
-  tllburner = true,
-  tllares = true,
-  tllcoyote
+  tllprivate = true
 }
 
 VERYEASY = "Robot: Very Easy"
@@ -209,7 +202,36 @@ settingBlackList =
   watcher = true,
 
   -- not working
-  nsaagriz,
+  nsaagriz = true,
+
+  -- transports
+  armatlas = true,
+  armdlfy = true,
+  armdragf = true,
+  armor = true,
+  armsl = true,
+  armthovr = true,
+  armtship = true,
+
+  corfalc = true,
+  cormuat = true,
+  corthovr = true,
+  cortship = true,
+  corvalk = true,
+  intruder = true,
+
+  talon_bishop = true,
+  talon_rukh = true,
+  talon_tau = true,
+  talon_wyvern = true,
+
+  tllambassador = true,
+  tllbtrans = true,
+  tllrobber = true,
+  tlltplane = true,
+
+  -- Talon Mobile AntiNuke
+  talon_tribulation = true
 }
 
 local aaUnits = {
