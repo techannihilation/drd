@@ -226,7 +226,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 -- ground unit
                 table.insert(possibleUnitsGround, ud)
             elseif ud.canFly then
-                if ud.name == "abroadside" or ud.name == "cdevastator" then
+                if settingForceGround[ud.name] then
                     -- take heros as ground units
                     table.insert(possibleUnitsGround, ud)
                 else
@@ -316,11 +316,13 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Get Settings
         local waveSettings = {}
         for _, swave in ipairs(settingWaves) do
+            -- Echo("kingAnger: " .. kingAnger)
             if swave.anger > kingAnger then
                 break
             end
 
             waveSettings = swave
+            -- Echo("waveAnger: " .. waveSettings.anger)
         end
 
         -- Calculate percentages
@@ -363,10 +365,6 @@ if (gadgetHandler:IsSyncedCode()) then
         local maxAirUnits = math.ceil(maxUnits * (self._airPercent / 100))
         -- Echo("anger: " .. Dump(kingAnger), "maxUnits: " .. Dump(maxUnits), "maxGround: " .. Dump(maxGroundUnits), "maxAirFighter: " .. Dump(maxAirFighters), "maxAir: " .. Dump(maxAirUnits))
 
-        local addTechLevel = 0
-        if costMultiplier > 1.4 then
-            addTechLevel = 2
-        end
         -- Add units
         -- Echo("ground")
         self:_addUnits(

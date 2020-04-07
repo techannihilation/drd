@@ -126,6 +126,15 @@ local defenders = {
   cordoom = true,
 }
 
+settingForceGround = 
+{
+  abroadside = true,
+  cdevastator = true,
+  corvaliant = true,
+  talon_skynet = true,
+  talon_independence = true,
+}
+
 settingBlackList =
 {
   armabad = true,
@@ -427,7 +436,6 @@ settingDefaultDifficulty = 'Robot: Normal'
 -- [<% kingAnger>] = {
 --   anger = <% of kinganger>
 --   <class> = {
---      maxtl   = <max tech level of unit - if cost multiplier > 1.4 then its +2>
 --      mincost = <min cost of unit>
 --      maxcost = <max cost of unit * mo_custom_cost_multiplier>
 --                <max cost of wave (num of wave units * this * mo_custom_cost_multiplier)>
@@ -437,73 +445,73 @@ settingDefaultDifficulty = 'Robot: Normal'
 settingWaves = {}
 table.insert(settingWaves, {
   anger = 0,
-  air = { maxtl = 2, mincost = 0, maxcost = 80 }, -- CORE bladew
-  air_fighter = { maxtl = 0, mincost = 0, maxcost = 0 },
-  ground = { maxtl = 2, mincost = 0, maxcost = 74 }, -- TLL Private
+  air = { mincost = 0, maxcost = 80 }, -- CORE bladew
+  air_fighter = { mincost = 0, maxcost = 0 },
+  ground = { mincost = 0, maxcost = 74 }, -- TLL Private
 })
 table.insert(settingWaves, {
   anger = 5,
-  air = { maxtl = 2, mincost = 0, maxcost = 80 }, -- CORE BLADEW
-  air_fighter = { maxtl = 2, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 2, mincost = 75, maxcost = 246 }, -- ARM Stumpy
+  air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
+  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
+  ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
 })
 table.insert(settingWaves, {
   anger = 10,
-  air = { maxtl = 2, mincost = 0, maxcost = 275 }, -- TLL WASP
-  air_fighter = { maxtl = 2, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 2, mincost = 75, maxcost = 246 }, -- ARM Stumpy
+  air = { mincost = 0, maxcost = 275 }, -- TLL WASP
+  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
+  ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
 })
 table.insert(settingWaves, {
   anger = 20,
-  air = { maxtl = 2, mincost = 80, maxcost = 275 }, -- TLL WASP
-  air_fighter = { maxtl = 2, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 2, mincost = 370, maxcost = 1963 }, -- ARM Fatboy -- T2
+  air = { mincost = 80, maxcost = 275 }, -- TLL WASP
+  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
+  ground = { mincost = 370, maxcost = 1963 }, -- ARM Fatboy -- T2
 })
 table.insert(settingWaves, {
   anger = 30,
-  air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { maxtl = 4, mincost = 0, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 370, maxcost = 3175 }, -- TLL Binder -- T2
+  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
+  air_fighter = { mincost = 0, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 370, maxcost = 3175 }, -- TLL Binder -- T2
 })
 table.insert(settingWaves, {
   anger = 40,
-  air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { maxtl = 4, mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { maxtl = 4, mincost = 1480, maxcost = 3371 }, -- CORE Demon T2.5
+  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
+  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
+  ground = { mincost = 1480, maxcost = 3371 }, -- CORE Demon T2.5
 })
 table.insert(settingWaves, {
   anger = 50,
-  air = { maxtl = 4, mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 1481, maxcost = 7399 }, -- CORE KrogTaar - T2.5
+  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 3371, maxcost = 20000 }, -- CORE KrogTaar - T2.5
 })
 table.insert(settingWaves, {
   anger = 60,
-  air = { maxtl = 4, mincost = 276, maxcost = 3942 }, -- ARM LICHE
-  air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 4, mincost = 7398, maxcost = 10120 }, -- ARM Vengence - T2.5
+  air = { mincost = 276, maxcost = 3942 }, -- ARM LICHE
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 20000, maxcost = 40000 }, -- ARM Vengence - T2.5
 })
 table.insert(settingWaves, {
   anger = 70,
-  air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
-  air_fighter = { maxtl = 4, mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { maxtl = 6, mincost = 10120, maxcost = 21334 }, -- TLL Bubmlebee, T3
+  air = { mincost = 3942, maxcost = 7600 }, -- CORE KROW
+  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
+  ground = { mincost = 40000, maxcost = 108726.688 }, -- TALON Silver
 })
 table.insert(settingWaves, {
   anger = 80,
-  air = { maxtl = 4, mincost = 3942, maxcost = 7600 }, -- CORE KROW
-  air_fighter = { maxtl = 6, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 6, mincost = 21334, maxcost = 46000 }, -- ARM Furie, T3.5
+  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
+  air_fighter = { mincost = 477, maxcost = 1754 }, -- TLL Shrike
+  ground = { mincost = 108726.688, maxcost = 180000 }, -- TLL Mini Hero
 })
 table.insert(settingWaves, {
   anger = 90,
-  air = { maxtl = 6, mincost = 3942, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { maxtl = 6, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 8, mincost = 46000, maxcost = 256171 }, -- CORE Super Krogoth, T5
+  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
+  air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
+  ground = { mincost = 180000, maxcost = 257000 }, -- CORE Super Krogoth
 })
 table.insert(settingWaves, {
   anger = 95,
-  air = { maxtl = 8, mincost = 3942, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { maxtl = 8, mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { maxtl = 8, mincost = 46000, maxcost = 2000000 }, -- CORE DEVASTATOR, T5
+  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
+  air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
+  ground = { mincost = 257000, maxcost = 1900000 }, -- TALON Independence, T5
 })

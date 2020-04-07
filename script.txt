@@ -56,12 +56,12 @@
 		mo_custom_minchicken=8;
 		mo_custom_kingmaxunits=15;
 		mo_custom_spawnchance=100;
-		mo_graceperiod=100;
+		mo_graceperiod=10;
 		mo_maxage=300;
 		mo_maxchicken=60;
 		mo_queentime=40;
-		startenergy=500000;
-		startmetal=5000;
+		startenergy=9999999;
+		startmetal=999999;
 		wall_size=45;
 		wall_time=10;
 		deathmode=neverend;
