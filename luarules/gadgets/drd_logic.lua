@@ -313,17 +313,17 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function Wave:GetWave(kingAnger, maxUnits, costMultiplier)
+        -- Echo("kingAnger: " .. kingAnger)
         -- Get Settings
         local waveSettings = {}
         for _, swave in ipairs(settingWaves) do
-            -- Echo("kingAnger: " .. kingAnger)
             if swave.anger > kingAnger then
                 break
             end
 
             waveSettings = swave
-            -- Echo("waveAnger: " .. waveSettings.anger)
         end
+        -- Echo("waveAnger: " .. waveSettings.anger)
 
         -- Calculate percentages
         local havePercent = self._groundPercent
@@ -832,48 +832,50 @@ if (gadgetHandler:IsSyncedCode()) then
     end
 
     function RobotTeam:_spawnRobots()
-        local i, defs = next(self._spawnQueue)
-        if not i or not defs then
-            return
-        end
-        local x, y, z
-        if (self._queenID) then
-            x, y, z = self:_getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
-        else
-            x, y, z = self:_getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
-        end
-        if not x or not y or not z then
-            self._spawnQueue[i] = nil
-            return
-        end
-        local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
-        if unitID then
-            SetUnitExperience(unitID, mRandom() * self._expMod)
-            if (mRandom() < 0.1) then
-                local mod = 0.75 - (mRandom() * 0.25)
+        for i, defs in pairs(self._spawnQueue) do
+            if not i or not defs then
+                return
+            end
+            local x, y, z
+            if (self._queenID) then
+                x, y, z = self:_getChickenSpawnLoc(defs.burrow, MEDIUM_UNIT)
+            else
+                x, y, z = self:_getChickenSpawnLoc(defs.burrow, SMALL_UNIT)
+            end
+            if not x or not y or not z then
+                self._spawnQueue[i] = nil
+                return
+            end
+            local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
+            if unitID then
+                SetUnitExperience(unitID, mRandom() * self._expMod)
                 if (mRandom() < 0.1) then
-                    mod = mod - (mRandom() * 0.2)
+                    local mod = 0.75 - (mRandom() * 0.25)
                     if (mRandom() < 0.1) then
                         mod = mod - (mRandom() * 0.2)
+                        if (mRandom() < 0.1) then
+                            mod = mod - (mRandom() * 0.2)
+                        end
                     end
                 end
-            end
 
-            if UnitDefs[GetUnitDefID(unitID)].canFly then
-                GiveOrderToUnit(unitID, CMD.IDLEMODE, {0}, {"shift"})
-            end
+                if UnitDefs[GetUnitDefID(unitID)].canFly then
+                    GiveOrderToUnit(unitID, CMD.IDLEMODE, {0}, {"shift"})
+                end
 
-            if (self._queenID) then
-                self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
-            else
-                local targetPosition = {GetUnitPosition(chooseTarget(unitID))}
-                self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
-                self._chickenBirths[unitID] = {deathDate = self._gameTimeSeconds + self._maxAge, burrowID = defs.burrow}
+                if (self._queenID) then
+                    self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = getRandomMapPos(), opts = {}}
+                else
+                    local targetPosition = {GetUnitPosition(chooseTarget(unitID))}
+                    self._idleOrderQueue[unitID] = {cmd = CMD.FIGHT, params = targetPosition, opts = {}}
+                    self._chickenBirths[unitID] = {deathDate = self._gameTimeSeconds + self._maxAge, burrowID = defs.burrow}
 
-                self._chickenCount = self._chickenCount + 1
+                    self._chickenCount = self._chickenCount + 1
+                end
             end
         end
-        self._spawnQueue[i] = nil
+
+        self._spawnQueue = {}
     end
 
     function RobotTeam:_spawnQueen()
@@ -1288,8 +1290,20 @@ if (gadgetHandler:IsSyncedCode()) then
         end
 
         local kingAnger = self._queenAnger
+        if kingAnger > 95 or kingAnger < 0 then
+            kingAnger = 95
+        end
+
+        local superUnitsAnger = 0
+        if kingAnger > 20 and self._luaAINumber > 5 then
+            superUnitsAnger = kingAnger + 20
+            if superUnitsAnger > 95 then
+                superUnitsAnger = 95
+            end
+        end
+
         -- Heros only for INSANE
-        if kingAnger > 90 and self._luaAINumber < 8 then
+        if kingAnger > 90 and self._luaAINumber < 6 then
             kingAnger = 90
         end
 
@@ -1303,16 +1317,29 @@ if (gadgetHandler:IsSyncedCode()) then
             kingAnger = 70
         end
 
-
         local w = Wave()
         local waveUnits
+        local superUnits
         if self._queenID then
             waveUnits = w:GetWave(kingAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
         else
             waveUnits = w:GetWave(kingAnger, self._maxRobots, self.costMultiplier)
+            if superUnitsAnger > 0 then
+                superUnits = w:GetWave(superUnitsAnger, 5, self.costMultiplier)
+            end
         end
         local waveCount = #waveUnits
         w = nil
+
+        if superUnits and superUnitsAnger > 0 then
+            for burrowID in pairs(burrows) do
+                for i = 1, 5 do
+                    local unitName = superUnits[i]
+                    table.insert(self._spawnQueue, {burrow = burrowID, unitName = unitName, team = self._teamID})
+                end
+                break
+            end
+        end
 
         local firstBurrow = true
         local perBurrow = waveCount / (SetCount(burrows) or 1)

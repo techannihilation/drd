@@ -94,7 +94,7 @@
 	[AI0]
 	{
 		Name=Bot1;
-		ShortName=Robot: Normal;
+		ShortName=Robot: Insane;
 		Version=<not-versioned>;
 		Team=0;
 		IsFromDemo=0;
