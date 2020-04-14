@@ -270,7 +270,7 @@ if (gadgetHandler:IsSyncedCode()) then
         end
     )
 
-    function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier)
+    function Wave:_addUnits(maxcost, mincost, possibleUnits, maxUnitsClass, costMultiplier, wave_maxcost)
         if maxcost <= 0 then
             return false
         end
@@ -290,12 +290,11 @@ if (gadgetHandler:IsSyncedCode()) then
             return false
         end
 
-        local maxUnitsCost = maxUnitsClass * maxcost * costMultiplier
         local currentUnitsCost = 0
         repeat
             id = mRandom(1, uCount)
             for i = 1, 3 do
-                if maxUnitsClass <= 0 or currentUnitsCost >= maxUnitsCost then
+                if maxUnitsClass <= 0 or currentUnitsCost >= wave_maxcost then
                     break
                 end
                 -- Echo("have: " .. units[id].name)
@@ -303,7 +302,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 maxUnitsClass = maxUnitsClass - 1
                 currentUnitsCost = currentUnitsCost + units[id].cost
             end
-        until maxUnitsClass <= 0 or currentUnitsCost >= maxUnitsCost
+        until maxUnitsClass <= 0 or currentUnitsCost >= wave_maxcost
 
         if uCount < 1 then
             return false
@@ -372,7 +371,8 @@ if (gadgetHandler:IsSyncedCode()) then
             waveSettings.ground.mincost,
             possibleUnitsGround,
             maxGroundUnits,
-            costMultiplier
+            costMultiplier,
+            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
         )
         -- Echo()
         -- Echo("air fighs")
@@ -381,7 +381,8 @@ if (gadgetHandler:IsSyncedCode()) then
             waveSettings.air_fighter.mincost,
             possibleUnitsAirFighter,
             maxAirFighters,
-            costMultiplier
+            costMultiplier,
+            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
         )
         -- Echo()
         -- Echo("air")
@@ -390,7 +391,8 @@ if (gadgetHandler:IsSyncedCode()) then
             waveSettings.air.mincost,
             possibleUnitsAir,
             maxAirUnits,
-            costMultiplier
+            costMultiplier,
+            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
         )
         -- Echo()
 
@@ -1376,6 +1378,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
+        -- Echo("Wave, spawn " .. cCount .. " robots with kingAnger " .. kingAnger)
         return cCount
     end
 

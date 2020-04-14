@@ -447,71 +447,83 @@ table.insert(settingWaves, {
   anger = 0,
   air = { mincost = 0, maxcost = 80 }, -- CORE bladew
   air_fighter = { mincost = 0, maxcost = 0 },
-  ground = { mincost = 0, maxcost = 74 }, -- TLL Private
+  ground = { mincost = 0, maxcost = 80 }, -- TLL Private
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 5,
   air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 10,
   air = { mincost = 0, maxcost = 275 }, -- TLL WASP
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 20,
   air = { mincost = 80, maxcost = 275 }, -- TLL WASP
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
   ground = { mincost = 370, maxcost = 1963 }, -- ARM Fatboy -- T2
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 30,
   air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { mincost = 0, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 370, maxcost = 3175 }, -- TLL Binder -- T2
+  ground = { mincost = 370, maxcost = 5673 }, -- TLL Binder -- T2
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 40,
   air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 1480, maxcost = 3371 }, -- CORE Demon T2.5
+  ground = { mincost = 1480, maxcost = 10000 }, -- talon_visitant
+  max_wavecost = 100,
 })
 table.insert(settingWaves, {
   anger = 50,
   air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
   air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 3371, maxcost = 20000 }, -- CORE KrogTaar - T2.5
+  ground = { mincost = 10000, maxcost = 20000 }, -- CORE KrogTaar - T2.5
+  max_wavecost = 80,
 })
 table.insert(settingWaves, {
   anger = 60,
   air = { mincost = 276, maxcost = 3942 }, -- ARM LICHE
   air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
   ground = { mincost = 20000, maxcost = 40000 }, -- ARM Vengence - T2.5
+  max_wavecost = 70,
 })
 table.insert(settingWaves, {
   anger = 70,
   air = { mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
   ground = { mincost = 40000, maxcost = 108726.688 }, -- TALON Silver
+  max_wavecost = 60,
 })
 table.insert(settingWaves, {
   anger = 80,
   air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 477, maxcost = 1754 }, -- TLL Shrike
   ground = { mincost = 108726.688, maxcost = 180000 }, -- TLL Mini Hero
+  max_wavecost = 40,
 })
 table.insert(settingWaves, {
   anger = 90,
   air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
-  ground = { mincost = 180000, maxcost = 257000 }, -- CORE Super Krogoth
+  ground = { mincost = 108726.688, maxcost = 257000 }, -- CORE Super Krogoth
+  max_wavecost = 30,
 })
 table.insert(settingWaves, {
   anger = 95,
   air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
   ground = { mincost = 257000, maxcost = 1900000 }, -- TALON Independence, T5
+  max_wavecost = 30,
 })
