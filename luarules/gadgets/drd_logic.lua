@@ -372,7 +372,7 @@ if (gadgetHandler:IsSyncedCode()) then
             possibleUnitsGround,
             maxGroundUnits,
             costMultiplier,
-            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
+            (waveSettings.ground.maxcost * costMultiplier) * waveSettings.max_wavecost
         )
         -- Echo()
         -- Echo("air fighs")
@@ -382,7 +382,7 @@ if (gadgetHandler:IsSyncedCode()) then
             possibleUnitsAirFighter,
             maxAirFighters,
             costMultiplier,
-            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
+            (waveSettings.ground.maxcost * costMultiplier) * waveSettings.max_wavecost
         )
         -- Echo()
         -- Echo("air")
@@ -392,7 +392,7 @@ if (gadgetHandler:IsSyncedCode()) then
             possibleUnitsAir,
             maxAirUnits,
             costMultiplier,
-            (waveSettings.ground.maxcost * costMultiplier) / 100 * waveSettings.max_wavecost
+            (waveSettings.ground.maxcost * costMultiplier) * waveSettings.max_wavecost
         )
         -- Echo()
 
@@ -570,7 +570,6 @@ if (gadgetHandler:IsSyncedCode()) then
             c._queenAnger = 0
             c._isBestRobot = false
             c._chickenCount = 0
-            c._chickenDebtCount = 0
             c._chickenBirths = {}
             c._queenLifePercent = 100
             c._nextQueenSpawn = nil
@@ -989,24 +988,18 @@ if (gadgetHandler:IsSyncedCode()) then
 
         local chickenUnits = GetTeamUnits(self._teamID)
 
-        if (queenName == "fh_chickenqr") then
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "irritator", team = self._teamID})
-        end
-
-        if (settingModes[highestLevel] == INSANE) then
+        if (self._luaAINumber > 5) then
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "abroadside", team = self._teamID})
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "cdevastator", team = self._teamID})
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
         end
 
-        for i = 1, 100, 1 do
+        for i = 1, 50, 1 do
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "airwolf3g", team = self._teamID})
         end
 
-        for i = 1, 30, 1 do
+        for i = 1, 10, 1 do
             table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
         end
 
@@ -1024,7 +1017,6 @@ if (gadgetHandler:IsSyncedCode()) then
                 if (unitID ~= self._queenID) then
                     self._deathQueue[unitID] = {selfd = false, reclaimed = false}
                     self._chickenCount = self._chickenCount - 1
-                    self._chickenDebtCount = self._chickenDebtCount + 1
                     local failCount = self._failBurrows[defs.burrowID]
                     if (self._failBurrows[defs.burrowID] == nil) then
                         self._failBurrows[defs.burrowID] = 5
@@ -1366,10 +1358,6 @@ if (gadgetHandler:IsSyncedCode()) then
                 if (cCount > self._minRobots) and (mRandom(1, 100) > self.spawnChance) then
                     skipSpawn = true
                 end
-                if skipSpawn and (chickenDebtCount > 0) and (mRandom(1, 100) > self.spawnChance) then
-                    chickenDebtCount = (chickenDebtCount - 1)
-                    skipSpawn = false
-                end
                 if not skipSpawn then
                     table.insert(self._spawnQueue, {burrow = burrowID, unitName = unitName, team = self._teamID})
                     cCount = cCount + 1
@@ -1407,7 +1395,6 @@ if (gadgetHandler:IsSyncedCode()) then
                     if y and yh and (y < (yh + 1)) then
                         self._deathQueue[unitID] = {selfd = false, reclaimed = true}
                         self._chickenCount = self._chickenCount - 1
-                        self._chickenDebtCount = self._chickenDebtCount + 1
                         if self._chickenBirths[unitID] then
                             local burrowFailCount = self._failBurrows[self._chickenBirths[unitID].burrowID]
                             if (burrowFailCount == nil) then
@@ -1443,7 +1430,6 @@ if (gadgetHandler:IsSyncedCode()) then
                         if (y < -15) then
                             self._deathQueue[unitID] = {selfd = false, reclaimed = false}
                             self._chickenCount = self._chickenCount - 1
-                            self._chickenDebtCount = self._chickenDebtCount + 1
                             if self._chickenBirths[unitID] then
                                 local burrowFailCount = self._failBurrows[self._chickenBirths[unitID].burrowID]
                                 if (burrowFailCount == nil) then
@@ -1597,6 +1583,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 self._timeOfLastWave = self._gameTimeSeconds
             end
             self._chickenCount = self:UpdateUnitCount()
+            -- Echo("ChickenCount: " .. self._chickenCount)
         end
     end
 
@@ -1758,11 +1745,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
     SetGlobals(luaAI or settingDefaultDifficulty) -- set difficulty
 
-    chickenDebtCount = math.ceil((math.max((settingGracePeriod - 270), 0) / 3))
-
     if (settingModes[highestLevel] == INSANE) then
         settingMaxBurrows = math.max(settingMaxBurrows * 1.5, 50)
-        chickenDebtCount = math.max(chickenDebtCount, 150)
     else
         settingMaxBurrows = settingMaxBurrows * math.floor(SetCount(humanTeams) * 1.334)
     end
