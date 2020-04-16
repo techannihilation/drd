@@ -503,7 +503,7 @@ table.insert(settingWaves, {
   anger = 70,
   air = { mincost = 3942, maxcost = 7600 }, -- CORE KROW
   air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 40000, maxcost = 108726.688 }, -- TALON Silver
+  ground = { mincost = 20000, maxcost = 108726.688 }, -- TALON Silver
   max_wavecost = 40,
 })
 table.insert(settingWaves, {
