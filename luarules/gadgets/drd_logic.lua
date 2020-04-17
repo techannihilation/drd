@@ -1168,7 +1168,7 @@ if (gadgetHandler:IsSyncedCode()) then
                         self._bonusTurret = bonusTurret7c
                     end
                 end
-                self:_spawnTurret(burrowID, self._bonusTurret)
+                -- self:_spawnTurret(burrowID, self._bonusTurret)
             end
 
             for i, defs in pairs(self._spawnQueue) do
@@ -1258,9 +1258,9 @@ if (gadgetHandler:IsSyncedCode()) then
                             self._qDamage = 0
                             self:_wave()
                         end
-                        for i = 1, 5, 1 do
-                            self:_spawnTurret(self._queenID, self._bonusTurret)
-                        end
+                        -- for i = 1, 5, 1 do
+                        --     self:_spawnTurret(self._queenID, self._bonusTurret)
+                        -- end
                     else
                         self._idleOrderQueue[self._queenID] = {cmd = CMD.STOP, params = {}, opts = {}}
                         self._qDamage = 0
@@ -1340,9 +1340,9 @@ if (gadgetHandler:IsSyncedCode()) then
         local unitNum = 1
 
         for burrowID in pairs(burrows) do
-            if (self._gameTimeSeconds > (self._queenTime * 0.15)) then
-                self:_spawnTurret(burrowID, bonusTurret)
-            end
+            -- if (self._gameTimeSeconds > (self._queenTime * 0.15)) then
+            --     self:_spawnTurret(burrowID, bonusTurret)
+            -- end
 
             local perBurrowCount = perBurrow
             if firstBurrow then
