@@ -524,6 +524,6 @@ table.insert(settingWaves, {
   anger = 95,
   air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
   air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
-  ground = { mincost = 257000, maxcost = 1900000 }, -- TALON Independence, T5
-  max_wavecost = 20,
+  ground = { mincost = 108726.688, maxcost = 1900000 }, -- TALON Independence, T5
+  max_wavecost = 10,
 })
