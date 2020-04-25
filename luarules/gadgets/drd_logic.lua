@@ -988,27 +988,27 @@ if (gadgetHandler:IsSyncedCode()) then
 
         local chickenUnits = GetTeamUnits(self._teamID)
 
-        if (self._luaAINumber > 5) then
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "abroadside", team = self._teamID})
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "cdevastator", team = self._teamID})
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
-        end
+        -- if (self._luaAINumber > 5) then
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "abroadside", team = self._teamID})
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "cdevastator", team = self._teamID})
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "tllvaliant", team = self._teamID})
+        -- end
 
-        for i = 1, 50, 1 do
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "airwolf3g", team = self._teamID})
-        end
+        -- for i = 1, 50, 1 do
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "airwolf3g", team = self._teamID})
+        -- end
 
-        for i = 1, 10, 1 do
-            table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
-        end
+        -- for i = 1, 10, 1 do
+        --     table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corkarg", team = self._teamID})
+        -- end
 
-        for i = 1, 10, 1 do
-            if (mRandom() < spawnChance) then
-                table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corcrw", team = self._teamID})
-                table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "gorg", team = self._teamID})
-            end
-        end
+        -- for i = 1, 10, 1 do
+        --     if (mRandom() < spawnChance) then
+        --         table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "corcrw", team = self._teamID})
+        --         table.insert(self._spawnQueue, {burrow = self._queenID, unitName = "gorg", team = self._teamID})
+        --     end
+        -- end
     end
 
     function RobotTeam:_killOldChicken()
