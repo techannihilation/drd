@@ -2,74 +2,137 @@
 --Robot Defense Config
 --------------------------------------------------------------------------------
 
-local GetModOptions = Spring.GetModOptions
+local GetModOptions =
+  Spring.GetModOptions
 
-settingMaxBurrows    = 20
-settingBurrowhp      = tonumber(GetModOptions().mo_custom_burrowshp) or 8600
-settingGracePeriod   = tonumber(GetModOptions().mo_graceperiod) or 160  -- no chicken spawn in this period, seconds
-settingQueenTime     = (GetModOptions().mo_queentime or 40) * 60 -- time at which the queen appears, seconds
-settingAddQueenAnger = tonumber(GetModOptions().mo_queenanger) or 1
-burrowSpawnType      = GetModOptions().mo_chickenstart or "avoid"
-settingAAUnits       = GetModOptions().mo_aa_units or 1
-spawnSquare          = 90       -- size of the chicken spawn square centered on the burrow
-spawnSquareIncrement = 2         -- square size increase for each unit spawned
-burrowName           = "rroost"   -- burrow unit name
-settingMaxAge        = tonumber(GetModOptions().mo_maxage) or 300  -- chicken die at this age, seconds
-local mo_queendifficulty   = GetModOptions()["mo_queendifficulty"] or "n_chickenq"
-settingQueenName     = mo_queendifficulty .."r"
-settingBurrowDef     = UnitDefNames[burrowName].id
-defenderChance       = 0.5       -- probability of spawning a single turret
-maxTurrets           = 3   		 -- Max Turrets per burrow
-burrowSpawnRate      = 60
-minBaseDistance      = 600
-maxBaseDistance      = 7200
-chickensPerPlayer    = 8
-spawnChance          = 0.5
-settingBonusTurret          = "armrl" -- Turret that gets spawned when a burrow dies
-angerBonus           = 0.25
-expStep              = 0.0625
-waves                = {}
-newWaveSquad         = {}
+settingMaxBurrows =
+  20
+settingBurrowhp =
+  tonumber(
+  GetModOptions(
 
-bonusTurret5a = "armflak"
-bonusTurret5b = "arm_big_bertha"
-bonusTurret7a = "corpre"
-bonusTurret7b = "armamd1"
-bonusTurret7c = "cordoom"
+  ).mo_custom_burrowshp
+) or
+  8600
+settingGracePeriod =
+  tonumber(
+  GetModOptions(
+
+  ).mo_graceperiod
+) or
+  160 -- no chicken spawn in this period, seconds
+settingQueenTime =
+  (GetModOptions(
+
+).mo_queentime or
+  40) *
+  60 -- time at which the queen appears, seconds
+settingAddQueenAnger =
+  tonumber(
+  GetModOptions(
+
+  ).mo_queenanger
+) or
+  1
+burrowSpawnType =
+  GetModOptions(
+
+).mo_chickenstart or
+  "avoid"
+settingAAUnits =
+  GetModOptions(
+
+).mo_aa_units or
+  1
+spawnSquare =
+  90 -- size of the chicken spawn square centered on the burrow
+spawnSquareIncrement =
+  2 -- square size increase for each unit spawned
+burrowName =
+  "rroost" -- burrow unit name
+settingMaxAge =
+  tonumber(
+  GetModOptions(
+
+  ).mo_maxage
+) or
+  300 -- chicken die at this age, seconds
+local mo_queendifficulty =
+  GetModOptions(
+
+)[
+  "mo_queendifficulty"
+] or
+  "n_chickenq"
+settingQueenName =
+  mo_queendifficulty ..
+  "r"
+settingBurrowDef =
+  UnitDefNames[
+  burrowName
+].id
+defenderChance =
+  0.5 -- probability of spawning a single turret
+maxTurrets =
+  3 -- Max Turrets per burrow
+burrowSpawnRate =
+  60
+minBaseDistance =
+  600
+maxBaseDistance =
+  7200
+chickensPerPlayer =
+  8
+spawnChance =
+  0.5
+settingBonusTurret =
+  "armrl" -- Turret that gets spawned when a burrow dies
+angerBonus =
+  0.25
+expStep =
+  0.0625
+waves = {}
+newWaveSquad = {}
+
+bonusTurret5a =
+  "armflak"
+bonusTurret5b =
+  "arm_big_bertha"
+bonusTurret7a =
+  "corpre"
+bonusTurret7b =
+  "armamd1"
+bonusTurret7c =
+  "cordoom"
 
 settingCommanders = {
   --Core
   corcom = true,
   corcom1 = true,
   corcom3 = true,
-  corcom_fusion = true,
   corcom5 = true,
   corcom6 = true,
   corcom7 = true,
   --Arm
   armcom = true,
   armcom1 = true,
-  armcom4 = true,
-  armcom_fusion = true,
-  armcom5 = true,
-  armcom6 = true,
-  armcom7 = true,
+  armcom2 = true,
+  armcom3 = true,
   --The lost legacy
   tllcom = true,
   tllcom1 = true,
+  tllcom2 = true,
   tllcom3 = true,
-  tllcom_fusion = true,
-  tllcom5 = true,
-  tllcom6 = true,
-  tllcom7 = true,
   --TALON
   talon_com = true,
   talon_com1 = true,
+  talon_com2 = true,
   talon_com3 = true,
-  talon_com_fusion = true,
-  talon_com5 = true,
-  talon_com6 = true,
-  talon_com7 = true
+  --GOK
+  gok_com = true,
+  gok_com1 = true,
+  gok_com2 = true,
+  gok_com3 = true
 }
 
 settingNeutralUnits = {
@@ -89,14 +152,22 @@ settingNeutralUnits = {
   tllprivate = true
 }
 
-VERYEASY = "Robot: Very Easy"
-EASY = "Robot: Easy"
-NORMAL = "Robot: Normal"
-HARD = "Robot: Hard"
-VERYHARD = "Robot: Very Hard"
-INSANE = "Robot: Insane"
-CUSTOM = "Robot: Custom"
-SURVIVAL = "Robot: Survival"
+VERYEASY =
+  "Robot: Very Easy"
+EASY =
+  "Robot: Easy"
+NORMAL =
+  "Robot: Normal"
+HARD =
+  "Robot: Hard"
+VERYHARD =
+  "Robot: Very Hard"
+INSANE =
+  "Robot: Insane"
+CUSTOM =
+  "Robot: Custom"
+SURVIVAL =
+  "Robot: Survival"
 
 settingModes = {
   [1] = VERYEASY,
@@ -106,12 +177,16 @@ settingModes = {
   [5] = VERYHARD,
   [6] = INSANE,
   [7] = CUSTOM,
-  [8] = SURVIVAL,
-
+  [8] = SURVIVAL
 }
 
-for i, v in ipairs(settingModes) do -- make it bi-directional
-  settingModes[v] = i
+for i, v in ipairs(
+  settingModes
+) do -- make it bi-directional
+  settingModes[
+      v
+    ] =
+    i
 end
 
 --------------------------------------------------------------------------------
@@ -123,20 +198,18 @@ local defenders = {
   arm_big_bertha = true,
   corpre = true,
   armamd1 = true,
-  cordoom = true,
+  cordoom = true
 }
 
-settingForceGround = 
-{
+settingForceGround = {
   abroadside = true,
   cdevastator = true,
   corvaliant = true,
   talon_skynet = true,
-  talon_independence = true,
+  talon_independence = true
 }
 
-settingBlackList =
-{
+settingBlackList = {
   armabad = true,
   armaser = true,
   armatlas = true,
@@ -209,10 +282,8 @@ settingBlackList =
   ve_chickenqr = true,
   vh_chickenqr = true,
   watcher = true,
-
   -- not working
   nsaagriz = true,
-
   -- transports
   armatlas = true,
   armdlfy = true,
@@ -221,24 +292,20 @@ settingBlackList =
   armsl = true,
   armthovr = true,
   armtship = true,
-
   corfalc = true,
   cormuat = true,
   corthovr = true,
   cortship = true,
   corvalk = true,
   intruder = true,
-
   talon_bishop = true,
   talon_rukh = true,
   talon_tau = true,
   talon_wyvern = true,
-
   tllambassador = true,
   tllbtrans = true,
   tllrobber = true,
   tlltplane = true,
-
   -- Talon Mobile AntiNuke
   talon_tribulation = true
 }
@@ -252,7 +319,6 @@ local aaUnits = {
   armeak = true,
   armah = true,
   armhuntsman = true,
-
   -- CORE AA Units
   corcrash = true,
   corjeag = true,
@@ -262,7 +328,6 @@ local aaUnits = {
   corah = true,
   coreslingshot = true,
   corfrog = true,
-
   -- TLL AA Units
   tllhoplit = true,
   tllfirestarter = true,
@@ -274,159 +339,265 @@ local aaUnits = {
 }
 
 -- implemention of mo_aa_units
-if not settingAAUnits then
-  for k in pairs(aaUnits) do
-    settingBlackList[k] = true
+if
+  not settingAAUnits
+ then
+  for k in pairs(
+    aaUnits
+  ) do
+    settingBlackList[
+        k
+      ] =
+      true
   end
 end
 
 -- We have random all units, so make chickenType for all of them
 local chickenTypes = {}
-for _, ud in ipairs(UnitDefs) do
-  if not settingBlackList[ud.name] and ud.isBuilder == false and not settingCommanders[ud.name] then
-    chickenTypes[ud.name] = true
+for _, ud in ipairs(
+  UnitDefs
+) do
+  if
+    not settingBlackList[
+      ud.name
+    ] and
+      ud.isBuilder ==
+        false and
+      not settingCommanders[
+        ud.name
+      ]
+   then
+    chickenTypes[
+        ud.name
+      ] =
+      true
   end
 end
 
-local function Copy(original)
+local function Copy(
+  original)
   local copy = {}
-  for k, v in pairs(original) do
-    if (type(v) == "table") then
-      copy[k] = Copy(v)
+  for k, v in pairs(
+    original
+  ) do
+    if
+      (type(
+        v
+      ) ==
+        "table")
+     then
+      copy[
+          k
+        ] =
+        Copy(
+        v
+      )
     else
-      copy[k] = v
+      copy[
+          k
+        ] =
+        v
     end
   end
   return copy
 end
 
-
 difficulties = {
   [VERYEASY] = {
-    numWaves          = 24,
-    costMultiplier    = 0.9,
-    burrowSpawnRate   = 120,
-    kingMaxUnits      = 0,
-    angerBonus        = 0.05,
-    expStep           = 0,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 0,
-    maxRobotsPPlayer  = 30,
-    spawnChance       = 45,
-    damageMod         = 0.6,
+    numWaves = 24,
+    costMultiplier = 0.9,
+    burrowSpawnRate = 120,
+    kingMaxUnits = 0,
+    angerBonus = 0.05,
+    expStep = 0,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 0,
+    maxRobotsPPlayer = 30,
+    spawnChance = 45,
+    damageMod = 0.6
   },
   [EASY] = {
-    numWaves          = 24,
-    costMultiplier    = 0.95,
-    burrowSpawnRate   = 120,
-    kingMaxUnits      = 3,
-    angerBonus        = 0.075,
-    expStep           = 0.09375,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 8,
-    maxRobotsPPlayer  = 40,
-    spawnChance       = 55,
-    damageMod         = 0.75,
+    numWaves = 24,
+    costMultiplier = 0.95,
+    burrowSpawnRate = 120,
+    kingMaxUnits = 3,
+    angerBonus = 0.075,
+    expStep = 0.09375,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 8,
+    maxRobotsPPlayer = 40,
+    spawnChance = 55,
+    damageMod = 0.75
   },
-
   [NORMAL] = {
-    numWaves          = 30,
-    costMultiplier    = 1,
-    burrowSpawnRate   = 105,
-    kingMaxUnits      = 8,
-    angerBonus        = 0.10,
-    expStep           = 0.125,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 12,
-    maxRobotsPPlayer  = 60,
-    spawnChance       = 65,
-    damageMod         = 1,
+    numWaves = 30,
+    costMultiplier = 1,
+    burrowSpawnRate = 105,
+    kingMaxUnits = 8,
+    angerBonus = 0.10,
+    expStep = 0.125,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 12,
+    maxRobotsPPlayer = 60,
+    spawnChance = 65,
+    damageMod = 1
   },
-
   [HARD] = {
-    numWaves          = 34,
-    costMultiplier    = 1.05,
-    burrowSpawnRate   = 60,
-    kingMaxUnits      = 10,
-    angerBonus        = 0.125,
-    expStep           = 0.25,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 16,
-    maxRobotsPPlayer  = 65,
-    spawnChance       = 75,
-    damageMod         = 1.1,
+    numWaves = 34,
+    costMultiplier = 1.05,
+    burrowSpawnRate = 60,
+    kingMaxUnits = 10,
+    angerBonus = 0.125,
+    expStep = 0.25,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 16,
+    maxRobotsPPlayer = 65,
+    spawnChance = 75,
+    damageMod = 1.1
   },
-
-
   [VERYHARD] = {
-    numWaves          = 53,
-    costMultiplier    = 1.1,
-    burrowSpawnRate   = 40,
-    kingMaxUnits      = 12,
-    angerBonus        = 0.15,
-    expStep           = 0.4,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 20,
-    maxRobotsPPlayer  = 70,
-    spawnChance       = 80,
-    damageMod         = 1.25,
+    numWaves = 53,
+    costMultiplier = 1.1,
+    burrowSpawnRate = 40,
+    kingMaxUnits = 12,
+    angerBonus = 0.15,
+    expStep = 0.4,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 20,
+    maxRobotsPPlayer = 70,
+    spawnChance = 80,
+    damageMod = 1.25
   },
-
   [INSANE] = {
-    numWaves          = 80,
-    costMultiplier    = 1.2,
-    burrowSpawnRate   = 28,
-    kingMaxUnits      = 15,
-    angerBonus        = 0.20,
-    expStep           = 0.6,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = 30,
-    maxRobotsPPlayer  = 80,
-    spawnChance       = 80,
-    damageMod         = 1.5,
+    numWaves = 80,
+    costMultiplier = 1.2,
+    burrowSpawnRate = 28,
+    kingMaxUnits = 15,
+    angerBonus = 0.20,
+    expStep = 0.6,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 30,
+    maxRobotsPPlayer = 80,
+    spawnChance = 80,
+    damageMod = 1.5
   },
-
-
   [CUSTOM] = {
-    numWaves          = tonumber(GetModOptions().mo_custom_numwaves),
-    costMultiplier    = tonumber(GetModOptions().mo_custom_cost_multiplier),
-    burrowSpawnRate   = tonumber(GetModOptions().mo_custom_burrowspawn),
-    kingMaxUnits      = tonumber(GetModOptions().mo_custom_kingmaxunits),
-    angerBonus        = tonumber(GetModOptions().mo_custom_angerbonus),
-    expStep           = (tonumber(GetModOptions().mo_custom_expstep) or 0.6) * -1,
-    chickenTypes      = Copy(chickenTypes),
-    defenders         = Copy(defenders),
-    minRobotsPPlayer  = tonumber(GetModOptions().mo_custom_minchicken or 8),
-    maxRobotsPPlayer  = tonumber(GetModOptions().mo_custom_maxchicken or 60),
-    spawnChance       = (tonumber(GetModOptions().mo_custom_spawnchance) or 40),
-    damageMod         = (tonumber(GetModOptions().mo_custom_damagemod) or 100) / 100,
-  },
+    numWaves = tonumber(
+      GetModOptions(
 
-  [SURVIVAL] = {
-    numWaves            = 80,
-    costMultiplier      = 1,
-    burrowSpawnRate     = 105,
-    kingMaxUnits        = 10,
-    angerBonus          = 25,
-    expStep             = 0.125,
-    chickenTypes        = Copy(chickenTypes),
-    defenders           = Copy(defenders),
-    minRobotsPPlayer    = 9,
-    maxRobotsPPlayer    = 60,
-    spawnChance         = 40,
-    damageMod           = 1,
+      ).mo_custom_numwaves
+    ),
+    costMultiplier = tonumber(
+      GetModOptions(
+
+      ).mo_custom_cost_multiplier
+    ),
+    burrowSpawnRate = tonumber(
+      GetModOptions(
+
+      ).mo_custom_burrowspawn
+    ),
+    kingMaxUnits = tonumber(
+      GetModOptions(
+
+      ).mo_custom_kingmaxunits
+    ),
+    angerBonus = tonumber(
+      GetModOptions(
+
+      ).mo_custom_angerbonus
+    ),
+    expStep = (tonumber(
+      GetModOptions(
+
+      ).mo_custom_expstep
+    ) or
+      0.6) *
+      -1,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = tonumber(
+      GetModOptions(
+
+      ).mo_custom_minchicken or
+        8
+    ),
+    maxRobotsPPlayer = tonumber(
+      GetModOptions(
+
+      ).mo_custom_maxchicken or
+        60
+    ),
+    spawnChance = (tonumber(
+      GetModOptions(
+
+      ).mo_custom_spawnchance
+    ) or
+      40),
+    damageMod = (tonumber(
+      GetModOptions(
+
+      ).mo_custom_damagemod
+    ) or
+      100) /
+      100
   },
+  [SURVIVAL] = {
+    numWaves = 80,
+    costMultiplier = 1,
+    burrowSpawnRate = 105,
+    kingMaxUnits = 10,
+    angerBonus = 25,
+    expStep = 0.125,
+    chickenTypes = Copy(
+      chickenTypes
+    ),
+    defenders = Copy(
+      defenders
+    ),
+    minRobotsPPlayer = 9,
+    maxRobotsPPlayer = 60,
+    spawnChance = 40,
+    damageMod = 1
+  }
 }
 
-
-
-settingDefaultDifficulty = 'Robot: Normal'
+settingDefaultDifficulty =
+  "Robot: Normal"
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -443,87 +614,231 @@ settingDefaultDifficulty = 'Robot: Normal'
 -- }
 
 settingWaves = {}
-table.insert(settingWaves, {
-  anger = 0,
-  air = { mincost = 0, maxcost = 80 }, -- CORE bladew
-  air_fighter = { mincost = 0, maxcost = 0 },
-  ground = { mincost = 0, maxcost = 80 }, -- TLL Private
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 5,
-  air = { mincost = 0, maxcost = 80 }, -- CORE BLADEW
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 10,
-  air = { mincost = 0, maxcost = 275 }, -- TLL WASP
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 75, maxcost = 246 }, -- ARM Stumpy
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 20,
-  air = { mincost = 80, maxcost = 275 }, -- TLL WASP
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 370, maxcost = 1963 }, -- ARM Fatboy -- T2
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 30,
-  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { mincost = 0, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 370, maxcost = 5673 }, -- TLL Binder -- T2
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 40,
-  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { mincost = 0, maxcost = 190 }, -- TLL Sparrow
-  ground = { mincost = 1480, maxcost = 10000 }, -- talon_visitant
-  max_wavecost = 100,
-})
-table.insert(settingWaves, {
-  anger = 50,
-  air = { mincost = 276, maxcost = 683 }, -- TLL GHOST
-  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 10000, maxcost = 20000 }, -- CORE KrogTaar - T2.5
-  max_wavecost = 50,
-})
-table.insert(settingWaves, {
-  anger = 60,
-  air = { mincost = 276, maxcost = 3942 }, -- ARM LICHE
-  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 20000, maxcost = 40000 }, -- ARM Vengence - T2.5
-  max_wavecost = 40,
-})
-table.insert(settingWaves, {
-  anger = 70,
-  air = { mincost = 3942, maxcost = 7600 }, -- CORE KROW
-  air_fighter = { mincost = 191, maxcost = 476 }, -- TLL Falcon
-  ground = { mincost = 20000, maxcost = 108726.688 }, -- TALON Silver
-  max_wavecost = 40,
-})
-table.insert(settingWaves, {
-  anger = 80,
-  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { mincost = 477, maxcost = 1754 }, -- TLL Shrike
-  ground = { mincost = 108726.688, maxcost = 180000 }, -- TLL Mini Hero
-  max_wavecost = 30,
-})
-table.insert(settingWaves, {
-  anger = 90,
-  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
-  ground = { mincost = 108726.688, maxcost = 257000 }, -- CORE Super Krogoth
-  max_wavecost = 20,
-})
-table.insert(settingWaves, {
-  anger = 95,
-  air = { mincost = 7600, maxcost = 17244 }, -- TLL Aether
-  air_fighter = { mincost = 1700, maxcost = 19000 }, -- ARM Stratus
-  ground = { mincost = 108726.688, maxcost = 1900000 }, -- TALON Independence, T5
-  max_wavecost = 10,
-})
+table.insert(
+  settingWaves,
+  {
+    anger = 0,
+    air = {
+      mincost = 0,
+      maxcost = 80
+    }, -- CORE bladew
+    air_fighter = {
+      mincost = 0,
+      maxcost = 0
+    },
+    ground = {
+      mincost = 0,
+      maxcost = 80
+    }, -- TLL Private
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 5,
+    air = {
+      mincost = 0,
+      maxcost = 80
+    }, -- CORE BLADEW
+    air_fighter = {
+      mincost = 0,
+      maxcost = 190
+    }, -- TLL Sparrow
+    ground = {
+      mincost = 75,
+      maxcost = 246
+    }, -- ARM Stumpy
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 10,
+    air = {
+      mincost = 0,
+      maxcost = 275
+    }, -- TLL WASP
+    air_fighter = {
+      mincost = 0,
+      maxcost = 190
+    }, -- TLL Sparrow
+    ground = {
+      mincost = 75,
+      maxcost = 246
+    }, -- ARM Stumpy
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 20,
+    air = {
+      mincost = 80,
+      maxcost = 275
+    }, -- TLL WASP
+    air_fighter = {
+      mincost = 0,
+      maxcost = 190
+    }, -- TLL Sparrow
+    ground = {
+      mincost = 370,
+      maxcost = 1963
+    }, -- ARM Fatboy -- T2
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 30,
+    air = {
+      mincost = 276,
+      maxcost = 683
+    }, -- TLL GHOST
+    air_fighter = {
+      mincost = 0,
+      maxcost = 476
+    }, -- TLL Falcon
+    ground = {
+      mincost = 370,
+      maxcost = 5673
+    }, -- TLL Binder -- T2
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 40,
+    air = {
+      mincost = 276,
+      maxcost = 683
+    }, -- TLL GHOST
+    air_fighter = {
+      mincost = 0,
+      maxcost = 190
+    }, -- TLL Sparrow
+    ground = {
+      mincost = 1480,
+      maxcost = 10000
+    }, -- talon_visitant
+    max_wavecost = 100
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 50,
+    air = {
+      mincost = 276,
+      maxcost = 683
+    }, -- TLL GHOST
+    air_fighter = {
+      mincost = 191,
+      maxcost = 476
+    }, -- TLL Falcon
+    ground = {
+      mincost = 10000,
+      maxcost = 20000
+    }, -- CORE KrogTaar - T2.5
+    max_wavecost = 50
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 60,
+    air = {
+      mincost = 276,
+      maxcost = 3942
+    }, -- ARM LICHE
+    air_fighter = {
+      mincost = 191,
+      maxcost = 476
+    }, -- TLL Falcon
+    ground = {
+      mincost = 20000,
+      maxcost = 40000
+    }, -- ARM Vengence - T2.5
+    max_wavecost = 40
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 70,
+    air = {
+      mincost = 3942,
+      maxcost = 7600
+    }, -- CORE KROW
+    air_fighter = {
+      mincost = 191,
+      maxcost = 476
+    }, -- TLL Falcon
+    ground = {
+      mincost = 20000,
+      maxcost = 108726.688
+    }, -- TALON Silver
+    max_wavecost = 40
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 80,
+    air = {
+      mincost = 7600,
+      maxcost = 17244
+    }, -- TLL Aether
+    air_fighter = {
+      mincost = 477,
+      maxcost = 1754
+    }, -- TLL Shrike
+    ground = {
+      mincost = 108726.688,
+      maxcost = 180000
+    }, -- TLL Mini Hero
+    max_wavecost = 30
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 90,
+    air = {
+      mincost = 7600,
+      maxcost = 17244
+    }, -- TLL Aether
+    air_fighter = {
+      mincost = 1700,
+      maxcost = 19000
+    }, -- ARM Stratus
+    ground = {
+      mincost = 108726.688,
+      maxcost = 257000
+    }, -- CORE Super Krogoth
+    max_wavecost = 20
+  }
+)
+table.insert(
+  settingWaves,
+  {
+    anger = 95,
+    air = {
+      mincost = 7600,
+      maxcost = 17244
+    }, -- TLL Aether
+    air_fighter = {
+      mincost = 1700,
+      maxcost = 19000
+    }, -- ARM Stratus
+    ground = {
+      mincost = 108726.688,
+      maxcost = 1900000
+    }, -- TALON Independence, T5
+    max_wavecost = 10
+  }
+)

@@ -1,3 +1,9 @@
+2.00 -> 2.01
+ 2021-11-09
+
+ Improvements:
+ - Fix small bugs with new TechA
+
 1.01 -> 2.00
  2021-11-08
 
