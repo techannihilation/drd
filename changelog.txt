@@ -1,3 +1,9 @@
+2.02 -> 2.03
+ 2021-11-09
+
+ Bug fixes:
+ - Fix amordefs.lua by copying it from current TA.
+
 2.01 -> 2.02
  2021-11-09
 
