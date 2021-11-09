@@ -307,7 +307,13 @@ settingBlackList = {
   tllrobber = true,
   tlltplane = true,
   -- Talon Mobile AntiNuke
-  talon_tribulation = true
+  talon_tribulation = true,
+
+  -- AIR Shit
+  talon_recon = true,
+  talon_shade = true,
+  talon_eclipse = true,
+  gok_revenant = true,
 }
 
 local aaUnits = {
