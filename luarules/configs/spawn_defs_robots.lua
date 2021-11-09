@@ -309,11 +309,23 @@ settingBlackList = {
   -- Talon Mobile AntiNuke
   talon_tribulation = true,
 
+  -- Useless for them
+  armkrypto = true,
+
   -- AIR Shit
   talon_recon = true,
   talon_shade = true,
   talon_eclipse = true,
-  gok_revenant = true,
+	gok_angel = true,
+	gok_sucub = true,
+	gok_wraith = true,
+	gok_specter = true,
+	gok_nosferatu = true,
+	gok_revenant = true,
+
+  -- Satellite
+  sat_radar = true,
+  sat_interceptor = true
 }
 
 local aaUnits = {
