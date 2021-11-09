@@ -1,3 +1,9 @@
+2.03 -> 2.04
+ 2021-11-10
+
+ Improvements:
+ - Remove working units from the Blacklist
+
 2.02 -> 2.03
  2021-11-09
 
