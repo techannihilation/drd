@@ -1,3 +1,9 @@
+2.04 -> 2.05
+ 2021-11-10
+
+ Improvements:
+ - Update to TA V4.07 to hopefully fix shields and others.
+
 2.03 -> 2.04
  2021-11-10
 
