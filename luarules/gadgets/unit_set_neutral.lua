@@ -21,19 +21,27 @@ local GetUnitCOBValue = Spring.GetUnitCOBValue
 local SetUnitNeutral = Spring.SetUnitNeutral
 local GetUnitStates = Spring.GetUnitStates
 local neutralUnits = {}
-local armourTurrets = {}
 
-armourTurrets[UnitDefNames["cormaw"].id] = true
-armourTurrets[UnitDefNames["armclaw"].id] = true
-armourTurrets[UnitDefNames["corvipe"].id] = true
-armourTurrets[UnitDefNames["armpb"].id] = true
-armourTurrets[UnitDefNames["cortoast"].id] = true
-armourTurrets[UnitDefNames["armamb"].id] = true
-armourTurrets[UnitDefNames["cordoom"].id] = true
-armourTurrets[UnitDefNames["cordoom1"].id] = true
-armourTurrets[UnitDefNames["armanni"].id] = true
-armourTurrets[UnitDefNames["armanni1"].id] = true
-armourTurrets[UnitDefNames["packo"].id] = true
+local armourTurretsUnits = {
+  cormaw = true,
+  armclaw = true,
+  corvipe = true,
+  armpb = true,
+  cortoast = true,
+  armamb = true,
+  cordoom = true,
+  cordoom1 = true,
+  armanni = true,
+  armanni1 = true,
+  packo = true
+}
+
+local armourTurrets = {}
+for uname in pairs(armourTurretsUnits) do
+	if UnitDefNames[uname] ~= nil then
+		armourTurrets[UnitDefNames[uname].id] = true
+	end
+end
 
 local UPDATE = 30
 local timeCounter = 15
