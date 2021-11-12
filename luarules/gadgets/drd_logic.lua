@@ -208,6 +208,10 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
+        if next(teamList) == nil then
+            return nil;
+        end
+
         return teamList[mRandom(#teamList)]
     end
 
@@ -215,6 +219,10 @@ if (gadgetHandler:IsSyncedCode()) then
     local function chooseTarget(unitID)
         -- Select team
         local teamID = chooseTeamToAttack()
+
+        if teamID == nil then
+            return nil
+        end
 
         -- Add attacking robot to the team and get best target from it
         local team = humanTeams[teamID]
@@ -908,18 +916,21 @@ if (gadgetHandler:IsSyncedCode()) then
                         opts = {}
                     }
                 else
-                    local targetPosition = {
-                        GetUnitPosition(chooseTarget(unitID))
-                    }
-                    self._idleOrderQueue[unitID] = {
-                        cmd = CMD.FIGHT,
-                        params = targetPosition,
-                        opts = {}
-                    }
-                    self._chickenBirths[unitID] = {
-                        deathDate = self._gameTimeSeconds + self._maxAge,
-                        burrowID = defs.burrow
-                    }
+                    local target = chooseTarget(unitID)
+                    if (target ~= nil) then
+                        local targetPosition = {
+                            GetUnitPosition(target)
+                        }
+                        self._idleOrderQueue[unitID] = {
+                            cmd = CMD.FIGHT,
+                            params = targetPosition,
+                            opts = {}
+                        }
+                        self._chickenBirths[unitID] = {
+                            deathDate = self._gameTimeSeconds + self._maxAge,
+                            burrowID = defs.burrow
+                        }
+                    end
 
                     self._chickenCount = self._chickenCount + 1
                 end
