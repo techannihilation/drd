@@ -20,7 +20,7 @@ end
 local MoveDefs = DeepCopy(DEFS.moveDefs)
 local UnitDefs = DeepCopy(DEFS.unitDefs)
 local WeaponDefs = DeepCopy(DEFS.weaponDefs)
-local ArmorDefs = DeepCopy(DEFS.weaponDefs)
+local ArmorDefs = DeepCopy(DEFS.armorDefs)
 local FeatureDefs = DeepCopy(DEFS.featureDefs)
 
 -----------------------------------------------------------
