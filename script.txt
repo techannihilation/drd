@@ -50,7 +50,7 @@
 		mo_custom_burrowshp=8600;
 		mo_custom_burrowspawn=120;
 		mo_custom_numwaves=80;
-		mo_custom_cost_multiplier=1;
+		mo_custom_cost_multiplier=1.5;
 		mo_custom_damagemod=100;
 		mo_custom_expstep=1.5;
 		mo_custom_minchicken=8;
@@ -59,7 +59,7 @@
 		mo_graceperiod=10;
 		mo_maxage=300;
 		mo_maxchicken=60;
-		mo_queentime=40;
+		mo_queentime=10;
 		startenergy=9999999;
 		startmetal=999999;
 		wall_size=45;

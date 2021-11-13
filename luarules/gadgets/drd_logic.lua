@@ -238,6 +238,9 @@ if (gadgetHandler:IsSyncedCode()) then
     local possibleUnitsGround = {}
     for _, ud in pairs(UnitDefs) do
         if not settingBlackList[ud.name] and ud.isBuilder == false then
+
+            -- Echo("possible unit: " .. ud.name .. ", cost: " .. ud.cost)
+
             if ud.moveDef.name and ud.minWaterDepth < 0 then
                 -- ground unit
                 table.insert(possibleUnitsGround, ud)
@@ -296,7 +299,6 @@ if (gadgetHandler:IsSyncedCode()) then
 
         for _, ud in pairs(possibleUnits) do
             if ud.cost >= mincost and ud.cost <= maxcost then
-                -- Echo("possible: " .. ud.name)
                 table.insert(
                     units,
                     {
@@ -556,8 +558,8 @@ if (gadgetHandler:IsSyncedCode()) then
             c.expStep = 0
             c.chickenTypes = {}
             c.defenders = {}
-            c.minRobotsPPlayer = 3
-            c.maxRobotsPPlayer = 30
+            c.minRobots = 3
+            c.maxRobots = 30
             c.spawnChance = 0.25
             c.damageMod = 0.6
 
@@ -621,17 +623,10 @@ if (gadgetHandler:IsSyncedCode()) then
             self[key] = value
         end
 
-        -- Settings
-        self._humanTeamCount = SetCount(humanTeams)
-        self._minRobots = self.minRobotsPPlayer
-        self._maxRobots = self.maxRobotsPPlayer
-
         self:_getDefTypes()
 
         self._expMod = 0
         if self.expStep > 0 then
-            self._expIncrement = ((SetCount(humanTeams) * self.expStep) / settingQueenTime)
-        else
             self._expIncrement = ((self.expStep * -1) / settingQueenTime)
         end
 
@@ -1040,9 +1035,9 @@ if (gadgetHandler:IsSyncedCode()) then
         }
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
-        self._oldMaxRobots = self._maxRobots
+        self._oldMaxRobots = self.maxRobots
         self._oldDamageMod = self.damageMod
-        self._maxRobots = 75
+        self.maxRobots = 75
         chickenEvent("queen") -- notify unsynced about queen spawn
         _, self._queenMaxHP = GetUnitHealth(self._queenID)
         SetUnitExperience(self._queenID, self._expMod)
@@ -1131,7 +1126,7 @@ if (gadgetHandler:IsSyncedCode()) then
 
         if (unitID == self._queenID) then -- queen destroyed
             self._queenID = nil
-            self._maxRobots = self._oldMaxRobots
+            self.maxRobots = self._oldMaxRobots
             self.damageMod = self._oldDamageMod
             self._queenResistance = {}
             if (self._ascendingQueen == true) then
@@ -1432,7 +1427,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if self._queenID then
             waveUnits = w:GetWave(kingAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
         else
-            waveUnits = w:GetWave(kingAnger, self._maxRobots, self.costMultiplier)
+            waveUnits = w:GetWave(kingAnger, self.maxRobots, self.costMultiplier)
             if superUnitsAnger > 0 then
                 superUnits = w:GetWave(superUnitsAnger, 5, self.costMultiplier)
             end
@@ -1477,7 +1472,7 @@ if (gadgetHandler:IsSyncedCode()) then
                 unitNum = unitNum + 1
 
                 local skipSpawn = false
-                if (cCount > self._minRobots) and (mRandom(1, 100) > self.spawnChance) then
+                if (cCount > self.minRobots) and (mRandom(1, 100) > self.spawnChance) then
                     skipSpawn = true
                 end
                 if not skipSpawn then
@@ -1601,7 +1596,7 @@ if (gadgetHandler:IsSyncedCode()) then
             end
         end
 
-        if (self._chickenCount < self._maxRobots) then
+        if (self._chickenCount < self.maxRobots) then
             self:_spawnRobots()
         end
 
@@ -1633,14 +1628,6 @@ if (gadgetHandler:IsSyncedCode()) then
 
             if (self._gameTimeSeconds < settingGracePeriod) then -- do nothing in the grace period
                 return
-            end
-
-            -- Update minRobots/maxRobots
-            local count = GetRealHumanTeamsCount()
-            if self._humanTeamCount ~= count then
-                self._humanTeamCount = count
-                self._minRobots = self.minRobotsPPlayer * self._humanTeamCount
-                self._maxRobots = self.maxRobotsPPlayer * self._humanTeamCount
             end
 
             self._expMod = (self._expMod + self._expIncrement) -- increment expierence

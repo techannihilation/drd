@@ -429,8 +429,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 0,
-    maxRobotsPPlayer = 30,
+    minRobots = 0,
+    maxRobots = 30,
     spawnChance = 45,
     damageMod = 0.6
   },
@@ -447,8 +447,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 8,
-    maxRobotsPPlayer = 40,
+    minRobots = 8,
+    maxRobots = 40,
     spawnChance = 55,
     damageMod = 0.75
   },
@@ -465,8 +465,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 12,
-    maxRobotsPPlayer = 60,
+    minRobots = 12,
+    maxRobots = 60,
     spawnChance = 65,
     damageMod = 1
   },
@@ -483,8 +483,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 16,
-    maxRobotsPPlayer = 65,
+    minRobots = 16,
+    maxRobots = 65,
     spawnChance = 75,
     damageMod = 1.1
   },
@@ -501,8 +501,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 20,
-    maxRobotsPPlayer = 70,
+    minRobots = 20,
+    maxRobots = 70,
     spawnChance = 80,
     damageMod = 1.25
   },
@@ -519,8 +519,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 30,
-    maxRobotsPPlayer = 80,
+    minRobots = 30,
+    maxRobots = 80,
     spawnChance = 80,
     damageMod = 1.5
   },
@@ -529,65 +529,63 @@ difficulties = {
       GetModOptions(
 
       ).mo_custom_numwaves
-    ),
+    or 80),
     costMultiplier = tonumber(
       GetModOptions(
 
       ).mo_custom_cost_multiplier
-    ),
+    or 1.2),
     burrowSpawnRate = tonumber(
       GetModOptions(
 
       ).mo_custom_burrowspawn
-    ),
+    or 28),
     kingMaxUnits = tonumber(
       GetModOptions(
 
       ).mo_custom_kingmaxunits
-    ),
+    or 15),
     angerBonus = tonumber(
       GetModOptions(
 
       ).mo_custom_angerbonus
-    ),
+    or 0.2),
     expStep = (tonumber(
       GetModOptions(
 
       ).mo_custom_expstep
     ) or
-      0.6) *
-      -1,
+      0.6),
     chickenTypes = Copy(
       chickenTypes
     ),
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = tonumber(
+    minRobots = tonumber(
       GetModOptions(
 
       ).mo_custom_minchicken or
-        8
+        30
     ),
-    maxRobotsPPlayer = tonumber(
+    maxRobots = tonumber(
       GetModOptions(
 
       ).mo_custom_maxchicken or
-        60
+        80
     ),
     spawnChance = (tonumber(
       GetModOptions(
 
       ).mo_custom_spawnchance
     ) or
-      40),
+      80),
     damageMod = (tonumber(
       GetModOptions(
 
       ).mo_custom_damagemod
     ) or
-      100) /
-      100
+      1.5)
   },
   [SURVIVAL] = {
     numWaves = 80,
@@ -602,8 +600,8 @@ difficulties = {
     defenders = Copy(
       defenders
     ),
-    minRobotsPPlayer = 9,
-    maxRobotsPPlayer = 60,
+    minRobots = 9,
+    maxRobots = 60,
     spawnChance = 40,
     damageMod = 1
   }
@@ -849,8 +847,8 @@ table.insert(
       maxcost = 19000
     }, -- ARM Stratus
     ground = {
-      mincost = 108726.688,
-      maxcost = 1900000
+      mincost = 256999,
+      maxcost = 500000,
     }, -- TALON Independence, T5
     max_wavecost = 10
   }
