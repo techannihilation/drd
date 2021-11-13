@@ -1,3 +1,9 @@
+2.07 -> 2.08
+ 2021-11-14
+
+ Fix:
+ - Blacklist coretnt, its not targetable.
+
 2.06 -> 2.07
  2021-11-13
 
