@@ -309,6 +309,9 @@ settingBlackList = {
   -- Talon Mobile AntiNuke
   talon_tribulation = true,
 
+  -- Can't target tnt
+  coretnt = true,
+
   -- Useless for them
   armkrypto = true,
 
