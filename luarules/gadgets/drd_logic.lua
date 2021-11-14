@@ -878,8 +878,8 @@ if (gadgetHandler:IsSyncedCode()) then
                 self._spawnQueue[i] = nil
                 return
             end
-            local unitID = CreateUnit(defs.unitName, x, y, z, "n", defs.team)
-            if unitID then
+            local success, unitID = pcall(CreateUnit, defs.unitName, x, y, z, "n", defs.team)
+            if success and unitID then
                 SetUnitExperience(unitID, mRandom() * self._expMod)
                 if (mRandom() < 0.1) then
                     local mod = 0.75 - (mRandom() * 0.25)
