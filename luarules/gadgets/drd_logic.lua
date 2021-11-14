@@ -111,8 +111,8 @@ if (gadgetHandler:IsSyncedCode()) then
 
     do -- load config file
         local CONFIG_FILE
-        CONFIG_FILE = "LuaRules/Configs/spawn_defs_robots.lua"
-        Echo(CONFIG_FILE)
+        CONFIG_FILE = "gamedata/spawnDefs.lua"
+        -- Echo(CONFIG_FILE)
         local VFSMODE = VFS.RAW_FIRST
         local s = assert(VFS.LoadFile(CONFIG_FILE, VFSMODE))
         local chunk = assert(loadstring(s, file))
@@ -238,8 +238,7 @@ if (gadgetHandler:IsSyncedCode()) then
     local possibleUnitsGround = {}
     for _, ud in pairs(UnitDefs) do
         if not settingBlackList[ud.name] and ud.isBuilder == false then
-
-            -- Echo("possible unit: " .. ud.name .. ", cost: " .. ud.cost)
+            -- Echo(ud.name .. "\t" .. ud.humanName .. "\t" .. ud.cost)
 
             if ud.moveDef.name and ud.minWaterDepth < 0 then
                 -- ground unit
@@ -1026,13 +1025,16 @@ if (gadgetHandler:IsSyncedCode()) then
 
         self._queenID = self:_spawnQueen()
 
-        self._idleOrderQueue[self._queenID] = {
-            cmd = CMD.MOVE,
-            params = {
-                GetUnitPosition(chooseTarget(self._queenID))
-            },
-            opts = {}
-        }
+        local target chooseTarget(self._queenID)
+        if target ~= nil then
+            self._idleOrderQueue[self._queenID] = {
+                cmd = CMD.MOVE,
+                params = {
+                    GetUnitPosition(target)
+                },
+                opts = {}
+            }
+        end
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
         self._oldMaxRobots = self.maxRobots
@@ -1323,11 +1325,14 @@ if (gadgetHandler:IsSyncedCode()) then
                     self._qMove = false
                     self._qDamage = 0 - mRandom(0, 100000)
                 else
-                    local cC = {
-                        GetUnitPosition(chooseTarget(self._queenID))
-                    }
+                    local target = chooseTarget(self._queenID)
+                    if target ~= nil then
+                        local cC = {
+                            GetUnitPosition(target)
+                        }
+                    end
                     local xQ, _, zQ = GetUnitPosition(self._queenID)
-                    if cC then
+                    if target ~= nil and cC then
                         -- for i = 1, 5, 1 do
                         --     self:_spawnTurret(self._queenID, self._bonusTurret)
                         -- end

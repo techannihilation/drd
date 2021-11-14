@@ -851,8 +851,8 @@ table.insert(
     }, -- ARM Stratus
     ground = {
       mincost = 256999,
-      maxcost = 500000,
-    }, -- TALON Independence, T5
+      maxcost = 1011695, -- TALON Independence, T5
+    },
     max_wavecost = 10
   }
 )

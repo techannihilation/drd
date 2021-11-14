@@ -50,7 +50,7 @@
 		mo_custom_burrowshp=8600;
 		mo_custom_burrowspawn=120;
 		mo_custom_numwaves=80;
-		mo_custom_cost_multiplier=1.5;
+		mo_custom_cost_multiplier=1.2;
 		mo_custom_damagemod=100;
 		mo_custom_expstep=1.5;
 		mo_custom_minchicken=8;
@@ -67,7 +67,7 @@
 		deathmode=neverend;
 		mo_chickenstart=alwaysbox;
 		mo_preventcombomb=off;
-		mo_queendifficulty=e_chickenq;
+		mo_queendifficulty=vh_chickenq;
 		mo_storageowner=team;
 		mo_transportenemy=none;
 		qtpfs=normal;
