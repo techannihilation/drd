@@ -310,7 +310,14 @@ settingBlackList = {
   talon_tribulation = true,
 
   -- Can't target tnt
+  armvader = true,
   coretnt = true,
+  corroach = true,
+  corsktl = true,
+  gok_blackheart = true,
+  talon_herison = true,
+  talon_sphere = true,
+  tllcrawlb = true,
 
   -- Useless for them
   armkrypto = true,
