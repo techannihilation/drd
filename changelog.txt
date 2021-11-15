@@ -1,3 +1,9 @@
+2.08 -> 2.09
+ 2021-11-15
+
+ Fix:
+ - Blacklist all Crawling Bombs.
+
 2.07 -> 2.08
  2021-11-14
 
