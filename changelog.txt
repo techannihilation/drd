@@ -2,7 +2,7 @@
  2022-03-27
 
  Fix:
- - Lower the cost multiplier for all bot types
+ - Lower the cost multiplier for all bot types.
 
 2.10 -> 2.11
  2022-03-26
