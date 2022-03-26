@@ -389,7 +389,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Echo("ground")
         self:_addUnits(
             waveSettings.ground.maxcost * costMultiplier,
-            waveSettings.ground.mincost,
+            waveSettings.ground.mincost * costMultiplier,
             possibleUnitsGround,
             maxGroundUnits,
             costMultiplier,
@@ -399,7 +399,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Echo("air fighs")
         self:_addUnits(
             waveSettings.air_fighter.maxcost * costMultiplier,
-            waveSettings.air_fighter.mincost,
+            waveSettings.air_fighter.mincost * costMultiplier,
             possibleUnitsAirFighter,
             maxAirFighters,
             costMultiplier,
@@ -409,7 +409,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Echo("air")
         self:_addUnits(
             waveSettings.air.maxcost * costMultiplier,
-            waveSettings.air.mincost,
+            waveSettings.air.mincost * costMultiplier,
             possibleUnitsAir,
             maxAirUnits,
             costMultiplier,

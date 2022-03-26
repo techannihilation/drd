@@ -429,7 +429,7 @@ end
 difficulties = {
   [VERYEASY] = {
     numWaves = 24,
-    costMultiplier = 0.9,
+    costMultiplier = 0.4,
     burrowSpawnRate = 120,
     kingMaxUnits = 0,
     angerBonus = 0.05,
@@ -447,7 +447,7 @@ difficulties = {
   },
   [EASY] = {
     numWaves = 24,
-    costMultiplier = 0.95,
+    costMultiplier = 0.5,
     burrowSpawnRate = 120,
     kingMaxUnits = 3,
     angerBonus = 0.075,
@@ -465,7 +465,7 @@ difficulties = {
   },
   [NORMAL] = {
     numWaves = 30,
-    costMultiplier = 1,
+    costMultiplier = 0.6,
     burrowSpawnRate = 105,
     kingMaxUnits = 8,
     angerBonus = 0.10,
@@ -483,7 +483,7 @@ difficulties = {
   },
   [HARD] = {
     numWaves = 34,
-    costMultiplier = 1.05,
+    costMultiplier = 0.7,
     burrowSpawnRate = 60,
     kingMaxUnits = 10,
     angerBonus = 0.125,
@@ -501,7 +501,7 @@ difficulties = {
   },
   [VERYHARD] = {
     numWaves = 53,
-    costMultiplier = 1.1,
+    costMultiplier = 0.8,
     burrowSpawnRate = 40,
     kingMaxUnits = 12,
     angerBonus = 0.15,
@@ -519,7 +519,7 @@ difficulties = {
   },
   [INSANE] = {
     numWaves = 80,
-    costMultiplier = 1.2,
+    costMultiplier = 1,
     burrowSpawnRate = 28,
     kingMaxUnits = 15,
     angerBonus = 0.20,
