@@ -321,6 +321,7 @@ settingBlackList = {
 
   -- Useless for them
   armkrypto = true,
+  gok_vtolmex = true,
 
   -- Satellite
   sat_radar = true,

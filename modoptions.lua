@@ -566,12 +566,12 @@ local options = {
     {
         key = "mo_custom_damagemod",
         name = "Damage Mod",
-        desc = "Percent modifier for chicken damage",
+        desc = "Multipler for robot damage",
         type = "number",
-        def = 100,
-        min = 5,
-        max = 250,
-        step = 1,
+        def = 1.5,
+        min = 0.1,
+        max = 10,
+        step = 0.1,
         section = "cust"
     }
 }
