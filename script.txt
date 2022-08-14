@@ -80,50 +80,33 @@
 	}
 
 	NumPlayers=1;
-	NumUsers=3;
+	NumUsers=2;
 
-	[PLAYER2]
+	[PLAYER1]
 	{
 		Name=Player;
-		CountryCode=;
+		CountryCode=at;
 		Spectator=0;
 		Rank=7;
 		IsFromDemo=0;
-		Team=2;
+		Team=0;
 	}
 	[AI0]
 	{
 		Name=Bot1;
 		ShortName=Robot: Insane;
 		Version=<not-versioned>;
-		Team=0;
-		IsFromDemo=0;
-		Host=2;
-		[Options]
-		{
-		}
-	}
-	[AI1]
-	{
-		Name=Bot2;
-		ShortName=NullAI;
-		Version=0.1;
 		Team=1;
 		IsFromDemo=0;
-		Host=2;
+		Host=1;
 		[Options]
 		{
-			maphack=0;
-			reporturl=http://myAIStats.myDomain.com/statsReceiver.cgi;
-			maxgroupsize=10;
-			resourcebonous=0;
-			aggressiveness=normal;
 		}
 	}
 
 	[TEAM0]
 	{
-		TeamLeader=2;
+		TeamLeader=1;
 		StartPosX=5120;
 		StartPosZ=10240;
 		AllyTeam=1;
@@ -133,21 +116,11 @@
 	}
 	[TEAM1]
 	{
-		TeamLeader=2;
+		TeamLeader=1;
 		StartPosX=3561;
 		StartPosZ=865;
 		AllyTeam=0;
 		RGBColor=0.509804 0.498039 1;
-		Side=ARM;
-		Handicap=0;
-	}
-	[TEAM2]
-	{
-		TeamLeader=2;
-		StartPosX=5599;
-		StartPosZ=978;
-		AllyTeam=0;
-		RGBColor=0.101961 0.101961 0.101961;
 		Side=ARM;
 		Handicap=0;
 	}

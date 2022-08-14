@@ -284,6 +284,9 @@ settingBlackList = {
   watcher = true,
   -- not working
   nsaagriz = true,
+  gok_mradk = true,
+  gok_mjamk = true,
+  gok_pains = true,
   -- transports
   armatlas = true,
   armdlfy = true,
@@ -515,7 +518,7 @@ difficulties = {
     minRobots = 20,
     maxRobots = 70,
     spawnChance = 80,
-    damageMod = 1.25
+    damageMod = 1.15
   },
   [INSANE] = {
     numWaves = 80,
@@ -533,7 +536,7 @@ difficulties = {
     minRobots = 30,
     maxRobots = 80,
     spawnChance = 80,
-    damageMod = 1.5
+    damageMod = 1.2
   },
   [CUSTOM] = {
     numWaves = tonumber(
@@ -596,7 +599,7 @@ difficulties = {
 
       ).mo_custom_damagemod
     ) or
-      1.5)
+      1.2)
   },
   [SURVIVAL] = {
     numWaves = 80,
@@ -632,7 +635,8 @@ settingDefaultDifficulty =
 --      mincost = <min cost of unit>
 --      maxcost = <max cost of unit * mo_custom_cost_multiplier>
 --                <max cost of wave (num of wave units * this * mo_custom_cost_multiplier)>
---   }
+--   },
+--   max_wavecost = <max cost of wave (maxcost / 100 * x)
 -- }
 
 settingWaves = {}
@@ -785,7 +789,7 @@ table.insert(
       mincost = 20000,
       maxcost = 40000
     }, -- ARM Vengence - T2.5
-    max_wavecost = 40
+    max_wavecost = 50
   }
 )
 table.insert(
@@ -804,7 +808,7 @@ table.insert(
       mincost = 20000,
       maxcost = 108726.688
     }, -- TALON Silver
-    max_wavecost = 40
+    max_wavecost = 45
   }
 )
 table.insert(
@@ -823,7 +827,7 @@ table.insert(
       mincost = 108726.688,
       maxcost = 180000
     }, -- TLL Mini Hero
-    max_wavecost = 30
+    max_wavecost = 40
   }
 )
 table.insert(
@@ -839,16 +843,16 @@ table.insert(
       maxcost = 19000
     }, -- ARM Stratus
     ground = {
-      mincost = 108726.688,
-      maxcost = 257000
-    }, -- CORE Super Krogoth
-    max_wavecost = 20
+      mincost = 256999,
+      maxcost = 1011695
+    }, -- TALON INDEPENDENCE - Pizza
+    max_wavecost = 40
   }
 )
 table.insert(
   settingWaves,
   {
-    anger = 95,
+    anger = 100,
     air = {
       mincost = 7600,
       maxcost = 17244
@@ -859,8 +863,8 @@ table.insert(
     }, -- ARM Stratus
     ground = {
       mincost = 256999,
-      maxcost = 1011695, -- TALON Independence, T5
-    },
-    max_wavecost = 10
+      maxcost = 1011695
+    }, -- TALON INDEPENDENCE - Pizza
+    max_wavecost = 40
   }
 )

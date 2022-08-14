@@ -339,7 +339,7 @@ if (gadgetHandler:IsSyncedCode()) then
         -- Get Settings
         local waveSettings = {}
         for _, swave in ipairs(settingWaves) do
-            if swave.anger > kingAnger then
+            if swave.anger >= kingAnger then
                 break
             end
 
