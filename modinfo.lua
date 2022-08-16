@@ -1,7 +1,7 @@
 return {
     name = "Dynamic Robot Defense",
-    description = "The New Dynamic Generation Of Robot Defense",
-    shortname = "TA",
+    description = "The New Dynamic Robot Defense",
+    shortname = "TADRD",
     version = "$VERSION",
     mutator = "",
     game = "",

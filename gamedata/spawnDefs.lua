@@ -634,9 +634,8 @@ settingDefaultDifficulty =
 --   <class> = {
 --      mincost = <min cost of unit>
 --      maxcost = <max cost of unit * mo_custom_cost_multiplier>
---                <max cost of wave (num of wave units * this * mo_custom_cost_multiplier)>
 --   },
---   max_wavecost = <max cost of wave (maxcost / 100 * x)
+--   max_wavecost = <max cost of wave (num of wave units * this% * mo_custom_cost_multiplier)>
 -- }
 
 settingWaves = {}
@@ -789,7 +788,7 @@ table.insert(
       mincost = 20000,
       maxcost = 40000
     }, -- ARM Vengence - T2.5
-    max_wavecost = 50
+    max_wavecost = 45
   }
 )
 table.insert(
@@ -808,7 +807,7 @@ table.insert(
       mincost = 20000,
       maxcost = 108726.688
     }, -- TALON Silver
-    max_wavecost = 45
+    max_wavecost = 35
   }
 )
 table.insert(
@@ -827,7 +826,7 @@ table.insert(
       mincost = 108726.688,
       maxcost = 180000
     }, -- TLL Mini Hero
-    max_wavecost = 40
+    max_wavecost = 30
   }
 )
 table.insert(
@@ -844,9 +843,9 @@ table.insert(
     }, -- ARM Stratus
     ground = {
       mincost = 256999,
-      maxcost = 1011695
+      maxcost = 1511695
     }, -- TALON INDEPENDENCE - Pizza
-    max_wavecost = 40
+    max_wavecost = 25
   }
 )
 table.insert(
@@ -863,8 +862,8 @@ table.insert(
     }, -- ARM Stratus
     ground = {
       mincost = 256999,
-      maxcost = 1011695
+      maxcost = 1511695
     }, -- TALON INDEPENDENCE - Pizza
-    max_wavecost = 40
+    max_wavecost = 25
   }
 )
