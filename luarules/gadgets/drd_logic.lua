@@ -1430,7 +1430,7 @@ if (gadgetHandler:IsSyncedCode()) then
         local waveUnits
         local superUnits
         if self._queenID then
-            waveUnits = w:GetWave(kingAnger, self.kingMaxUnits * SetCount(humanTeams), self.costMultiplier)
+            waveUnits = w:GetWave(kingAnger, self.kingMaxUnits, self.costMultiplier)
         else
             waveUnits = w:GetWave(kingAnger, self.maxRobots, self.costMultiplier)
             if superUnitsAnger > 0 then
@@ -1908,7 +1908,7 @@ if (gadgetHandler:IsSyncedCode()) then
     if (settingModes[highestLevel] == INSANE) then
         settingMaxBurrows = math.max(settingMaxBurrows * 1.5, 50)
     else
-        settingMaxBurrows = settingMaxBurrows * math.floor(SetCount(humanTeams) * 1.334)
+        settingMaxBurrows = settingMaxBurrows
     end
 
     --------------------------------------------------------------------------------
