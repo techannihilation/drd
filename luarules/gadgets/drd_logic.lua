@@ -1272,7 +1272,7 @@ if (gadgetHandler:IsSyncedCode()) then
             --    self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
             -- end
             self._idleOrderQueue[unitID] = {
-                cmd = CMD.ATTACK,
+                cmd = CMD.FIGHT,
                 params = targetPos,
                 opts = {}
             }
