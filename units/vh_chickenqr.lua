@@ -316,7 +316,7 @@ local weaponDefs = {
 		weapontype = "Flame",
 		weaponvelocity = 450,
 		damage = {
-			default = 500,
+			default = 750             ,
 		},
 	},
 	KROGCRUSH1 = { -- what is that?
@@ -420,7 +420,7 @@ local weaponDefs = {
 		},
 		damage = {
 			commanders = 3750,
-			default = 15000,
+			default = 60000,
 		},
 	},
 	shield = { -- 4x talon_pyramid
