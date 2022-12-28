@@ -327,7 +327,8 @@ settingBlackList = {
 	armcsat = true,
 	tllcsat = true,
 	corcsat = true,
-	talon_csat = true
+	talon_csat = true,
+  talon_skynet = true
 }
 
 local aaUnits = {
@@ -439,7 +440,8 @@ difficulties = {
     minRobots = 0,
     maxRobots = 30,
     spawnChance = 45,
-    damageMod = 0.6
+    damageMod = 0.6,
+    kingMaxUnits = 15
   },
   [EASY] = {
     numWaves = 24,
@@ -457,7 +459,8 @@ difficulties = {
     minRobots = 8,
     maxRobots = 40,
     spawnChance = 55,
-    damageMod = 0.75
+    damageMod = 0.75,
+    kingMaxUnits = 20
   },
   [NORMAL] = {
     numWaves = 30,
@@ -475,7 +478,8 @@ difficulties = {
     minRobots = 12,
     maxRobots = 60,
     spawnChance = 65,
-    damageMod = 1
+    damageMod = 1,
+    kingMaxUnits = 30
   },
   [HARD] = {
     numWaves = 34,
@@ -493,7 +497,8 @@ difficulties = {
     minRobots = 16,
     maxRobots = 65,
     spawnChance = 75,
-    damageMod = 1.1
+    damageMod = 1.1,
+    kingMaxUnits = 32
   },
   [VERYHARD] = {
     numWaves = 53,
@@ -509,9 +514,10 @@ difficulties = {
       defenders
     ),
     minRobots = 20,
-    maxRobots = 70,
+    maxRobots = 50,
     spawnChance = 80,
-    damageMod = 1.15
+    damageMod = 1.15,
+    kingMaxUnits = 35
   },
   [INSANE] = {
     numWaves = 80,
@@ -527,9 +533,10 @@ difficulties = {
       defenders
     ),
     minRobots = 30,
-    maxRobots = 80,
+    maxRobots = 60,
     spawnChance = 80,
-    damageMod = 1.2
+    damageMod = 1.2,
+    kingMaxUnits = 40
   },
   [CUSTOM] = {
     numWaves = tonumber(
@@ -592,7 +599,8 @@ difficulties = {
 
       ).mo_custom_damagemod
     ) or
-      1.2)
+      1.2),
+    kingMaxUnits = 40
   },
   [SURVIVAL] = {
     numWaves = 80,
@@ -610,7 +618,8 @@ difficulties = {
     minRobots = 9,
     maxRobots = 60,
     spawnChance = 40,
-    damageMod = 1
+    damageMod = 1,
+    kingMaxUnits = 30
   }
 }
 
@@ -624,11 +633,12 @@ settingDefaultDifficulty =
 -- settingWaves structure
 -- [<% kingAnger>] = {
 --   anger = <% of kinganger>
+--   units_multi = minRobots = <this * minRobots>, maxRobots = <this * maxRobots>
 --   <class> = {
 --      mincost = <min cost of unit>
 --      maxcost = <max cost of unit * mo_custom_cost_multiplier>
 --   },
---   max_wavecost = <max cost of wave (num of wave units * this% * mo_custom_cost_multiplier)>
+--   max_wavecost = <max cost of wave (num of wave units * this * mo_custom_cost_multiplier)>
 -- }
 
 settingWaves = {}
@@ -636,6 +646,7 @@ table.insert(
   settingWaves,
   {
     anger = 0,
+    units_multi = 1,
     air = {
       mincost = 0,
       maxcost = 80
@@ -655,6 +666,7 @@ table.insert(
   settingWaves,
   {
     anger = 5,
+    units_multi = 1,
     air = {
       mincost = 0,
       maxcost = 80
@@ -674,6 +686,7 @@ table.insert(
   settingWaves,
   {
     anger = 10,
+    units_multi = 1,
     air = {
       mincost = 0,
       maxcost = 275
@@ -693,6 +706,7 @@ table.insert(
   settingWaves,
   {
     anger = 20,
+    units_multi = 1,
     air = {
       mincost = 80,
       maxcost = 275
@@ -712,6 +726,7 @@ table.insert(
   settingWaves,
   {
     anger = 30,
+    units_multi = 1,
     air = {
       mincost = 276,
       maxcost = 683
@@ -731,6 +746,7 @@ table.insert(
   settingWaves,
   {
     anger = 40,
+    units_multi = 1,
     air = {
       mincost = 276,
       maxcost = 683
@@ -750,6 +766,7 @@ table.insert(
   settingWaves,
   {
     anger = 50,
+    units_multi = 1,
     air = {
       mincost = 276,
       maxcost = 683
@@ -769,6 +786,7 @@ table.insert(
   settingWaves,
   {
     anger = 60,
+    units_multi = 0.6,
     air = {
       mincost = 276,
       maxcost = 3942
@@ -788,6 +806,7 @@ table.insert(
   settingWaves,
   {
     anger = 70,
+    units_multi = 0.5,
     air = {
       mincost = 3942,
       maxcost = 7600
@@ -807,6 +826,7 @@ table.insert(
   settingWaves,
   {
     anger = 80,
+    units_multi = 0.4,
     air = {
       mincost = 7600,
       maxcost = 17244
@@ -826,6 +846,7 @@ table.insert(
   settingWaves,
   {
     anger = 90,
+    units_multi = 0.3,
     air = {
       mincost = 7600,
       maxcost = 17244
@@ -845,6 +866,7 @@ table.insert(
   settingWaves,
   {
     anger = 100,
+    units_multi = 0.3,
     air = {
       mincost = 7600,
       maxcost = 17244

@@ -423,9 +423,9 @@ local options = {
         name = "Chicken max age",
         desc = "Maximum chicken age in seconds.",
         type = "number",
-        def = 300,
-        min = 30,
-        max = 600,
+        def = 600,
+        min = 150,
+        max = 1200,
         step = 10,
         section = "chicken"
     },

@@ -347,6 +347,8 @@ if (gadgetHandler:IsSyncedCode()) then
         end
         -- Echo("waveAnger: " .. waveSettings.anger)
 
+        maxUnits = math.ceil(maxUnits * waveSettings.units_multi)
+
         -- Calculate percentages
         local havePercent = self._groundPercent
         if waveSettings.air.maxcost > 0 then
@@ -1782,10 +1784,10 @@ if (gadgetHandler:IsSyncedCode()) then
                         else
                             weaponName = WeaponDefs[weaponID].description
                         end
-                        Echo(
-                            "Queen is becoming resistant to " ..
-                                UnitDefs[attackerDefID].humanName .. "'s attacks (" .. weaponName .. ")"
-                        )
+                        -- Echo(
+                        --     "Queen is becoming resistant to " ..
+                        --         UnitDefs[attackerDefID].humanName .. "'s attacks (" .. weaponName .. ")"
+                        -- )
                         self._queenResistance[weaponID].notify = 1
                         for i = 1, 20, 1 do
                             table.insert(
