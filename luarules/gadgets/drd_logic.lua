@@ -1267,22 +1267,11 @@ if (gadgetHandler:IsSyncedCode()) then
         local targetPos = {
             GetUnitPosition(target)
         }
-        if unitID ~= self._queenID then
-            -- if GetUnitNeutral(target) then
-            --    self._idleOrderQueue[unitID] = {cmd = CMD.ATTACK, params = targetPos, opts = {}}
-            -- end
-            self._idleOrderQueue[unitID] = {
-                cmd = CMD.FIGHT,
-                params = targetPos,
-                opts = {}
-            }
-        else
-            self._idleOrderQueue[unitID] = {
-                cmd = CMD.FIGHT,
-                params = targetPos,
-                opts = {}
-            }
-        end
+        self._idleOrderQueue[unitID] = {
+            cmd = CMD.MOVE,
+            params = targetPos,
+            opts = {}
+        }
     end
 
     function RobotTeam:UnitDamaged(

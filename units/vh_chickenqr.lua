@@ -47,6 +47,7 @@ local unitDef = {
 	maxSlope = 128,
 	maxVelocity = 2.7,
 	maxWaterDepth = 666,
+	maxRange = 6666,
 	metalMake = 6666.66,
 	metalStorage = 0,
 	mobilestandorders = 1,
