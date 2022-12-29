@@ -1036,7 +1036,10 @@ if (gadgetHandler:IsSyncedCode()) then
                 },
                 opts = {}
             }
+        else
+            Echo("No target for queen after spawn")
         end
+
         self._burrows[self._queenID] = 0
         self._spawnQueue = {}
         self._oldMaxRobots = self.maxRobots
@@ -1854,8 +1857,10 @@ if (gadgetHandler:IsSyncedCode()) then
                 highestLevel = settingModes[teamLuaAI]
                 highestLevelTeamID = teamID
             end
+            -- Echo(string.format("Adding Robot Team %d", teamID))
             computerTeams[teamID] = RobotTeam(teamID, teamLuaAI)
         else
+            -- Echo(string.format("Adding Human Team %d", teamID))
             humanTeams[teamID] = HumanTeam(teamID)
         end
     end
@@ -2030,7 +2035,19 @@ if (gadgetHandler:IsSyncedCode()) then
             return
         end
 
-        if n == 15 then
+        if ((n % 90) == 0) then
+            -- Cleanup human Teams (remove dead)
+            for teamID, humanTeam in ipairs(humanTeams) do
+                if humanTeam.UnitsCount() < 1 or humanTeam.isDead() then
+                    Echo("Remove human team")
+                    table.removekey(teamID)
+                else
+                    Echo("Human team %d has %d units", teamID, huamnTeam.UnitsCount())
+                end
+            end
+        end
+
+        if n == 15 then  
             -- Get rid of the AI
             for teamID in pairs(computerTeams) do
                 local teamUnits = GetTeamUnits(teamID)
