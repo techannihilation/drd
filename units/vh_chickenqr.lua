@@ -7,7 +7,7 @@ local unitName = "vh_chickenqr"
 
 local unitDef = {
 	acceleration = 0.666,
-	brakerate = 0.666,
+	brakerate = 1.215,
 	autoHeal = 33.33,
 	activateWhenBuilt = true,
 	airSightDistance = 2400,
@@ -45,7 +45,7 @@ local unitDef = {
 	mass = 6666666666,
 	maxDamage = 9200000, -- double talon_independence
 	maxSlope = 128,
-	maxVelocity = 1.3,
+	maxVelocity = 1.666,
 	maxWaterDepth = 666,
 	maxRange = 666,
 	metalMake = 6666.66,
