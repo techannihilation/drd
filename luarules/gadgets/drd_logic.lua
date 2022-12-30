@@ -2038,7 +2038,7 @@ if (gadgetHandler:IsSyncedCode()) then
         if ((n % 90) == 0) then
             -- Cleanup human Teams (remove dead)
             for teamID, humanTeam in ipairs(humanTeams) do
-                if humanTeam.UnitsCount() < 1 or humanTeam.isDead() then
+                if humanTeam == nil or humanTeam.UnitsCount() < 1 or humanTeam.isDead() then
                     Echo("Remove human team")
                     table.removekey(teamID)
                 else
