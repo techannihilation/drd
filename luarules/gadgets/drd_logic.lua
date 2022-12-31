@@ -905,31 +905,23 @@ if (gadgetHandler:IsSyncedCode()) then
                     )
                 end
 
-                if (self._queenID) then
+                local target = chooseTarget(unitID)
+                if (target ~= nil) then
+                    local targetPosition = {
+                        GetUnitPosition(target)
+                    }
                     self._idleOrderQueue[unitID] = {
                         cmd = CMD.FIGHT,
-                        params = getRandomMapPos(),
+                        params = targetPosition,
                         opts = {}
                     }
-                else
-                    local target = chooseTarget(unitID)
-                    if (target ~= nil) then
-                        local targetPosition = {
-                            GetUnitPosition(target)
-                        }
-                        self._idleOrderQueue[unitID] = {
-                            cmd = CMD.FIGHT,
-                            params = targetPosition,
-                            opts = {}
-                        }
-                        self._chickenBirths[unitID] = {
-                            deathDate = self._gameTimeSeconds + self._maxAge,
-                            burrowID = defs.burrow
-                        }
-                    end
-
-                    self._chickenCount = self._chickenCount + 1
+                    self._chickenBirths[unitID] = {
+                        deathDate = self._gameTimeSeconds + self._maxAge,
+                        burrowID = defs.burrow
+                    }
                 end
+
+                self._chickenCount = self._chickenCount + 1
             end
         end
 
@@ -1037,7 +1029,15 @@ if (gadgetHandler:IsSyncedCode()) then
                 opts = {}
             }
         else
-            Echo("No target for queen after spawn")
+            self._idleOrderQueue[self._queenID] = {
+                cmd = CMD.IDLEMODE,
+                params = {
+                    0
+                },
+                opts = {
+                    "shift"
+                }
+            }
         end
 
         self._burrows[self._queenID] = 0
