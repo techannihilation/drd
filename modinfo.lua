@@ -8,7 +8,7 @@ return {
     shortGame = "TA",
     modtype = 1,
     depend = {
-        "Tech Annihilation test-10896-5d1bafe",
+        "Tech Annihilation test-10905-59391bf",
     },
     NTAI = {
         tdfpath = "TA"
