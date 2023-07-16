@@ -97,7 +97,7 @@ newWaveSquad = {}
 bonusTurret5a =
   "armflak"
 bonusTurret5b =
-  "arm_big_bertha"
+  "armbrtha2"
 bonusTurret7a =
   "corpre"
 bonusTurret7b =

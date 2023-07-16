@@ -663,24 +663,32 @@ if (gadgetHandler:IsSyncedCode()) then
         self._defendersDefs = {}
 
         for unitName in pairs(self.chickenTypes) do
-            --Echo("Adding unitname to spawner database:= " .. unitName)
-            self._chickenDefTypes[UnitDefNames[unitName].id] = unitName
-            self._unitCounts[(unitName)] = {
-                count = 0,
-                lastCount = 0
-            }
+            if (UnitDefNames[unitName] ~= nil) then
+                --Echo("Adding unitname to spawner database:= " .. unitName)
+                self._chickenDefTypes[UnitDefNames[unitName].id] = unitName
+                self._unitCounts[(unitName)] = {
+                    count = 0,
+                    lastCount = 0
+                }
 
-            -- this is needed for the GUI widget
-            SetGameRulesParam(unitName .. "Count", 0)
-            SetGameRulesParam(unitName .. "Kills", 0)
+                -- this is needed for the GUI widget
+                SetGameRulesParam(unitName .. "Count", 0)
+                SetGameRulesParam(unitName .. "Kills", 0)
+            else
+                Echo("Unknown Chicken Type: ", unitName)
+            end
         end
 
         for unitName in pairs(self.defenders) do
-            self._defendersDefs[UnitDefNames[unitName].id] = unitName
+            if (UnitDefNames[unitName] ~= nil) then
+                self._defendersDefs[UnitDefNames[unitName].id] = unitName
 
-            -- this is needed for the GUI widget
-            SetGameRulesParam(unitName .. "Count", 0)
-            SetGameRulesParam(unitName .. "Kills", 0)
+                -- this is needed for the GUI widget
+                SetGameRulesParam(unitName .. "Count", 0)
+                SetGameRulesParam(unitName .. "Kills", 0)
+            else
+                Echo("Unknown Defender: ", unitName)
+            end
         end
 
         -- this is needed for the GUI widget
